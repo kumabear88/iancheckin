@@ -3,44 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>校園自助點名系統</title>
+    <title>🌟 校園自助點名系統 🌟</title>
     <style>
-        /* CSS Reset & Variables */
+        /* CSS Reset & Variables - 🌊 海洋藍可愛風格 🌊 */
         :root {
-            --bg-color: #f3f4f6;
-            --primary: #2563eb;
-            --primary-hover: #1d4ed8;
-            --primary-light: #dbeafe;
-            --indigo: #4f46e5;
-            --indigo-hover: #4338ca;
-            --indigo-light: #e0e7ff;
-            --success: #16a34a;
-            --success-bg: #dcfce7;
-            --danger: #dc2626;
+            /* 學生端主色：海洋藍 */
+            --primary: #0ea5e9;
+            --primary-hover: #0284c7;
+            --primary-light: #e0f2fe;
+            
+            /* 老師端主色：深海藍 */
+            --indigo: #3b82f6;
+            --indigo-hover: #2563eb;
+            --indigo-light: #eff6ff;
+            
+            /* 背景與其他狀態色 */
+            --bg-color: #f0f9ff; /* 極淺的海水背景 */
+            --success: #10b981;
+            --success-bg: #d1fae5;
+            --danger: #ef4444;
             --danger-bg: #fee2e2;
-            --warning: #ea580c;
-            --warning-bg: #ffedd5;
-            --info: #0284c7;
+            --warning: #f59e0b;
+            --warning-bg: #fef3c7;
+            --info: #0ea5e9;
             --info-bg: #e0f2fe;
+            
+            /* 中性色 */
             --gray-100: #f3f4f6;
             --gray-200: #e5e7eb;
             --gray-300: #d1d5db;
             --gray-500: #6b7280;
-            --gray-800: #1f2937;
+            --gray-800: #374151;
             --white: #ffffff;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --radius: 0.75rem;
+            
+            /* 圓角與陰影加大，增加Q彈感 */
+            --shadow: 0 10px 15px -3px rgba(14, 165, 233, 0.1), 0 4px 6px -2px rgba(14, 165, 233, 0.05);
+            --radius: 1.5rem; 
         }
 
+        /* 活潑可愛的字體設定 */
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            font-family: 'Comic Sans MS', 'Chalkboard SE', '微軟正黑體', 'Microsoft JhengHei', sans-serif;
         }
 
         body {
             background-color: var(--bg-color);
+            /* 加上可愛的圓點背景 */
+            background-image: radial-gradient(var(--primary-light) 2px, transparent 2px);
+            background-size: 30px 30px;
             color: var(--gray-800);
             min-height: 100vh;
         }
@@ -65,16 +78,17 @@
         /* Navigation */
         nav {
             background-color: var(--white);
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 6px -1px rgba(14, 165, 233, 0.2);
             position: sticky;
             top: 0;
             z-index: 40;
+            border-bottom: 3px solid var(--primary-light);
         }
         .nav-container {
             max-width: 64rem;
             margin: 0 auto;
             padding: 0 1rem;
-            height: 3.5rem;
+            height: 4rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -82,7 +96,7 @@
         .nav-brand {
             color: var(--primary-hover);
             font-weight: bold;
-            font-size: 1.125rem;
+            font-size: 1.25rem;
             display: flex;
             align-items: center;
             gap: 0.5rem;
@@ -90,19 +104,20 @@
         .nav-buttons button {
             background: transparent;
             border: none;
-            padding: 0.375rem 1rem;
+            padding: 0.5rem 1.25rem;
             border-radius: 9999px;
-            font-weight: 500;
+            font-weight: bold;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             color: var(--gray-500);
+            font-size: 1rem;
         }
-        .nav-buttons button:hover { background-color: var(--gray-100); }
-        .nav-buttons button.active-student { background-color: var(--primary-light); color: var(--primary-hover); }
-        .nav-buttons button.active-teacher { background-color: var(--indigo-light); color: var(--indigo-hover); }
+        .nav-buttons button:hover { background-color: var(--gray-100); transform: scale(1.05); }
+        .nav-buttons button.active-student { background-color: var(--primary-light); color: var(--primary-hover); box-shadow: 0 2px 4px rgba(14, 165, 233, 0.2); }
+        .nav-buttons button.active-teacher { background-color: var(--indigo-light); color: var(--indigo-hover); box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2); }
 
         /* Main Container */
-        main { padding: 2rem 1rem; max-width: 64rem; margin: 0 auto; min-height: 80vh; }
+        main { padding: 2rem 1rem; max-width: 64rem; margin: 0 auto; min-height: 80vh; position: relative; }
 
         /* Card Styles */
         .card {
@@ -111,138 +126,182 @@
             box-shadow: var(--shadow);
             overflow: hidden;
             margin-bottom: 1.5rem;
+            border: 4px solid var(--white); /* 增加白邊效果 */
         }
-        .card-header { padding: 1.5rem; color: white; text-align: center; }
-        .card-header.student { background-color: var(--primary); }
-        .card-header.teacher { background-color: var(--indigo); }
-        .card-body { padding: 1.5rem; }
+        .card-header { padding: 1.75rem; color: white; text-align: center; border-radius: calc(var(--radius) - 4px) calc(var(--radius) - 4px) 0 0; }
+        .card-header.student { background: linear-gradient(135deg, var(--primary), var(--primary-hover)); }
+        .card-header.teacher { background: linear-gradient(135deg, var(--indigo), var(--indigo-hover)); }
+        .card-body { padding: 1.75rem; }
 
         /* Forms */
-        label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: var(--gray-800); }
+        label { display: block; margin-bottom: 0.5rem; font-weight: bold; color: var(--gray-800); font-size: 1.1rem; }
         select, input {
             width: 100%;
-            padding: 0.75rem;
-            border: 1px solid var(--gray-300);
-            border-radius: 0.5rem;
-            font-size: 1rem;
+            padding: 0.875rem;
+            border: 2px solid var(--gray-200);
+            border-radius: 1rem;
+            font-size: 1.1rem;
             outline: none;
-            transition: border-color 0.2s;
+            transition: all 0.2s;
+            background-color: #fafafa;
         }
-        select:focus, input:focus { border-color: var(--primary); }
-        select:disabled { background-color: var(--gray-100); opacity: 0.7; }
+        select:focus, input:focus { border-color: var(--primary); background-color: #fff; box-shadow: 0 0 0 3px var(--primary-light); }
+        select:disabled { background-color: var(--gray-100); opacity: 0.6; cursor: not-allowed; }
         
-        .form-group { margin-bottom: 1.25rem; }
+        .form-group { margin-bottom: 1.5rem; }
 
         /* Buttons */
         .btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            padding: 0.75rem 1.5rem;
+            padding: 0.875rem 1.5rem;
             border: none;
-            border-radius: 0.5rem;
+            border-radius: 1rem;
             font-weight: bold;
-            font-size: 1rem;
+            font-size: 1.1rem;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
             gap: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .btn-primary { background-color: var(--primary); color: white; }
-        .btn-primary:hover:not(:disabled) { background-color: var(--primary-hover); }
-        .btn-indigo { background-color: var(--indigo); color: white; }
-        .btn-indigo:hover:not(:disabled) { background-color: var(--indigo-hover); }
-        .btn-outline { background-color: var(--gray-100); color: var(--gray-800); }
-        .btn-outline:hover { background-color: var(--gray-200); }
-        .btn-sm { padding: 0.4rem 0.8rem; font-size: 0.875rem; }
-        .btn-group { display: flex; gap: 0.25rem; background: var(--gray-100); padding: 0.25rem; border-radius: 0.5rem; }
-        .btn-group button { background: transparent; color: var(--gray-500); padding: 0.4rem 0.75rem; border-radius: 0.375rem; font-size: 0.875rem; border: none; cursor: pointer; transition: 0.2s; font-weight: bold;}
-        .btn-group button.active { background: var(--white); color: var(--indigo); box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .btn:active:not(:disabled) { transform: scale(0.95); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        
+        .btn-primary { background-color: var(--primary); color: white; box-shadow: 0 4px 0 #0284c7; }
+        .btn-primary:hover:not(:disabled) { background-color: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 6px 0 #0284c7; }
+        .btn-primary:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 2px 0 #0284c7; }
+        
+        .btn-indigo { background-color: var(--indigo); color: white; box-shadow: 0 4px 0 #2563eb; }
+        .btn-indigo:hover:not(:disabled) { background-color: var(--indigo-hover); transform: translateY(-2px); box-shadow: 0 6px 0 #2563eb; }
+        .btn-indigo:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 2px 0 #2563eb; }
+        
+        .btn-outline { background-color: var(--gray-100); color: var(--gray-800); box-shadow: 0 4px 0 var(--gray-300); }
+        .btn-outline:hover { background-color: var(--gray-200); transform: translateY(-2px); box-shadow: 0 6px 0 var(--gray-300); }
+        .btn-outline:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--gray-300); }
+        
+        .btn-sm { padding: 0.5rem 1rem; font-size: 0.95rem; box-shadow: 0 3px 0 rgba(0,0,0,0.1) !important; }
+        
+        .btn-group { display: flex; gap: 0.5rem; background: var(--gray-100); padding: 0.375rem; border-radius: 1rem; }
+        .btn-group button { background: transparent; color: var(--gray-500); padding: 0.5rem 1rem; border-radius: 0.75rem; font-size: 0.95rem; border: none; cursor: pointer; transition: 0.2s; font-weight: bold;}
+        .btn-group button.active { background: var(--white); color: var(--indigo); box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
 
         /* Alerts */
         .alert {
+            padding: 1.25rem;
+            border-radius: 1rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            font-weight: bold;
+            font-size: 1.1rem;
+            animation: bounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes bounceIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .alert-success { background-color: var(--success-bg); color: var(--success); border: 2px dashed #6ee7b7; }
+        .alert-error { background-color: var(--danger-bg); color: var(--danger); border: 2px dashed #fca5a5; }
+
+        /* Warning Box */
+        .warning-box {
+            background-color: #fffbeb;
+            border: 2px dashed #fcd34d;
+            color: #b45309;
             padding: 1rem;
-            border-radius: 0.5rem;
+            border-radius: 1rem;
+            margin-bottom: 1.5rem;
             display: flex;
             align-items: center;
             gap: 0.75rem;
-            margin-bottom: 1.5rem;
-            font-weight: 500;
+            font-weight: bold;
+            font-size: 0.95rem;
         }
-        .alert-success { background-color: var(--success-bg); color: var(--success); border: 1px solid #bbf7d0; }
-        .alert-error { background-color: var(--danger-bg); color: var(--danger); border: 1px solid #fecaca; }
 
         /* Student Card Status Indicator */
         .student-info-box {
             background-color: var(--primary-light);
-            border: 1px solid #bfdbfe;
-            padding: 1rem;
-            border-radius: 0.5rem;
+            border: 2px dashed #7dd3fc;
+            padding: 1.5rem;
+            border-radius: 1rem;
             text-align: center;
             margin-bottom: 1.5rem;
+            animation: pulse 2s infinite;
         }
-        .student-info-box p.title { color: var(--gray-500); font-size: 0.875rem; }
-        .student-info-box p.name { color: var(--primary-hover); font-size: 1.25rem; font-weight: bold; margin-top: 0.25rem; }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+            100% { transform: scale(1); }
+        }
+        .student-info-box p.title { color: var(--primary-hover); font-size: 1rem; font-weight: bold; margin-bottom: 0.5rem; }
+        .student-info-box p.name { color: #0c4a6e; font-size: 1.75rem; font-weight: bold; }
 
         /* Teacher Dashboard Grid */
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; }
-        .stat-box { padding: 0.75rem; border-radius: 0.5rem; text-align: center; border: 1px solid; }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; }
+        .stat-box { padding: 1rem 0.5rem; border-radius: 1rem; text-align: center; border: 2px solid; background: white; transition: transform 0.2s; }
+        .stat-box:hover { transform: translateY(-3px); }
         .stat-box span { display: block; }
-        .stat-box .title { font-size: 0.75rem; font-weight: bold; margin-bottom: 0.25rem; }
-        .stat-box .value { font-size: 1.5rem; font-weight: bold; }
+        .stat-box .title { font-size: 0.9rem; font-weight: bold; margin-bottom: 0.25rem; }
+        .stat-box .value { font-size: 1.75rem; font-weight: bold; }
         
-        .stat-total { background-color: var(--gray-100); border-color: var(--gray-200); color: var(--gray-800); }
-        .stat-present { background-color: var(--success-bg); border-color: #bbf7d0; color: var(--success); }
-        .stat-late { background-color: var(--warning-bg); border-color: #fed7aa; color: var(--warning); }
-        .stat-leave { background-color: var(--info-bg); border-color: #bae6fd; color: var(--info); }
+        .stat-total { border-color: var(--gray-300); color: var(--gray-800); }
+        .stat-present { border-color: #34d399; color: var(--success); }
+        .stat-late { border-color: #fbbf24; color: var(--warning); }
+        .stat-leave { border-color: #38bdf8; color: var(--info); }
 
         /* Student List Grid */
         .student-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 0.75rem;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 1rem;
             margin-top: 1rem;
         }
         .student-card {
             position: relative;
-            padding: 0.75rem;
-            border-radius: 0.75rem;
-            border: 2px solid transparent;
-            background-color: var(--gray-100);
+            padding: 1rem;
+            border-radius: 1rem;
+            border: 2px solid var(--gray-200);
+            background-color: var(--white);
             cursor: pointer;
-            transition: all 0.2s;
-            text-align: left;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
-        .student-card:hover { background-color: var(--gray-200); }
-        .student-card .seat { font-size: 0.75rem; font-weight: bold; opacity: 0.7; margin-bottom: 0.25rem; }
-        .student-card .name { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 1.5rem; }
-        .student-card .icon-abs { position: absolute; top: 0.5rem; right: 0.5rem; }
+        .student-card:hover { transform: translateY(-4px); box-shadow: 0 6px 12px rgba(0,0,0,0.1); border-color: var(--indigo-light); }
+        .student-card .seat { display: inline-block; background: var(--gray-100); padding: 0.2rem 0.6rem; border-radius: 1rem; font-size: 0.8rem; font-weight: bold; color: var(--gray-500); margin-bottom: 0.5rem; }
+        .student-card .name { font-weight: bold; font-size: 1.1rem; color: var(--gray-800); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .student-card .icon-abs { position: absolute; top: -8px; right: -8px; background: white; border-radius: 50%; box-shadow: 0 2px 4px rgba(0,0,0,0.1); width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; }
         .student-card.selected { border-color: var(--indigo); transform: scale(1.05); box-shadow: var(--shadow); z-index: 10; }
-        .student-card.editing { cursor: default; opacity: 0.9; }
-        .student-card.editing:hover { background-color: var(--gray-100); }
+        .student-card.editing { cursor: default; }
+        .student-card.editing:hover { transform: none; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-color: var(--gray-200); }
+
+        /* Status Colors for Student Cards */
+        .status-present { background-color: var(--success-bg); border-color: #6ee7b7; }
+        .status-late { background-color: var(--warning-bg); border-color: #fcd34d; }
+        .status-leave { background-color: var(--info-bg); border-color: #7dd3fc; }
 
         /* Table View */
-        .table-responsive { overflow-x: auto; margin-top: 1rem; border-radius: 0.5rem; border: 1px solid var(--gray-200); }
+        .table-responsive { overflow-x: auto; margin-top: 1rem; border-radius: 1rem; border: 2px solid var(--gray-200); background: white; }
         table { width: 100%; border-collapse: collapse; min-width: 500px; text-align: left; }
-        th, td { padding: 0.75rem 1rem; border-bottom: 1px solid var(--gray-200); font-size: 0.95rem; }
-        th { background-color: var(--gray-100); font-weight: bold; color: var(--gray-500); }
+        th, td { padding: 1rem; border-bottom: 1px solid var(--gray-100); font-size: 1rem; }
+        th { background-color: #f8fafc; font-weight: bold; color: var(--gray-500); text-transform: uppercase; letter-spacing: 0.05em; font-size: 0.85rem;}
         tr:last-child td { border-bottom: none; }
-        tr:hover { background-color: #f9fafb; }
-        .badge { display: inline-flex; align-items: center; padding: 0.25rem 0.5rem; border-radius: 9999px; font-size: 0.75rem; font-weight: bold; gap: 0.25rem;}
+        tr:hover { background-color: #f1f5f9; }
+        .badge { display: inline-flex; align-items: center; padding: 0.35rem 0.75rem; border-radius: 9999px; font-size: 0.85rem; font-weight: bold; gap: 0.35rem;}
 
-        /* Status Colors for Student Cards & Badges */
-        .status-present { background-color: var(--success-bg); border-color: #bbf7d0; color: #166534; }
-        .status-late { background-color: var(--warning-bg); border-color: #fed7aa; color: #9a3412; }
-        .status-leave { background-color: var(--info-bg); border-color: #bae6fd; color: #075985; }
-        .status-missing { background-color: var(--gray-200); color: var(--gray-500); }
+        .status-missing { background-color: var(--gray-100); color: var(--gray-500); }
 
         .delete-btn {
             color: var(--danger);
             cursor: pointer;
             padding: 0.25rem;
             border-radius: 50%;
+            transition: 0.2s;
         }
-        .delete-btn:hover { background-color: var(--danger-bg); }
+        .delete-btn:hover { background-color: var(--danger-bg); transform: scale(1.1); }
 
         /* Modal / Action Bar */
         .modal-bottom {
@@ -251,11 +310,12 @@
             left: 0;
             right: 0;
             background: white;
-            box-shadow: 0 -10px 40px rgba(0,0,0,0.1);
-            border-top: 1px solid var(--gray-200);
-            padding: 1rem;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.15);
+            border-top: 3px solid var(--indigo-light);
+            padding: 1.5rem 1rem;
             z-index: 50;
-            animation: slideUp 0.3s ease-out;
+            animation: slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border-radius: 1.5rem 1.5rem 0 0;
         }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         
@@ -266,34 +326,62 @@
             align-items: center;
             justify-content: space-between;
             flex-wrap: wrap;
-            gap: 1rem;
+            gap: 1.5rem;
         }
         
         /* Layout Helpers */
         .col-span-1 { grid-column: span 1 / span 1; }
         .col-span-3 { grid-column: span 3 / span 3; }
         @media (min-width: 768px) {
-            .md-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+            .md-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
             .md-flex-row { flex-direction: row; align-items: center; justify-content: space-between; }
         }
 
         /* SVG Icons */
-        svg { width: 1.25rem; height: 1.25rem; }
-        .icon-lg { width: 4rem; height: 4rem; }
+        svg { width: 1.5rem; height: 1.5rem; }
+        .icon-lg { width: 4.5rem; height: 4.5rem; }
+
+        /* ====== 彩帶特效 (Confetti) ====== */
+        #confetti-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
+            overflow: hidden;
+        }
+        .confetti-piece {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            top: -20px;
+            border-radius: 3px;
+            animation: fall linear forwards;
+        }
+        .confetti-piece.circle { border-radius: 50%; }
+        @keyframes fall {
+            0% { transform: translateY(0) rotate(0deg) rotateX(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg) rotateX(360deg); opacity: 0.5; }
+        }
     </style>
 </head>
 <body>
+
+    <!-- 特效容器 -->
+    <div id="confetti-container"></div>
 
     <!-- Navigation -->
     <nav>
         <div class="nav-container">
             <div class="nav-brand">
-                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
-                校園自助點名
+                <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
+                <span>校園快樂點名</span>
             </div>
             <div class="nav-buttons">
-                <button id="nav-student" class="active-student" onclick="switchView('student')">學生點名</button>
-                <button id="nav-teacher" onclick="switchView('teacherLogin')">老師管理</button>
+                <button id="nav-student" class="active-student" onclick="switchView('student')">👶 學生報到</button>
+                <button id="nav-teacher" onclick="switchView('teacherLogin')">👩‍🏫 老師管理</button>
             </div>
         </div>
     </nav>
@@ -301,39 +389,53 @@
     <main>
         <!-- ================= STUDENT VIEW ================= -->
         <div id="view-student" class="flex flex-col items-center justify-center">
-            <div class="card" style="width: 100%; max-width: 28rem;">
+            <div class="card" style="width: 100%; max-width: 30rem;">
                 <div class="card-header student">
-                    <svg class="icon-lg" style="margin: 0 auto 0.5rem auto; opacity: 0.9;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><polyline points="17 11 19 13 23 9"></polyline></svg>
-                    <h1 class="text-2xl font-bold">學生自助點名系統</h1>
-                    <p class="text-sm" style="color: var(--primary-light); margin-top: 0.25rem;">每人每週限點名一次</p>
+                    <div style="font-size: 4rem; margin-bottom: 0.5rem;">🎒</div>
+                    <h1 class="text-2xl font-bold" style="letter-spacing: 2px;">小朋友自助點名機</h1>
+                    <p class="text-sm" style="color: var(--primary-light); margin-top: 0.5rem; font-weight: bold;">一週只能點一次名喔！</p>
                 </div>
                 <div class="card-body">
+                    
+                    <!-- 🚨 防作弊警告 🚨 -->
+                    <div class="warning-box">
+                        <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="width: 2rem; height: 2rem; flex-shrink: 0;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                        <div>
+                            <strong>老師的溫馨提醒：</strong><br>
+                            請誠實點名！<span style="color: #dc2626;">不可以</span>幫同學代點喔！做個誠實的好孩子 🌟
+                        </div>
+                    </div>
+
                     <div id="student-alert" class="alert hidden">
-                        <svg id="alert-icon" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"></svg>
-                        <span id="alert-text"></span>
+                        <!-- 動態替換圖標或隨機 Emoji 的容器 -->
+                        <div id="alert-icon-container" style="flex-shrink: 0; display: flex; align-items: center; justify-content: center; width: 3rem; height: 3rem;"></div>
+                        <div id="alert-text-container" style="flex-grow: 1;">
+                            <div id="alert-text" style="margin-bottom: 0.25rem;"></div>
+                            <div id="alert-quote" style="font-size: 0.95rem; color: var(--gray-500); font-weight: normal;"></div>
+                        </div>
                     </div>
 
                     <div class="form-group">
-                        <label>請選擇班級</label>
+                        <label>📝 請選擇你的班級</label>
                         <select id="student-class-select" onchange="onStudentClassChange()">
-                            <option value="">-- 選擇班級 --</option>
+                            <option value="">-- 點這裡選擇班級 --</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label>請選擇座號</label>
+                        <label>🪑 請選擇你的座號</label>
                         <select id="student-seat-select" disabled onchange="onStudentSeatChange()">
-                            <option value="">-- 選擇座號 --</option>
+                            <option value="">-- 先選班級才能選座號喔 --</option>
                         </select>
                     </div>
 
                     <div id="student-info-display" class="student-info-box hidden">
-                        <p class="title">確認身分</p>
+                        <p class="title">✨ 是你嗎？請確認身分 ✨</p>
                         <p id="student-info-text" class="name"></p>
                     </div>
 
-                    <button id="btn-checkin" class="btn btn-primary w-full text-xl" style="padding: 1rem;" disabled onclick="handleCheckIn()">
-                        立即報到
+                    <button id="btn-checkin" class="btn btn-primary w-full text-xl" style="padding: 1.25rem; font-size: 1.5rem;" disabled onclick="handleCheckIn()">
+                        🚀 我來上課了！
                     </button>
                 </div>
             </div>
@@ -341,18 +443,16 @@
 
         <!-- ================= TEACHER LOGIN VIEW ================= -->
         <div id="view-teacherLogin" class="flex flex-col items-center justify-center hidden">
-            <div class="card text-center" style="width: 100%; max-width: 24rem;">
-                <div class="card-body" style="padding: 2rem;">
-                    <div style="width: 4rem; height: 4rem; background: var(--indigo-light); color: var(--indigo); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem auto;">
-                        <svg style="width: 2rem; height: 2rem;" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-                    </div>
-                    <h2 class="text-2xl font-bold mb-4" style="margin-bottom: 1.5rem;">老師後台登入</h2>
+            <div class="card text-center" style="width: 100%; max-width: 26rem;">
+                <div class="card-body" style="padding: 2.5rem;">
+                    <div style="font-size: 4rem; margin-bottom: 1rem;">👩‍🏫</div>
+                    <h2 class="text-2xl font-bold mb-4" style="margin-bottom: 1.5rem; color: var(--indigo);">老師後台登入</h2>
                     <form onsubmit="handleLogin(event)">
                         <div class="form-group">
-                            <input type="password" id="login-password" placeholder="請輸入密碼" style="text-align: center;">
-                            <p id="login-error" class="hidden" style="color: var(--danger); font-size: 0.875rem; margin-top: 0.5rem;">密碼錯誤，請重新輸入</p>
+                            <input type="password" id="login-password" placeholder="請輸入通關密碼" style="text-align: center; font-size: 1.25rem; padding: 1rem;">
+                            <p id="login-error" class="hidden" style="color: var(--danger); font-size: 1rem; margin-top: 0.75rem; font-weight: bold;">❌ 哎呀！密碼錯誤，請重新輸入</p>
                         </div>
-                        <button type="submit" class="btn btn-indigo w-full">登入</button>
+                        <button type="submit" class="btn btn-indigo w-full" style="padding: 1rem; font-size: 1.25rem;">開啟大門 🗝️</button>
                     </form>
                 </div>
             </div>
@@ -361,20 +461,16 @@
         <!-- ================= TEACHER DASHBOARD VIEW ================= -->
         <div id="view-teacher" class="hidden" style="padding-bottom: 6rem;">
             <!-- Header -->
-            <div class="card card-body flex md-flex-row gap-4">
+            <div class="card card-body flex md-flex-row gap-4" style="border-color: var(--indigo-light);">
                 <div>
-                    <h1 class="text-2xl font-bold flex items-center gap-2">
-                        <svg style="color: var(--indigo);" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="M9 12l2 2 4-4"></path></svg>
-                        教師點名後台
+                    <h1 class="text-2xl font-bold flex items-center gap-2" style="color: var(--indigo-hover);">
+                        <svg style="color: var(--indigo);" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="M9 12l2 2 4-4"></path></svg>
+                        教師點名管理中心
                     </h1>
-                    <p id="teacher-week-display" class="text-sm" style="color: var(--gray-500); margin-top: 0.25rem;"></p>
                 </div>
                 <div class="flex gap-2">
-                    <button class="btn btn-outline btn-sm" onclick="handleLogout()">
-                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
-                        登出
-                    </button>
-                    <button class="btn btn-outline btn-sm" onclick="switchView('student')">回前台</button>
+                    <button class="btn btn-outline btn-sm" onclick="handleLogout()">登出 👋</button>
+                    <button class="btn btn-indigo btn-sm" onclick="switchView('student')">回前台 🏠</button>
                 </div>
             </div>
 
@@ -382,19 +478,22 @@
             <div class="md-grid" style="margin-bottom: 1.5rem;">
                 <div class="card card-body col-span-1 flex flex-col justify-between" style="margin-bottom: 0;">
                     <div>
-                        <label class="text-sm">切換班級</label>
-                        <select id="teacher-class-select" onchange="onTeacherClassChange()" style="margin-bottom: 1rem;"></select>
+                        <label class="text-sm">📅 切換週次查看</label>
+                        <select id="teacher-week-select" onchange="onTeacherWeekChange()" style="margin-bottom: 1rem; font-weight: bold; color: var(--warning);"></select>
+
+                        <label class="text-sm">🏫 切換班級查看</label>
+                        <select id="teacher-class-select" onchange="onTeacherClassChange()" style="margin-bottom: 1rem; font-weight: bold; color: var(--indigo);"></select>
                     </div>
-                    <button id="btn-toggle-edit" class="btn btn-indigo w-full flex items-center justify-center gap-2" style="background-color: var(--indigo-light); color: var(--indigo);" onclick="toggleEditMode()">
+                    <button id="btn-toggle-edit" class="btn w-full flex items-center justify-center gap-2" style="background-color: var(--indigo-light); color: var(--indigo);" onclick="toggleEditMode()">
                         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                         <span>編輯學生名單</span>
                     </button>
                 </div>
                 <div class="col-span-3 stats-grid">
-                    <div class="stat-box stat-total"><span class="title">總人數</span><span class="value" id="stat-total">0</span></div>
-                    <div class="stat-box stat-present"><span class="title">已報到</span><span class="value" id="stat-present">0</span></div>
-                    <div class="stat-box stat-late"><span class="title">遲到</span><span class="value" id="stat-late">0</span></div>
-                    <div class="stat-box stat-leave"><span class="title">請假</span><span class="value" id="stat-leave">0</span></div>
+                    <div class="stat-box stat-total"><span class="title">👥 總人數</span><span class="value" id="stat-total">0</span></div>
+                    <div class="stat-box stat-present"><span class="title">✅ 已報到</span><span class="value" id="stat-present">0</span></div>
+                    <div class="stat-box stat-late"><span class="title">⏰ 遲到</span><span class="value" id="stat-late">0</span></div>
+                    <div class="stat-box stat-leave"><span class="title">📅 請假</span><span class="value" id="stat-leave">0</span></div>
                 </div>
             </div>
 
@@ -402,10 +501,9 @@
             <div class="card card-body">
                 <div class="flex md-flex-row flex-col gap-4" style="margin-bottom: 1rem;">
                     <div>
-                        <h2 class="text-lg font-bold flex items-center gap-2">
-                            <svg style="color: var(--gray-300);" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
-                            <span id="teacher-class-title"></span>班點名紀錄
-                            <span id="teacher-hint" style="font-weight: normal; font-size: 0.875rem; color: var(--gray-500);">(點擊卡片/按鈕可標記狀態)</span>
+                        <h2 class="text-xl font-bold flex items-center gap-2">
+                            📋 <span id="teacher-class-title" style="color: var(--indigo);"></span> 班 <span id="teacher-week-title" style="color: var(--warning);"></span> 點名紀錄
+                            <span id="teacher-hint" style="font-weight: normal; font-size: 0.95rem; color: var(--gray-500);">(點擊卡片/按鈕可標記狀態)</span>
                         </h2>
                     </div>
 
@@ -413,23 +511,21 @@
                         <!-- View Toggle -->
                         <div class="btn-group">
                             <button id="btn-view-grid" class="active" onclick="setDisplayMode('grid')">
-                                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:1rem; height:1rem; vertical-align: text-bottom; margin-right: 2px;"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>卡片
+                                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:1.2rem; height:1.2rem; vertical-align: text-bottom; margin-right: 2px;"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect></svg>卡片
                             </button>
                             <button id="btn-view-list" onclick="setDisplayMode('list')">
-                                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:1rem; height:1rem; vertical-align: text-bottom; margin-right: 2px;"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>列表
+                                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:1.2rem; height:1.2rem; vertical-align: text-bottom; margin-right: 2px;"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>列表
                             </button>
                         </div>
                     </div>
                 </div>
 
                 <!-- Add Student Form (Hidden by default) -->
-                <form id="add-student-form" class="hidden flex gap-2 items-center mb-4" style="background: var(--gray-100); padding: 0.5rem; border-radius: 0.5rem; border: 1px solid var(--gray-200);" onsubmit="handleAddStudent(event)">
-                    <input type="number" id="add-seat" placeholder="座號" required style="width: 5rem; padding: 0.4rem; font-size: 0.875rem;">
-                    <input type="text" id="add-name" placeholder="學生姓名" required style="width: 8rem; padding: 0.4rem; font-size: 0.875rem;">
-                    <button type="submit" class="btn btn-indigo btn-sm">
-                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="8.5" cy="7" r="4"></circle><line x1="20" y1="8" x2="20" y2="14"></line><line x1="23" y1="11" x2="17" y2="11"></line></svg>
-                        新增
-                    </button>
+                <form id="add-student-form" class="hidden flex gap-2 items-center mb-4" style="background: var(--gray-100); padding: 0.75rem; border-radius: 1rem; border: 2px dashed var(--gray-300);" onsubmit="handleAddStudent(event)">
+                    <span style="font-weight: bold; color: var(--indigo);">➕ 新增學生：</span>
+                    <input type="number" id="add-seat" placeholder="座號" required style="width: 5rem; padding: 0.5rem; font-size: 1rem;">
+                    <input type="text" id="add-name" placeholder="學生姓名" required style="width: 10rem; padding: 0.5rem; font-size: 1rem;">
+                    <button type="submit" class="btn btn-indigo btn-sm">確定新增</button>
                 </form>
 
                 <!-- Grid View -->
@@ -440,11 +536,11 @@
                     <table>
                         <thead>
                             <tr>
-                                <th>座號</th>
-                                <th>姓名</th>
-                                <th>狀態</th>
-                                <th>點名時間</th>
-                                <th>操作管理</th>
+                                <th>🪑 座號</th>
+                                <th>👤 姓名</th>
+                                <th>📊 狀態</th>
+                                <th>🕒 點名時間</th>
+                                <th>⚙️ 操作管理</th>
                             </tr>
                         </thead>
                         <tbody id="teacher-student-tbody"></tbody>
@@ -457,19 +553,17 @@
         <div id="action-modal" class="modal-bottom hidden">
             <div class="modal-content">
                 <div class="flex items-center gap-4">
-                    <div id="modal-seat" style="width: 3rem; height: 3rem; background: var(--indigo-light); color: var(--indigo); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; font-weight: bold;"></div>
+                    <div id="modal-seat" style="width: 4rem; height: 4rem; background: var(--indigo-light); color: var(--indigo); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);"></div>
                     <div>
-                        <div id="modal-class" class="text-sm" style="color: var(--gray-500);"></div>
-                        <div id="modal-name" class="text-xl font-bold"></div>
+                        <div id="modal-class" class="text-md font-bold" style="color: var(--gray-500);"></div>
+                        <div id="modal-name" class="text-2xl font-bold" style="color: var(--gray-800);"></div>
                     </div>
                 </div>
                 <div class="flex gap-2 w-full" style="flex: 1; justify-content: flex-end; flex-wrap: wrap;">
-                    <button class="btn" style="background: var(--success-bg); color: var(--success);" onclick="handleMarkStatus('present')">已到</button>
-                    <button class="btn" style="background: var(--warning-bg); color: var(--warning);" onclick="handleMarkStatus('late')">標記遲到</button>
-                    <button class="btn" style="background: var(--info-bg); color: var(--info);" onclick="handleMarkStatus('leave')">標記請假</button>
-                    <button class="btn btn-outline" style="padding: 0.75rem;" onclick="closeModal()">
-                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>
-                    </button>
+                    <button class="btn" style="background: var(--success); color: white; box-shadow: 0 4px 0 #047857;" onclick="handleMarkStatus('present')">✅ 標記已到</button>
+                    <button class="btn" style="background: var(--warning); color: white; box-shadow: 0 4px 0 #b45309;" onclick="handleMarkStatus('late')">⏰ 標記遲到</button>
+                    <button class="btn" style="background: var(--info); color: white; box-shadow: 0 4px 0 #0369a1;" onclick="handleMarkStatus('leave')">📅 標記請假</button>
+                    <button class="btn btn-outline" style="padding: 0.875rem;" onclick="closeModal()">❌ 取消</button>
                 </div>
             </div>
         </div>
@@ -478,8 +572,23 @@
 
     <script>
         // ==========================================
-        // 原始學生名單資料
+        // 題庫資料與隨機可愛圖案
         // ==========================================
+        const quotes = [
+            "太棒了！準備好迎接有趣的一天了嗎？🚀",
+            "點名完成！今天也要專心聽講喔！✨",
+            "報到成功！上課要積極舉手發言喔！💡",
+            "完成啦！今天你也是最棒的！🌟",
+            "點名成功！記得多喝水、保持微笑喔！😊",
+            "好棒的開始！把眼睛借給老師，耳朵打開喔！👀",
+            "簽到完畢！今天會學到什麼有趣的新知識呢？📚",
+            "你超棒！坐姿端正，準備上課囉！🪑",
+            "點名成功！遇到不懂的問題勇敢發問喔！🙋‍♂️",
+            "打卡完成！跟旁邊的同學說聲早安吧！☀️"
+        ];
+
+        const cuteEmojis = ['🦄', '🦖', '🐳', '🐶', '🐱', '🦊', '🐰', '🐼', '🐨', '🐯', '🐧', '🦉', '🐢', '🐙', '🐸', '🦁'];
+
         const rawStudentData = `301
 01	張昱宸
 02	林祐丞
@@ -1073,23 +1182,22 @@
 
         // ==========================================
         // 系統狀態
+        // attendance: { '301-01': { '2026-W15': { status: 'present', timestamp: ... } } }
         // ==========================================
         const state = {
-            view: 'student', // student, teacherLogin, teacher
-            displayMode: 'grid', // grid or list
+            view: 'student', 
+            displayMode: 'grid',
             isAuthenticated: false,
             studentsByClass: {},
-            attendance: {},
+            attendance: {}, 
             currentWeek: '',
+            selectedWeek: '', 
             activeClass: '',
             isEditing: false,
             selectedStudent: null,
             classList: []
         };
 
-        // ==========================================
-        // 工具函數
-        // ==========================================
         const getWeekIdentifier = (date = new Date()) => {
             const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
             const dayNum = d.getUTCDay() || 7;
@@ -1125,25 +1233,38 @@
             return data;
         };
 
-        // ==========================================
-        // SVG 圖示庫
-        // ==========================================
         const Icons = {
-            check: `<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>`,
-            error: `<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`,
-            clock: `<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`,
-            calendarOff: `<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><line x1="3" y1="3" x2="21" y2="21"></line></svg>`,
-            trash: `<svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`
+            check: `<svg fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24" style="width:100%;height:100%;"><path d="M20 6L9 17l-5-5"></path></svg>`,
+            error: `<svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="width:100%;height:100%;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>`,
+            clock: `<svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="width:100%;height:100%;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>`,
+            calendarOff: `<svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="width:100%;height:100%;"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line><line x1="3" y1="3" x2="21" y2="21"></line></svg>`,
+            trash: `<svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="width:100%;height:100%;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`
         };
+
+        function shootConfetti() {
+            const container = document.getElementById('confetti-container');
+            container.innerHTML = ''; 
+            const colors = ['#0ea5e9', '#38bdf8', '#fcd34d', '#34d399', '#3b82f6']; // 調整為配合海洋藍的顏色
+            const confettiCount = 80;
+            for(let i = 0; i < confettiCount; i++) {
+                const conf = document.createElement('div');
+                conf.className = 'confetti-piece ' + (Math.random() > 0.5 ? 'circle' : '');
+                conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                conf.style.left = Math.random() * 100 + 'vw';
+                conf.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                conf.style.animationDelay = (Math.random() * 0.5) + 's';
+                container.appendChild(conf);
+            }
+            setTimeout(() => { container.innerHTML = ''; }, 4000);
+        }
 
         // ==========================================
         // 初始化與本地儲存
         // ==========================================
         function initApp() {
             state.currentWeek = getWeekIdentifier();
-            document.getElementById('teacher-week-display').innerText = `目前週數統計：${state.currentWeek}`;
+            state.selectedWeek = state.currentWeek;
 
-            // 讀取 LocalStorage 或解析初始資料
             const savedStudents = localStorage.getItem('attendance_students');
             if (savedStudents) {
                 state.studentsByClass = JSON.parse(savedStudents);
@@ -1154,7 +1275,15 @@
 
             const savedAttendance = localStorage.getItem('attendance_records');
             if (savedAttendance) {
-                state.attendance = JSON.parse(savedAttendance);
+                let parsed = JSON.parse(savedAttendance);
+                for (let key in parsed) {
+                    if (parsed[key].status && parsed[key].week) {
+                        let oldRecord = parsed[key];
+                        parsed[key] = {};
+                        parsed[key][oldRecord.week] = oldRecord;
+                    }
+                }
+                state.attendance = parsed;
             }
 
             state.classList = Object.keys(state.studentsByClass).sort();
@@ -1162,10 +1291,9 @@
                 state.activeClass = state.classList[0];
             }
 
-            // 填充學生端班級選單
             const sClassSelect = document.getElementById('student-class-select');
             const tClassSelect = document.getElementById('teacher-class-select');
-            sClassSelect.innerHTML = '<option value="">-- 選擇班級 --</option>';
+            sClassSelect.innerHTML = '<option value="">-- 點這裡選擇班級 --</option>';
             tClassSelect.innerHTML = '';
             
             state.classList.forEach(c => {
@@ -1173,12 +1301,30 @@
                 tClassSelect.innerHTML += `<option value="${c}">${c} 班</option>`;
             });
 
+            populateWeekDropdown();
             switchView('student');
+        }
+
+        function populateWeekDropdown() {
+            const weeks = new Set([state.currentWeek]);
+            Object.values(state.attendance).forEach(studentRecords => {
+                Object.keys(studentRecords).forEach(w => weeks.add(w));
+            });
+            const weekArray = Array.from(weeks).sort().reverse(); 
+            
+            const select = document.getElementById('teacher-week-select');
+            select.innerHTML = '';
+            weekArray.forEach(w => {
+                const isCurrent = w === state.currentWeek ? ' (本週)' : '';
+                select.innerHTML += `<option value="${w}">${w}${isCurrent}</option>`;
+            });
+            select.value = state.selectedWeek;
         }
 
         function saveData() {
             localStorage.setItem('attendance_students', JSON.stringify(state.studentsByClass));
             localStorage.setItem('attendance_records', JSON.stringify(state.attendance));
+            populateWeekDropdown();
         }
 
         // ==========================================
@@ -1190,7 +1336,6 @@
             }
             
             state.view = viewName;
-            
             document.getElementById('view-student').classList.add('hidden');
             document.getElementById('view-teacherLogin').classList.add('hidden');
             document.getElementById('view-teacher').classList.add('hidden');
@@ -1201,7 +1346,6 @@
             if (viewName === 'student') {
                 document.getElementById('view-student').classList.remove('hidden');
                 document.getElementById('nav-student').classList.add('active-student');
-                // 清除學生端表單狀態
                 clearStudentForm();
             } else if (viewName === 'teacherLogin') {
                 document.getElementById('view-teacherLogin').classList.remove('hidden');
@@ -1226,27 +1370,34 @@
         // 學生端邏輯
         // ==========================================
         let alertTimeout;
-        function showStudentMessage(type, text) {
+        function showStudentMessage(type, text, quote = "", emoji = null) {
             const alertBox = document.getElementById('student-alert');
-            const icon = document.getElementById('alert-icon');
+            const iconContainer = document.getElementById('alert-icon-container');
             const textBox = document.getElementById('alert-text');
+            const quoteBox = document.getElementById('alert-quote');
             
-            alertBox.className = `alert ${type === 'success' ? 'alert-success' : 'alert-error'}`;
-            icon.outerHTML = type === 'success' ? 
-                Icons.check.replace('<svg', '<svg id="alert-icon"') : 
-                Icons.error.replace('<svg', '<svg id="alert-icon"');
+            alertBox.classList.remove('hidden', 'alert-success', 'alert-error');
+            alertBox.classList.add(type === 'success' ? 'alert-success' : 'alert-error');
+            
+            if (type === 'success') {
+                iconContainer.innerHTML = emoji ? `<span style="font-size: 2.5rem; line-height: 1;">${emoji}</span>` : Icons.check;
+            } else {
+                iconContainer.innerHTML = Icons.error;
+            }
+            
             textBox.innerText = text;
+            quoteBox.innerText = quote;
             
             clearTimeout(alertTimeout);
             if(type === 'success'){
-                alertTimeout = setTimeout(clearStudentForm, 3000);
+                alertTimeout = setTimeout(clearStudentForm, 5000); 
             }
         }
 
         function clearStudentForm() {
             document.getElementById('student-class-select').value = '';
             const seatSelect = document.getElementById('student-seat-select');
-            seatSelect.innerHTML = '<option value="">-- 選擇座號 --</option>';
+            seatSelect.innerHTML = '<option value="">-- 先選班級才能選座號喔 --</option>';
             seatSelect.disabled = true;
             document.getElementById('student-info-display').classList.add('hidden');
             document.getElementById('btn-checkin').disabled = true;
@@ -1264,7 +1415,7 @@
             }
             
             seatSelect.disabled = false;
-            seatSelect.innerHTML = '<option value="">-- 選擇座號 --</option>';
+            seatSelect.innerHTML = '<option value="">-- 請選擇你的座號 --</option>';
             state.studentsByClass[classVal].forEach(s => {
                 seatSelect.innerHTML += `<option value="${s.seat}">${s.seat}號 - ${s.name}</option>`;
             });
@@ -1297,26 +1448,34 @@
             const seatVal = document.getElementById('student-seat-select').value;
             
             if (!classVal || !seatVal) {
-                showStudentMessage('error', '請選擇班級與座號！');
+                showStudentMessage('error', '哎呀！請先選好班級跟座號喔！');
                 return;
             }
 
             const studentId = `${classVal}-${seatVal}`;
-            const existingRecord = state.attendance[studentId];
+            if (!state.attendance[studentId]) {
+                state.attendance[studentId] = {};
+            }
 
-            if (existingRecord && existingRecord.week === state.currentWeek && existingRecord.status === 'present') {
-                showStudentMessage('error', '您本週已經完成點名了，不需重複報到！');
+            const currentRecord = state.attendance[studentId][state.currentWeek];
+
+            if (currentRecord && currentRecord.status === 'present') {
+                showStudentMessage('error', '你這週已經點過名囉！趕快進教室準備上課吧！');
                 return;
             }
 
-            state.attendance[studentId] = {
+            state.attendance[studentId][state.currentWeek] = {
                 status: 'present',
-                week: state.currentWeek,
                 timestamp: new Date().toLocaleString('zh-TW')
             };
             saveData();
-            showStudentMessage('success', '點名成功！祝您有美好的一天。');
-            document.getElementById('btn-checkin').disabled = true; // 防止連點
+            
+            shootConfetti();
+            const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+            const randomEmoji = cuteEmojis[Math.floor(Math.random() * cuteEmojis.length)];
+            showStudentMessage('success', '點名大成功！🎉', randomQuote, randomEmoji);
+            
+            document.getElementById('btn-checkin').disabled = true; 
         }
 
         // ==========================================
@@ -1341,6 +1500,12 @@
         // ==========================================
         // 老師後台邏輯
         // ==========================================
+        function onTeacherWeekChange() {
+            state.selectedWeek = document.getElementById('teacher-week-select').value;
+            closeModal();
+            renderTeacherView();
+        }
+
         function onTeacherClassChange() {
             state.activeClass = document.getElementById('teacher-class-select').value;
             state.isEditing = false;
@@ -1356,14 +1521,14 @@
 
         function renderTeacherView() {
             document.getElementById('teacher-class-title').innerText = state.activeClass;
+            document.getElementById('teacher-week-title').innerText = state.selectedWeek;
             
             const students = state.studentsByClass[state.activeClass] || [];
             
-            // 統計
             let present = 0, late = 0, leave = 0, missing = 0;
             students.forEach(s => {
-                const record = state.attendance[s.id];
-                if (!record || record.week !== state.currentWeek) missing++;
+                const record = state.attendance[s.id]?.[state.selectedWeek];
+                if (!record) missing++;
                 else {
                     if (record.status === 'present') present++;
                     if (record.status === 'late') late++;
@@ -1376,7 +1541,6 @@
             document.getElementById('stat-late').innerText = late;
             document.getElementById('stat-leave').innerText = leave;
 
-            // UI 狀態更新
             const btnEdit = document.getElementById('btn-toggle-edit');
             const formAdd = document.getElementById('add-student-form');
             const hint = document.getElementById('teacher-hint');
@@ -1384,20 +1548,19 @@
             if (state.isEditing) {
                 btnEdit.style.backgroundColor = "var(--indigo)";
                 btnEdit.style.color = "white";
-                btnEdit.querySelector('span').innerText = "完成編輯";
+                btnEdit.querySelector('span').innerText = "✅ 完成編輯名單";
                 formAdd.classList.remove('hidden');
-                hint.innerText = "(編輯模式中)";
-                hint.style.color = "var(--indigo)";
+                hint.innerText = "(目前在編輯模式，點擊垃圾桶可刪除)";
+                hint.style.color = "var(--danger)";
             } else {
                 btnEdit.style.backgroundColor = "var(--indigo-light)";
                 btnEdit.style.color = "var(--indigo)";
-                btnEdit.querySelector('span').innerText = "編輯學生名單";
+                btnEdit.querySelector('span').innerText = "✏️ 編輯學生名單";
                 formAdd.classList.add('hidden');
-                hint.innerText = state.displayMode === 'grid' ? "(點擊卡片可標記狀態)" : "(點擊操作按鈕可標記狀態)";
+                hint.innerText = state.displayMode === 'grid' ? "(點擊卡片可變更狀態)" : "(點擊按鈕可變更狀態)";
                 hint.style.color = "var(--gray-500)";
             }
 
-            // 渲染列表視圖 / 卡片視圖
             const grid = document.getElementById('teacher-student-grid');
             const list = document.getElementById('teacher-student-list');
             const tbody = document.getElementById('teacher-student-tbody');
@@ -1413,24 +1576,22 @@
             }
 
             students.forEach(student => {
-                const record = state.attendance[student.id];
-                const isRecordValid = record && record.week === state.currentWeek;
-                const status = isRecordValid ? record.status : 'missing';
-                const timestamp = isRecordValid ? record.timestamp : '-';
+                const record = state.attendance[student.id]?.[state.selectedWeek];
+                const status = record ? record.status : 'missing';
+                const timestamp = record ? record.timestamp : '-';
                 
                 let textStatus = '未到';
                 let badgeClass = 'status-missing';
                 let iconHtml = '';
 
-                if (status === 'present') { textStatus = '已到'; badgeClass = 'status-present'; iconHtml = `<div class="icon-abs" style="color:var(--success);">${Icons.check}</div>`; }
-                else if (status === 'late') { textStatus = '遲到'; badgeClass = 'status-late'; iconHtml = `<div class="icon-abs" style="color:var(--warning);">${Icons.clock}</div>`; }
-                else if (status === 'leave') { textStatus = '請假'; badgeClass = 'status-leave'; iconHtml = `<div class="icon-abs" style="color:var(--info);">${Icons.calendarOff}</div>`; }
+                if (status === 'present') { textStatus = '✅ 已到'; badgeClass = 'status-present'; iconHtml = `<div class="icon-abs" style="color:var(--success); border: 2px solid var(--success);">${Icons.check}</div>`; }
+                else if (status === 'late') { textStatus = '⏰ 遲到'; badgeClass = 'status-late'; iconHtml = `<div class="icon-abs" style="color:var(--warning); border: 2px solid var(--warning);">${Icons.clock}</div>`; }
+                else if (status === 'leave') { textStatus = '📅 請假'; badgeClass = 'status-leave'; iconHtml = `<div class="icon-abs" style="color:var(--info); border: 2px solid var(--info);">${Icons.calendarOff}</div>`; }
 
                 if (state.isEditing) {
-                    iconHtml = `<div class="icon-abs delete-btn" onclick="handleDeleteStudent(event, '${student.id}', '${student.name}')">${Icons.trash}</div>`;
+                    iconHtml = `<div class="icon-abs delete-btn" style="border: 2px solid var(--danger); background: var(--danger-bg);" onclick="handleDeleteStudent(event, '${student.id}', '${student.name}')">${Icons.trash}</div>`;
                 }
 
-                // Grid 版卡片
                 if (state.displayMode === 'grid') {
                     let cardClass = `student-card ${badgeClass === 'status-missing' ? '' : badgeClass}`;
                     if(state.isEditing) cardClass += ' editing';
@@ -1443,9 +1604,7 @@
                         </div>
                     `;
                     grid.innerHTML += cardHtml;
-                } 
-                // List 版表格
-                else {
+                } else {
                     let actionHtml = '';
                     if (state.isEditing) {
                         actionHtml = `<button class="delete-btn" style="border:none; background:none;" onclick="handleDeleteStudent(event, '${student.id}', '${student.name}')">${Icons.trash}</button>`;
@@ -1456,9 +1615,9 @@
                     const rowHtml = `
                         <tr>
                             <td class="font-bold text-gray-500">${student.seat}</td>
-                            <td class="font-bold">${student.name}</td>
+                            <td class="font-bold text-lg">${student.name}</td>
                             <td><span class="badge ${badgeClass}">${textStatus}</span></td>
-                            <td style="color: var(--gray-500); font-size: 0.875rem;">${timestamp}</td>
+                            <td style="color: var(--gray-500); font-size: 0.95rem;">${timestamp}</td>
                             <td>${actionHtml}</td>
                         </tr>
                     `;
@@ -1481,7 +1640,7 @@
             const students = state.studentsByClass[state.activeClass];
             
             if (students.some(s => s.seat === seatNumStr)) {
-                return alert("此座號已存在！");
+                return alert("這個座號已經有人用囉！請檢查一下。");
             }
 
             const newStudent = {
@@ -1500,8 +1659,8 @@
         }
 
         function handleDeleteStudent(e, studentId, studentName) {
-            e.stopPropagation(); // 阻止觸發卡片點擊事件
-            if (confirm(`確定要刪除學生 ${studentName} 嗎？\n(相關的點名紀錄不會自動刪除)`)) {
+            e.stopPropagation();
+            if (confirm(`確定要刪除「${studentName}」嗎？\n(注意：相關的點名紀錄不會自動消失喔)`)) {
                 state.studentsByClass[state.activeClass] = state.studentsByClass[state.activeClass].filter(s => s.id !== studentId);
                 saveData();
                 renderTeacherView();
@@ -1509,9 +1668,8 @@
         }
 
         function openModal(id, seat, name) {
-            if (state.isEditing) return; // 編輯模式不開啟狀態選單
+            if (state.isEditing) return; 
             
-            // 移除其他卡片的 selected 狀態
             document.querySelectorAll('.student-card').forEach(el => el.classList.remove('selected'));
             const cardEl = document.getElementById(`card-${id}`);
             if(cardEl) cardEl.classList.add('selected');
@@ -1532,9 +1690,14 @@
 
         function handleMarkStatus(status) {
             if (!state.selectedStudent) return;
-            state.attendance[state.selectedStudent.id] = {
+            
+            if (!state.attendance[state.selectedStudent.id]) {
+                state.attendance[state.selectedStudent.id] = {};
+            }
+            
+            // 寫入當前所選的週次
+            state.attendance[state.selectedStudent.id][state.selectedWeek] = {
                 status: status,
-                week: state.currentWeek,
                 timestamp: new Date().toLocaleString('zh-TW'),
                 markedByTeacher: true
             };
@@ -1543,7 +1706,6 @@
             renderTeacherView();
         }
 
-        // 啟動應用程式
         window.onload = initApp;
 
     </script>
