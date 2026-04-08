@@ -74,6 +74,7 @@
         .text-lg { font-size: 1.125rem; }
         .text-xl { font-size: 1.25rem; }
         .text-2xl { font-size: 1.5rem; }
+        .mt-3 { margin-top: 0.75rem; }
         
         /* Navigation */
         nav {
@@ -115,6 +116,30 @@
         .nav-buttons button:hover { background-color: var(--gray-100); transform: scale(1.05); }
         .nav-buttons button.active-student { background-color: var(--primary-light); color: var(--primary-hover); box-shadow: 0 2px 4px rgba(14, 165, 233, 0.2); }
         .nav-buttons button.active-teacher { background-color: var(--indigo-light); color: var(--indigo-hover); box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2); }
+
+        /* 打字練習專屬連結樣式 */
+        .nav-typing-link {
+            background-color: #fef08a; /* 亮黃色 */
+            color: #b45309;
+            text-decoration: none;
+            padding: 0.5rem 1.25rem;
+            border-radius: 9999px;
+            font-weight: bold;
+            display: inline-block;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-right: 0.5rem;
+            box-shadow: 0 3px 0 #ca8a04;
+            font-size: 1rem;
+        }
+        .nav-typing-link:hover {
+            transform: translateY(-2px);
+            background-color: #fde047;
+            box-shadow: 0 5px 0 #ca8a04;
+        }
+        .nav-typing-link:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #ca8a04;
+        }
 
         /* Main Container */
         main { padding: 2rem 1rem; max-width: 64rem; margin: 0 auto; min-height: 80vh; position: relative; }
@@ -205,6 +230,30 @@
         }
         .alert-success { background-color: var(--success-bg); color: var(--success); border: 2px dashed #6ee7b7; }
         .alert-error { background-color: var(--danger-bg); color: var(--danger); border: 2px dashed #fca5a5; }
+
+        /* 成功視窗內的前往打字按鈕 */
+        .alert-action-btn {
+            display: inline-block;
+            margin-top: 0.75rem;
+            padding: 0.5rem 1rem;
+            background-color: #f59e0b;
+            color: white;
+            text-decoration: none;
+            border-radius: 9999px;
+            font-size: 1rem;
+            font-weight: bold;
+            box-shadow: 0 3px 0 #b45309;
+            transition: all 0.2s;
+        }
+        .alert-action-btn:hover {
+            background-color: #fbbf24;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 0 #b45309;
+        }
+        .alert-action-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #b45309;
+        }
 
         /* Warning Box */
         .warning-box {
@@ -379,7 +428,9 @@
                 <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"></path></svg>
                 <span>校園快樂點名</span>
             </div>
-            <div class="nav-buttons">
+            <div class="nav-buttons flex items-center">
+                <!-- 新增打字練習連結 -->
+                <a href="https://kumabear88.github.io/typingpodium/" target="_blank" class="nav-typing-link">⌨️ 打字練習</a>
                 <button id="nav-student" class="active-student" onclick="switchView('student')">👶 學生報到</button>
                 <button id="nav-teacher" onclick="switchView('teacherLogin')">👩‍🏫 老師管理</button>
             </div>
@@ -412,6 +463,11 @@
                         <div id="alert-text-container" style="flex-grow: 1;">
                             <div id="alert-text" style="margin-bottom: 0.25rem;"></div>
                             <div id="alert-quote" style="font-size: 0.95rem; color: var(--gray-500); font-weight: normal;"></div>
+                            
+                            <!-- 新增：點完名後的打字練習行動呼籲按鈕 -->
+                            <a id="alert-typing-btn" href="https://kumabear88.github.io/typingpodium/" target="_blank" class="alert-action-btn hidden">
+                                👉 去練習打字吧！
+                            </a>
                         </div>
                     </div>
 
@@ -1375,14 +1431,17 @@
             const iconContainer = document.getElementById('alert-icon-container');
             const textBox = document.getElementById('alert-text');
             const quoteBox = document.getElementById('alert-quote');
+            const typingBtn = document.getElementById('alert-typing-btn');
             
             alertBox.classList.remove('hidden', 'alert-success', 'alert-error');
             alertBox.classList.add(type === 'success' ? 'alert-success' : 'alert-error');
             
             if (type === 'success') {
                 iconContainer.innerHTML = emoji ? `<span style="font-size: 2.5rem; line-height: 1;">${emoji}</span>` : Icons.check;
+                typingBtn.classList.remove('hidden'); // 顯示打字練習按鈕
             } else {
                 iconContainer.innerHTML = Icons.error;
+                typingBtn.classList.add('hidden'); // 隱藏打字練習按鈕
             }
             
             textBox.innerText = text;
@@ -1390,7 +1449,8 @@
             
             clearTimeout(alertTimeout);
             if(type === 'success'){
-                alertTimeout = setTimeout(clearStudentForm, 5000); 
+                // 延長提示時間給學生足夠的時間點擊連結
+                alertTimeout = setTimeout(clearStudentForm, 8000); 
             }
         }
 
@@ -1402,12 +1462,14 @@
             document.getElementById('student-info-display').classList.add('hidden');
             document.getElementById('btn-checkin').disabled = true;
             document.getElementById('student-alert').classList.add('hidden');
+            document.getElementById('alert-typing-btn').classList.add('hidden');
         }
 
         function onStudentClassChange() {
             const classVal = document.getElementById('student-class-select').value;
             const seatSelect = document.getElementById('student-seat-select');
             document.getElementById('student-alert').classList.add('hidden');
+            document.getElementById('alert-typing-btn').classList.add('hidden');
             
             if (!classVal) {
                 clearStudentForm();
@@ -1431,6 +1493,7 @@
             const infoText = document.getElementById('student-info-text');
             const btn = document.getElementById('btn-checkin');
             document.getElementById('student-alert').classList.add('hidden');
+            document.getElementById('alert-typing-btn').classList.add('hidden');
 
             if (classVal && seatVal) {
                 const student = state.studentsByClass[classVal].find(s => s.seat === seatVal);
@@ -1473,7 +1536,10 @@
             shootConfetti();
             const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
             const randomEmoji = cuteEmojis[Math.floor(Math.random() * cuteEmojis.length)];
-            showStudentMessage('success', '點名大成功！🎉', randomQuote, randomEmoji);
+            
+            // 強力提醒去打字
+            const reminderText = randomQuote + '\n\n⚠️ 點完名請直接去練習打字，不要亂逛其他網站喔！';
+            showStudentMessage('success', '點名大成功！🎉', reminderText, randomEmoji);
             
             document.getElementById('btn-checkin').disabled = true; 
         }
