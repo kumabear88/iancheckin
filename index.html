@@ -18,7 +18,7 @@
             --indigo-light: #eff6ff;
             
             /* 背景與其他狀態色 */
-            --bg-color: #f0f9ff; /* 極淺的海水背景 */
+            --bg-color: #f0f9ff;
             --success: #10b981;
             --success-bg: #d1fae5;
             --danger: #ef4444;
@@ -51,7 +51,6 @@
 
         body {
             background-color: var(--bg-color);
-            /* 加上可愛的圓點背景 */
             background-image: radial-gradient(var(--primary-light) 2px, transparent 2px);
             background-size: 30px 30px;
             color: var(--gray-800);
@@ -119,7 +118,7 @@
 
         /* 打字練習專屬連結樣式 */
         .nav-typing-link {
-            background-color: #fef08a; /* 亮黃色 */
+            background-color: #fef08a;
             color: #b45309;
             text-decoration: none;
             padding: 0.5rem 1.25rem;
@@ -151,7 +150,7 @@
             box-shadow: var(--shadow);
             overflow: hidden;
             margin-bottom: 1.5rem;
-            border: 4px solid var(--white); /* 增加白邊效果 */
+            border: 4px solid var(--white);
         }
         .card-header { padding: 1.75rem; color: white; text-align: center; border-radius: calc(var(--radius) - 4px) calc(var(--radius) - 4px) 0 0; }
         .card-header.student { background: linear-gradient(135deg, var(--primary), var(--primary-hover)); }
@@ -196,15 +195,15 @@
         
         .btn-primary { background-color: var(--primary); color: white; box-shadow: 0 4px 0 #0284c7; }
         .btn-primary:hover:not(:disabled) { background-color: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 6px 0 #0284c7; }
-        .btn-primary:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 2px 0 #0284c7; }
         
         .btn-indigo { background-color: var(--indigo); color: white; box-shadow: 0 4px 0 #2563eb; }
         .btn-indigo:hover:not(:disabled) { background-color: var(--indigo-hover); transform: translateY(-2px); box-shadow: 0 6px 0 #2563eb; }
-        .btn-indigo:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 2px 0 #2563eb; }
+        
+        .btn-warning { background-color: var(--warning); color: white; box-shadow: 0 4px 0 #d97706; }
+        .btn-warning:hover:not(:disabled) { background-color: #fbbf24; transform: translateY(-2px); box-shadow: 0 6px 0 #d97706; }
         
         .btn-outline { background-color: var(--gray-100); color: var(--gray-800); box-shadow: 0 4px 0 var(--gray-300); }
         .btn-outline:hover { background-color: var(--gray-200); transform: translateY(-2px); box-shadow: 0 6px 0 var(--gray-300); }
-        .btn-outline:active { transform: translateY(2px); box-shadow: 0 2px 0 var(--gray-300); }
         
         .btn-sm { padding: 0.5rem 1rem; font-size: 0.95rem; box-shadow: 0 3px 0 rgba(0,0,0,0.1) !important; }
         
@@ -224,14 +223,10 @@
             font-size: 1.1rem;
             animation: bounceIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
-        @keyframes bounceIn {
-            0% { transform: scale(0.8); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
+        @keyframes bounceIn { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
         .alert-success { background-color: var(--success-bg); color: var(--success); border: 2px dashed #6ee7b7; }
         .alert-error { background-color: var(--danger-bg); color: var(--danger); border: 2px dashed #fca5a5; }
 
-        /* 成功視窗內的前往打字按鈕 */
         .alert-action-btn {
             display: inline-block;
             margin-top: 0.75rem;
@@ -245,50 +240,15 @@
             box-shadow: 0 3px 0 #b45309;
             transition: all 0.2s;
         }
-        .alert-action-btn:hover {
-            background-color: #fbbf24;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 0 #b45309;
-        }
-        .alert-action-btn:active {
-            transform: translateY(2px);
-            box-shadow: 0 1px 0 #b45309;
-        }
+        .alert-action-btn:hover { background-color: #fbbf24; transform: translateY(-2px); box-shadow: 0 5px 0 #b45309; }
 
-        /* Warning Box */
-        .warning-box {
-            background-color: #fffbeb;
-            border: 2px dashed #fcd34d;
-            color: #b45309;
-            padding: 1rem;
-            border-radius: 1rem;
-            margin-bottom: 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-            font-weight: bold;
-            font-size: 0.95rem;
-        }
+        .warning-box { background-color: #fffbeb; border: 2px dashed #fcd34d; color: #b45309; padding: 1rem; border-radius: 1rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem; font-weight: bold; font-size: 0.95rem; }
 
-        /* Student Card Status Indicator */
-        .student-info-box {
-            background-color: var(--primary-light);
-            border: 2px dashed #7dd3fc;
-            padding: 1.5rem;
-            border-radius: 1rem;
-            text-align: center;
-            margin-bottom: 1.5rem;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.02); }
-            100% { transform: scale(1); }
-        }
+        .student-info-box { background-color: var(--primary-light); border: 2px dashed #7dd3fc; padding: 1.5rem; border-radius: 1rem; text-align: center; margin-bottom: 1.5rem; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.02); } 100% { transform: scale(1); } }
         .student-info-box p.title { color: var(--primary-hover); font-size: 1rem; font-weight: bold; margin-bottom: 0.5rem; }
         .student-info-box p.name { color: #0c4a6e; font-size: 1.75rem; font-weight: bold; }
 
-        /* Teacher Dashboard Grid */
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.75rem; }
         .stat-box { padding: 1rem 0.5rem; border-radius: 1rem; text-align: center; border: 2px solid; background: white; transition: transform 0.2s; }
         .stat-box:hover { transform: translateY(-3px); }
@@ -301,24 +261,8 @@
         .stat-late { border-color: #fbbf24; color: var(--warning); }
         .stat-leave { border-color: #38bdf8; color: var(--info); }
 
-        /* Student List Grid */
-        .student-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-        .student-card {
-            position: relative;
-            padding: 1rem;
-            border-radius: 1rem;
-            border: 2px solid var(--gray-200);
-            background-color: var(--white);
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            text-align: center;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        }
+        .student-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 1rem; margin-top: 1rem; }
+        .student-card { position: relative; padding: 1rem; border-radius: 1rem; border: 2px solid var(--gray-200); background-color: var(--white); cursor: pointer; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         .student-card:hover { transform: translateY(-4px); box-shadow: 0 6px 12px rgba(0,0,0,0.1); border-color: var(--indigo-light); }
         .student-card .seat { display: inline-block; background: var(--gray-100); padding: 0.2rem 0.6rem; border-radius: 1rem; font-size: 0.8rem; font-weight: bold; color: var(--gray-500); margin-bottom: 0.5rem; }
         .student-card .name { font-weight: bold; font-size: 1.1rem; color: var(--gray-800); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -327,12 +271,10 @@
         .student-card.editing { cursor: default; }
         .student-card.editing:hover { transform: none; box-shadow: 0 2px 4px rgba(0,0,0,0.05); border-color: var(--gray-200); }
 
-        /* Status Colors for Student Cards */
         .status-present { background-color: var(--success-bg); border-color: #6ee7b7; }
         .status-late { background-color: var(--warning-bg); border-color: #fcd34d; }
         .status-leave { background-color: var(--info-bg); border-color: #7dd3fc; }
 
-        /* Table View */
         .table-responsive { overflow-x: auto; margin-top: 1rem; border-radius: 1rem; border: 2px solid var(--gray-200); background: white; }
         table { width: 100%; border-collapse: collapse; min-width: 500px; text-align: left; }
         th, td { padding: 1rem; border-bottom: 1px solid var(--gray-100); font-size: 1rem; }
@@ -340,43 +282,31 @@
         tr:last-child td { border-bottom: none; }
         tr:hover { background-color: #f1f5f9; }
         .badge { display: inline-flex; align-items: center; padding: 0.35rem 0.75rem; border-radius: 9999px; font-size: 0.85rem; font-weight: bold; gap: 0.35rem;}
-
         .status-missing { background-color: var(--gray-100); color: var(--gray-500); }
 
-        .delete-btn {
-            color: var(--danger);
-            cursor: pointer;
-            padding: 0.25rem;
-            border-radius: 50%;
-            transition: 0.2s;
-        }
+        .delete-btn { color: var(--danger); cursor: pointer; padding: 0.25rem; border-radius: 50%; transition: 0.2s; }
         .delete-btn:hover { background-color: var(--danger-bg); transform: scale(1.1); }
 
-        /* Modal / Action Bar */
-        .modal-bottom {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: white;
-            box-shadow: 0 -10px 40px rgba(0,0,0,0.15);
-            border-top: 3px solid var(--indigo-light);
-            padding: 1.5rem 1rem;
-            z-index: 50;
-            animation: slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border-radius: 1.5rem 1.5rem 0 0;
-        }
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        /* ====== 幸運轉盤專區 (Wheel Layout) ====== */
+        .wheel-layout { display: grid; grid-template-columns: 1fr; gap: 1.5rem; align-items: start; }
+        @media (min-width: 768px) { .wheel-layout { grid-template-columns: 2fr 1fr; } }
         
-        .modal-content {
-            max-width: 64rem;
-            margin: 0 auto;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 1.5rem;
-        }
+        .wheel-container { position: relative; width: 100%; max-width: 380px; margin: 0 auto; aspect-ratio: 1; }
+        .wheel-canvas { width: 100%; height: 100%; border-radius: 50%; box-shadow: 0 8px 16px rgba(0,0,0,0.15); border: 6px solid var(--white); background: var(--gray-100); }
+        .wheel-pointer { position: absolute; top: -15px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 18px solid transparent; border-right: 18px solid transparent; border-top: 40px solid #ef4444; z-index: 10; filter: drop-shadow(0 4px 4px rgba(0,0,0,0.3)); }
+        
+        .drawn-list { display: flex; flex-direction: column; gap: 0.75rem; max-height: 420px; overflow-y: auto; padding-right: 0.5rem; }
+        .drawn-item { background: var(--white); border: 2px dashed #fcd34d; padding: 0.75rem 1rem; border-radius: 1rem; display: flex; align-items: center; gap: 0.75rem; font-weight: bold; font-size: 1.1rem; color: #b45309; animation: bounceIn 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+
+        /* Custom Modals */
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s; pointer-events: none; }
+        .modal-overlay.show { opacity: 1; pointer-events: auto; }
+        .modal-box { max-width: 24rem; width: 90%; text-align: center; transform: scale(0.9); transition: transform 0.3s; }
+        .modal-overlay.show .modal-box { transform: scale(1); }
+
+        .modal-bottom { position: fixed; bottom: 0; left: 0; right: 0; background: white; box-shadow: 0 -10px 40px rgba(0,0,0,0.15); border-top: 3px solid var(--indigo-light); padding: 1.5rem 1rem; z-index: 50; animation: slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); border-radius: 1.5rem 1.5rem 0 0; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .modal-content { max-width: 64rem; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem; }
         
         /* Layout Helpers */
         .col-span-1 { grid-column: span 1 / span 1; }
@@ -386,40 +316,43 @@
             .md-flex-row { flex-direction: row; align-items: center; justify-content: space-between; }
         }
 
-        /* SVG Icons */
         svg { width: 1.5rem; height: 1.5rem; }
         .icon-lg { width: 4.5rem; height: 4.5rem; }
 
         /* ====== 彩帶特效 (Confetti) ====== */
-        #confetti-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100vw;
-            height: 100vh;
-            pointer-events: none;
-            z-index: 9999;
-            overflow: hidden;
-        }
-        .confetti-piece {
-            position: absolute;
-            width: 12px;
-            height: 12px;
-            top: -20px;
-            border-radius: 3px;
-            animation: fall linear forwards;
-        }
+        #confetti-container { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; overflow: hidden; }
+        .confetti-piece { position: absolute; width: 12px; height: 12px; top: -20px; border-radius: 3px; animation: fall linear forwards; }
         .confetti-piece.circle { border-radius: 50%; }
-        @keyframes fall {
-            0% { transform: translateY(0) rotate(0deg) rotateX(0deg); opacity: 1; }
-            100% { transform: translateY(100vh) rotate(720deg) rotateX(360deg); opacity: 0.5; }
-        }
+        @keyframes fall { 0% { transform: translateY(0) rotate(0deg) rotateX(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg) rotateX(360deg); opacity: 0.5; } }
     </style>
 </head>
 <body>
 
     <!-- 特效容器 -->
     <div id="confetti-container"></div>
+
+    <!-- 自訂 Alert Modal -->
+    <div id="custom-alert-modal" class="modal-overlay">
+        <div class="card card-body modal-box">
+            <div id="custom-alert-icon" style="font-size: 4rem; margin-bottom: 1rem;">🎉</div>
+            <h2 id="custom-alert-title" class="text-2xl font-bold mb-3"></h2>
+            <p id="custom-alert-text" style="color: var(--gray-600); margin-bottom: 1.5rem; font-size: 1.1rem; white-space: pre-line;"></p>
+            <button class="btn btn-primary w-full" onclick="closeCustomAlert()">知道囉！</button>
+        </div>
+    </div>
+
+    <!-- 自訂 Confirm Modal -->
+    <div id="custom-confirm-modal" class="modal-overlay">
+        <div class="card card-body modal-box">
+            <div style="font-size: 4rem; margin-bottom: 1rem;">⚠️</div>
+            <h2 id="custom-confirm-title" class="text-2xl font-bold mb-3"></h2>
+            <p id="custom-confirm-text" style="color: var(--gray-600); margin-bottom: 1.5rem; font-size: 1.1rem; white-space: pre-line;"></p>
+            <div class="flex gap-3">
+                <button class="btn btn-outline w-full" onclick="closeCustomConfirm(false)">取消</button>
+                <button class="btn w-full" style="background: var(--danger); color: white; box-shadow: 0 4px 0 #b91c1c;" onclick="closeCustomConfirm(true)">確定</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Navigation -->
     <nav>
@@ -429,7 +362,6 @@
                 <span>校園快樂點名</span>
             </div>
             <div class="nav-buttons flex items-center">
-                <!-- 新增打字練習連結 -->
                 <a href="https://kumabear88.github.io/typingpodium/" target="_blank" class="nav-typing-link">⌨️ 打字練習</a>
                 <button id="nav-student" class="active-student" onclick="switchView('student')">👶 學生報到</button>
                 <button id="nav-teacher" onclick="switchView('teacherLogin')">👩‍🏫 老師管理</button>
@@ -447,8 +379,6 @@
                     <p class="text-sm" style="color: var(--primary-light); margin-top: 0.5rem; font-weight: bold;">一週只能點一次名喔！</p>
                 </div>
                 <div class="card-body">
-                    
-                    <!-- 🚨 防作弊警告 🚨 -->
                     <div class="warning-box">
                         <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="width: 2rem; height: 2rem; flex-shrink: 0;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
                         <div>
@@ -458,16 +388,11 @@
                     </div>
 
                     <div id="student-alert" class="alert hidden">
-                        <!-- 動態替換圖標或隨機 Emoji 的容器 -->
                         <div id="alert-icon-container" style="flex-shrink: 0; display: flex; align-items: center; justify-content: center; width: 3rem; height: 3rem;"></div>
                         <div id="alert-text-container" style="flex-grow: 1;">
                             <div id="alert-text" style="margin-bottom: 0.25rem;"></div>
                             <div id="alert-quote" style="font-size: 0.95rem; color: var(--gray-500); font-weight: normal;"></div>
-                            
-                            <!-- 新增：點完名後的打字練習行動呼籲按鈕 -->
-                            <a id="alert-typing-btn" href="https://kumabear88.github.io/typingpodium/" target="_blank" class="alert-action-btn hidden">
-                                👉 去練習打字吧！
-                            </a>
+                            <a id="alert-typing-btn" href="https://kumabear88.github.io/typingpodium/" target="_blank" class="alert-action-btn hidden">👉 去練習打字吧！</a>
                         </div>
                     </div>
 
@@ -516,7 +441,6 @@
 
         <!-- ================= TEACHER DASHBOARD VIEW ================= -->
         <div id="view-teacher" class="hidden" style="padding-bottom: 6rem;">
-            <!-- Header -->
             <div class="card card-body flex md-flex-row gap-4" style="border-color: var(--indigo-light);">
                 <div>
                     <h1 class="text-2xl font-bold flex items-center gap-2" style="color: var(--indigo-hover);">
@@ -531,7 +455,6 @@
                 </div>
             </div>
 
-            <!-- Dashboard Grid -->
             <div class="md-grid" style="margin-bottom: 1.5rem;">
                 <div class="card card-body col-span-1 flex flex-col justify-between" style="margin-bottom: 0;">
                     <div>
@@ -541,6 +464,12 @@
                         <label class="text-sm">🏫 切換班級查看</label>
                         <select id="teacher-class-select" onchange="onTeacherClassChange()" style="margin-bottom: 1rem; font-weight: bold; color: var(--indigo);"></select>
                     </div>
+                    
+                    <!-- 新增 幸運輪盤按鈕 -->
+                    <button class="btn btn-warning w-full flex items-center justify-center gap-2 mt-2 mb-3" onclick="switchView('wheel')">
+                        <span style="font-size: 1.25rem;">🎡</span> 本節課抽籤轉輪
+                    </button>
+                    
                     <button id="btn-toggle-edit" class="btn w-full flex items-center justify-center gap-2" style="background-color: var(--indigo-light); color: var(--indigo);" onclick="toggleEditMode()">
                         <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
                         <span>編輯學生名單</span>
@@ -554,7 +483,6 @@
                 </div>
             </div>
 
-            <!-- Student List Section -->
             <div class="card card-body">
                 <div class="flex md-flex-row flex-col gap-4" style="margin-bottom: 1rem;">
                     <div>
@@ -563,9 +491,7 @@
                             <span id="teacher-hint" style="font-weight: normal; font-size: 0.95rem; color: var(--gray-500);">(點擊卡片/按鈕可標記狀態)</span>
                         </h2>
                     </div>
-
                     <div class="flex gap-2 items-center">
-                        <!-- View Toggle -->
                         <div class="btn-group">
                             <button id="btn-view-grid" class="active" onclick="setDisplayMode('grid')">
                                 <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:1.2rem; height:1.2rem; vertical-align: text-bottom; margin-right: 2px;"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect></svg>卡片
@@ -577,7 +503,6 @@
                     </div>
                 </div>
 
-                <!-- Add Student Form (Hidden by default) -->
                 <form id="add-student-form" class="hidden flex gap-2 items-center mb-4" style="background: var(--gray-100); padding: 0.75rem; border-radius: 1rem; border: 2px dashed var(--gray-300);" onsubmit="handleAddStudent(event)">
                     <span style="font-weight: bold; color: var(--indigo);">➕ 新增學生：</span>
                     <input type="number" id="add-seat" placeholder="座號" required style="width: 5rem; padding: 0.5rem; font-size: 1rem;">
@@ -585,10 +510,8 @@
                     <button type="submit" class="btn btn-indigo btn-sm">確定新增</button>
                 </form>
 
-                <!-- Grid View -->
                 <div id="teacher-student-grid" class="student-grid"></div>
 
-                <!-- List/Table View -->
                 <div id="teacher-student-list" class="hidden table-responsive">
                     <table>
                         <thead>
@@ -606,7 +529,49 @@
             </div>
         </div>
 
-        <!-- ================= ACTION MODAL ================= -->
+        <!-- ================= WHEEL VIEW ================= -->
+        <div id="view-wheel" class="hidden" style="padding-bottom: 6rem;">
+            <div class="card card-body flex md-flex-row gap-4" style="border-color: #fcd34d;">
+                <div>
+                    <h1 class="text-2xl font-bold flex items-center gap-2" style="color: #b45309;">
+                        🎡 幸運抽籤轉輪
+                    </h1>
+                    <p class="text-sm mt-2" style="color: var(--gray-500); font-weight: bold;">
+                        目前班級：<span id="wheel-class-display" style="color: var(--indigo); font-size: 1.1rem; margin-right: 1rem;"></span>
+                        <span style="color: var(--danger);">※ 自動排除已請假及已抽中之學生</span>
+                    </p>
+                </div>
+                <div class="flex gap-2">
+                    <button class="btn btn-outline btn-sm" onclick="switchView('teacher')">🔙 返回管理中心</button>
+                </div>
+            </div>
+
+            <div class="wheel-layout">
+                <!-- 左側：幸運轉盤 -->
+                <div class="card card-body" style="text-align: center; border-color: var(--primary-light);">
+                    <div class="wheel-container">
+                        <div class="wheel-pointer"></div>
+                        <canvas id="wheel-canvas" class="wheel-canvas" width="400" height="400"></canvas>
+                    </div>
+                    <button id="btn-spin" class="btn btn-primary mt-4 w-full" style="max-width: 380px; padding: 1.25rem; font-size: 1.5rem;" onclick="spinWheel()">
+                        🎲 開始抽籤！
+                    </button>
+                </div>
+
+                <!-- 右側：抽籤紀錄 -->
+                <div class="card card-body" style="background: #fffbeb; border-color: #fde68a; height: 100%;">
+                    <h2 class="text-lg font-bold mb-4 flex justify-between items-center" style="color: #b45309;">
+                        <span>📝 本節抽中名單</span>
+                        <button class="btn btn-sm" style="background: white; color: var(--danger); border: 2px solid var(--danger-bg); box-shadow: none;" onclick="resetWheelRecord()">重新一輪</button>
+                    </h2>
+                    <div id="wheel-drawn-list" class="drawn-list">
+                        <!-- 名單將會注入這裡 -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= ACTION MODAL (卡片狀態設定) ================= -->
         <div id="action-modal" class="modal-bottom hidden">
             <div class="modal-content">
                 <div class="flex items-center gap-4">
@@ -627,23 +592,15 @@
 
     </main>
 
-    <!-- 將舊版的 script 改為 type="module" 以引入 Firebase 模組 -->
     <script type="module">
-        // ==========================================
-        // Firebase 雲端資料庫設定區
-        // 如果您要把這份網頁獨立放到 Github Pages 上，
-        // 請去 Firebase 申請一個免費的資料庫，並把設定碼貼在下方的 {} 裡面。
-        // ==========================================
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         let firebaseConfig = null;
-        // 如果是在本平台 (Canvas) 執行，會自動抓取內建的設定
         if (typeof __firebase_config !== 'undefined') {
             firebaseConfig = JSON.parse(__firebase_config);
         } else {
-            // ⭐⭐⭐ 如果要部署到自己的網站，請在此填入您的 Firebase 設定 ⭐⭐⭐
             firebaseConfig = {
               apiKey: "AIzaSyDBLFK7T2ewIk4qgvlBz9hfQuxEALLUezQ",
               authDomain: "typing-game-755a8.firebaseapp.com",
@@ -660,9 +617,6 @@
         let isCloudReady = false;
         let db = null;
 
-        // ==========================================
-        // 題庫資料與隨機可愛圖案
-        // ==========================================
         const quotes = [
             "太棒了！準備好迎接有趣的一天了嗎？🚀",
             "點名完成！今天也要專心聽講喔！✨",
@@ -675,599 +629,9 @@
             "點名成功！遇到不懂的問題勇敢發問喔！🙋‍♂️",
             "打卡完成！跟旁邊的同學說聲早安吧！☀️"
         ];
-
         const cuteEmojis = ['🦄', '🦖', '🐳', '🐶', '🐱', '🦊', '🐰', '🐼', '🐨', '🐯', '🐧', '🦉', '🐢', '🐙', '🐸', '🦁'];
 
-        const rawStudentData = `301
-01	張昱宸
-02	林祐丞
-03	林岦
-04	鄧沐宏
-05	王佑晅
-06	翁士翔
-07	劉鳳文
-08	林柏辰
-09	陳柏綸
-10	黃士玹
-11	黃品融
-12	茹語安
-13	沈祐齊
-14	李建錕
-15	連唯霓
-16	潘允晞
-17	廖心昀
-18	黃子柔
-19	張又心
-20	童羽宸
-21	黃睿梓
-22	林煊庭
-23	丁晨晞
-24	吳品榆
-25	黃卉語
-26	張竟妤
-27	蘇若晴
-302
-01	陳淳理
-02	劉心宇
-03	黃詠鐸
-04	蔡嵃晟
-05	邱御宸
-06	劉子睿
-07	蕭嘉瀅
-08	邱彥棋
-09	謝承燁
-10	蔡昊宸
-11	許祐霖
-12	張航瑀
-13	高靖皓
-14	姜天穗
-15	黃品喬
-16	梁楚艾
-17	宋亞俽
-18	劉秉宜
-19	黃曼惟
-20	吳苡菲
-21	羅苡欣
-22	蕭翊亘
-23	陳禹欣
-24	林可晴
-25	鍾佳妮
-26	葉晴帆
-27	鄭晴文
-28	馬如瑩
-303
-01	林秉震
-02	黃衍翔
-03	陳子惟
-04	曾轅凰
-05	簡睿鴻
-06	游昊庭
-07	吳明恩
-08	丁翊宸
-09	李翔雲
-10	張耘榐
-11	呂尚靖
-13	劉則序
-14	林佑齊
-15	黃軒奕
-16	黃柏軒
-17	陳希甯
-18	張語宸
-19	蔡宥安
-20	許映晨
-21	陳禧恩
-22	沈倢晞
-23	劉妤瑄
-24	劉采婕
-25	王芷婕
-26	王常慕
-27	曾歆
-28	黃貝兒
-29	蘇承妤
-304
-01	周品安
-02	吳宣宇
-03	余易宸
-04	黃立言
-05	楊辰帷
-06	黄麒愷
-07	黃紹宸
-08	林易陞
-09	李晨維
-10	蘇柚呈
-11	許宸碩
-12	楊昊哲
-13	袁唯宸
-14	洪若宸
-15	李運緯
-16	關羽彤
-17	黃子瑜
-18	蘇子芹
-19	陳予惠
-20	陳予恩
-21	陳品卉
-22	陳楀喬
-23	林易穎
-24	朱宥樺
-25	詹晴帆
-26	藍元希
-27	陳敏妮
-28	陳雯暄
-29	蕭培芮
-30	葉明雄
-305
-01	陳沛謙
-02	蔡謨澤
-03	黃宇宸
-04	柯宗廷
-05	羅邦維
-06	蕭凱揚
-07	蔡秉穆
-08	葉佳融
-09	詹翔安
-10	陳彥碩
-11	陳秉睿
-12	羅元佑
-13	朱偉誠
-14	林哲宇
-15	張書睿
-16	張楷文
-17	楊謹安
-18	趙婕瑀
-19	謝依瑾
-20	黃祤桐
-21	葉亭希
-22	廖晏巧
-23	施允霏
-24	孟雨薇
-25	許菀庭
-26	顏語樂
-27	江昕桐
-28	林睦恩
-29	蘇稚昀
-306
-01	周裕軒
-02	黃若堯
-03	倪翊哲
-04	林佑辰
-05	羅浩仁
-06	劉程浩
-07	何帷珵
-08	蔡宗營
-09	張勳
-10	高乙正
-11	劉弈辰
-12	方健翔
-13	李泓毅
-14	陳誼鴻
-15	劉牧飛
-16	張浩哲
-17	陳芊豫
-18	蔡宥樂
-19	賴彥菲
-20	蘇湘云
-21	許倪禎
-22	鄭琳藇
-23	陳沛均
-24	楊琁羽
-25	李昀霏
-26	黃暄秝
-27	藍宥淨
-28	張瑜希
-29	羅翊菲
-307
-01	李沅霖
-02	林安倫
-03	林楷諭
-04	李彥澄
-05	許瓏灝
-06	陳晨頌
-07	余柏陞
-08	蕭靖
-09	游丁翰
-10	張立辰
-11	何定霖
-12	劉冠霆
-13	黃楷宸
-14	蘇宣臣
-15	許明華
-16	王沛妮
-17	詹詠宸
-18	歐陽甯
-19	何宇恩
-20	陳珮萓
-21	廖芸仟
-22	何莉綾
-23	王又萱
-24	康宸睎
-25	王若曦
-26	王若宸
-27	林畇潔
-28	胡庭甄
-29	王宣方
-30	李宸希
-31	吳昀晏
-308
-01	王駿凱
-02	劉振荿
-03	宋宥昕
-04	黃柏瑀
-05	高晨熙
-06	林暄
-07	李翰璋
-08	何思捷
-09	錢立喆
-10	陳旭東
-11	李彥霆
-13	蕭禾
-14	李佑輔
-15	廖恆豪
-16	張芮瑄
-17	蕭可彤
-18	賴今禾
-19	王瑜涵
-20	周沛縈
-21	楊怡安
-22	鄭晴文
-23	郭語璇
-24	蔡詠捷
-25	楊琍雅
-26	李雅芯
-27	俞心晏
-28	黃琬容
-29	黃翊晴
-401
-01	廖芃宇
-02	張揚湛
-03	林家正
-04	郭善傑
-05	李少甫
-06	詹子賢
-07	鄧宥閎
-08	玲宸希
-09	張俊杰
-10	陳彥碩
-11	鄭項天
-12	傅承一
-13	許洺宸
-14	黃彥均
-15	辜允辰
-16	陳奕呈
-17	張予寧
-18	李梓萌
-19	黃柔瑜
-20	麥芸瑄
-21	黃若芸
-22	陳莉雅
-23	連敏芯
-24	曾雨辰
-25	林妤璇
-26	曾甯暄
-27	張莙琳
-28	洪薇
-29	張語桐
-30	陳品璇
-31	吳若瑜
-32	呂宣霆
-402
-01	吳雙
-02	許以亮
-03	孫靖鎧
-04	姚伯錞
-05	陳炫宇
-06	曹丞鈞
-07	蘇澤修
-08	陳海睿
-09	陳常緯
-10	陳廷愷
-11	陳卓均
-12	陳奕維
-13	鄭皓元
-14	張名維
-15	詹祐杰
-16	吳亞叡
-17	潘宥瑞
-18	王晨瑀
-20	劉柔均
-21	陳琪蓁
-22	蕭瑩竹
-23	陳芊默
-24	黃薇穎
-25	王常曦
-26	廖千筑
-27	詹才萱
-28	洪仟芮
-29	姚湘琳
-30	王又禾
-31	蘇苡菲
-32	楊采翎
-33	廖泰豪
-403
-01	張誠祐
-02	彭秉宥
-03	陳昊廷
-04	古承弘
-05	王竑凱
-06	林佳漢
-07	陳廣杰
-08	陳廣翼
-10	林楷恩
-11	黃柏泰
-12	王尚恩
-13	簡詠騰
-14	王浤宇
-15	許柏誠
-16	李濬城
-17	李濬盛
-18	張宇晴
-19	闕米菲
-20	陳姿妤
-21	華晨希
-22	陳郁晴
-24	郭采辰
-25	曾雅淇
-26	鄭妶僖
-27	郭采一
-28	黃歆茹
-29	李倩儀
-30	曾芯妮
-31	徐子晴
-32	薛伊岑
-33	何心伃
-404
-01	蔡承叡
-02	蕭聿辰
-04	張閔皓
-05	李臣榤
-06	簡辰暟
-07	游允樂
-08	何政雍
-09	陳柏宇
-10	陳宥崴
-11	楊承潤
-12	江聖楷
-13	簡詠耀
-14	林洛
-15	(自學生)
-16	李宸緯
-17	王浚誠
-18	張美琰
-19	黃咨妮
-20	曾宥心
-21	陳楷萱
-22	吳艾芸
-23	陳品汝
-24	黃煦庭
-26	吳沛璇
-27	喻語婕
-28	呂佳恩
-29	楊羽晴
-30	葉倢吟
-31	趙俐綺
-32	黃洛歆
-405
-01	李文霖
-02	李文宇
-03	朱柏承
-04	王以謙
-05	黃宇宸
-06	王威凱
-07	馬琮越
-08	劉渤堂
-09	蔡杰丞
-10	楊宸濬
-11	陳沐言
-12	詹子硯
-13	吳宇恩
-14	葉書榮
-15	李承澔
-16	潘宥翔
-17	林語妡
-18	蘇若淇
-19	鍾沛霓
-20	王若宸
-21	吳恩柔
-22	張瑋芯
-23	簡愷螢
-24	林佑霓
-25	許祺鈺
-26	謝宜潔
-27	陳俞霏
-28	石宇希
-29	李孟璇
-30	林芯樂
-31	賴偌涵
-32	洪靖傑
-406
-01	林煒哲
-02	陳士軒
-03	楊牧
-04	鄭宇翔
-05	姜天穎
-06	賴玄耘
-07	林浩恩
-08	陳品叡
-09	林禹行
-10	石宏彥
-11	李哲諺
-12	羅承恩
-13	黃品睿
-14	盧秉弘
-15	陳宥尊
-16	林靖丹
-17	李芷嫻
-18	林琬翎
-19	陳奕喬
-20	詹芷晴
-21	何瑩晞
-22	余婉萁
-23	陳詩芸
-24	蔡逸梵
-25	許允姸
-26	許允慈
-27	陳宥彤
-28	鍾佳妍
-29	連禹喬
-30	康珈嘉
-407
-01	黃宥鈞
-02	陳俊安
-03	蕭宇
-04	李語桐
-05	黃建逢
-06	賴思愷
-07	林品碩
-08	詹濱元
-09	周子洋
-10	凱銳
-11	王立亘
-12	褚仲權
-13	黃世堂
-14	陳澔民
-16	黃泓邁
-17	許唐宸
-18	許宥熙
-19	范庭嘉
-20	林孟璇
-21	鍾和臻
-22	張文嫙
-23	張書語
-24	謝曉玫
-25	周瑾緗
-26	黃紫珊
-27	洪娜恩
-28	林芊禕
-29	朱慈慧
-30	林霈淳
-31	陳僈妮
-408
-01	姜宥庭
-02	吳侑叡
-03	蘇之榮
-04	黃照恩
-05	褚恩霆
-06	林子睿
-07	陳宣翰
-08	王詣傑
-09	葉庭宇
-10	陳皓瑞
-11	莊沛謙
-12	周奕全
-13	王尚倫
-14	康宇程
-15	李昀豪
-16	洪語嬣
-17	蔣舒羽
-18	蕭品吟
-19	陳秧萮
-20	練予璁
-21	王予愛
-22	蘇千玥
-23	黃家榆
-24	鄭巧愛
-25	郭語恩
-27	朱玥綸
-28	林采秝
-29	林沛晨
-30	李宥靚
-31	吳昕璇
-32	王永昊
-503
-01	陳璽銘
-02	許家睿
-03	張為紘
-04	張邑安
-05	安凱文
-06	郭澐騁
-07	洪顥
-08	陳宇璇
-09	陳沐恆
-10	周明豪
-11	許誌諱
-12	楊子灝
-13	邱亦菲
-14	許芝縈
-15	黃芷蕎
-16	林歆菲
-17	許嘉恩
-18	吳艾芫
-19	陳檍心
-20	賴家柔
-21	陳媛伶
-22	高竺妘
-23	楊子安
-504
-01	邱宸邦
-02	莊程瑞
-03	林睿希
-04	呂昊擎
-05	劉奕佑
-06	張家睿
-07	許皓昱
-08	費勤軒
-09	黃則希
-10	葉俊焱
-11	謝卓吾
-12	洪凡宇
-13	洪宜萍
-14	王苡琁
-15	吳艾芸
-16	李洛妮
-17	楊之瑀
-18	何宜芊
-19	王宣霓
-20	孟雨欣
-21	高子晴
-22	林璇
-23	陳品橙
-505
-01	吳宇倫
-02	陳晨星
-03	曹杰霆
-04	廖宥熏
-05	鄭有圻
-06	郭力誠
-07	張鎧隆
-08	莊俊宇
-09	吳其恩
-10	李秉叡
-11	李知恆
-12	陳勁愷
-13	高品慈
-14	廖羽旋
-15	陳姸妡
-16	吳青蔓
-17	古若宜
-18	金楹蕎
-19	吳苡樂
-20	蔡宥佑
-21	黃芷榆
-22	薛語芯
-23	邵晨恩
-24	阮紹軒
-506
-01	柳翔喆
-02	陳柏禎
-03	黃士傑
-04	李建陞
-05	胡秉洆
-06	曾轅馗
-07	陳佑嘉
-08	林竑逸
-09	羅寬宇
-10	蔡忞修
-11	周鍇陽
-12	王禹凱
-13	江柔瑾
-14	余羿蓁
-15	羅子慈
-16	黃馨辰
-17	廖安媗
-18	洪思惟
-19	唐沐恩
-20	靖僈可
-21	林晨熙
-22	蘇泇鉻`;
+        const rawStudentData = `301\n01\t張昱宸\n02\t林祐丞\n03\t林岦\n04\t鄧沐宏\n05\t王佑晅\n06\t翁士翔\n07\t劉鳳文\n08\t林柏辰\n09\t陳柏綸\n10\t黃士玹\n11\t黃品融\n12\t茹語安\n13\t沈祐齊\n14\t李建錕\n15\t連唯霓\n16\t潘允晞\n17\t廖心昀\n18\t黃子柔\n19\t張又心\n20\t童羽宸\n21\t黃睿梓\n22\t林煊庭\n23\t丁晨晞\n24\t吳品榆\n25\t黃卉語\n26\t張竟妤\n27\t蘇若晴\n302\n01\t陳淳理\n02\t劉心宇\n03\t黃詠鐸\n04\t蔡嵃晟\n05\t邱御宸\n06\t劉子睿\n07\t蕭嘉瀅\n08\t邱彥棋\n09\t謝承燁\n10\t蔡昊宸\n11\t許祐霖\n12\t張航瑀\n13\t高靖皓\n14\t姜天穗\n15\t黃品喬\n16\t梁楚艾\n17\t宋亞俽\n18\t劉秉宜\n19\t黃曼惟\n20\t吳苡菲\n21\t羅苡欣\n22\t蕭翊亘\n23\t陳禹欣\n24\t林可晴\n25\t鍾佳妮\n26\t葉晴帆\n27\t鄭晴文\n28\t馬如瑩\n303\n01\t林秉震\n02\t黃衍翔\n03\t陳子惟\n04\t曾轅凰\n05\t簡睿鴻\n06\t游昊庭\n07\t吳明恩\n08\t丁翊宸\n09\t李翔雲\n10\t張耘榐\n11\t呂尚靖\n13\t劉則序\n14\t林佑齊\n15\t黃軒奕\n16\t黃柏軒\n17\t陳希甯\n18\t張語宸\n19\t蔡宥安\n20\t許映晨\n21\t陳禧恩\n22\t沈倢晞\n23\t劉妤瑄\n24\t劉采婕\n25\t王芷婕\n26\t王常慕\n27\t曾歆\n28\t黃貝兒\n29\t蘇承妤\n304\n01\t周品安\n02\t吳宣宇\n03\t余易宸\n04\t黃立言\n05\t楊辰帷\n06\t黄麒愷\n07\t黃紹宸\n08\t林易陞\n09\t李晨維\n10\t蘇柚呈\n11\t許宸碩\n12\t楊昊哲\n13\t袁唯宸\n14\t洪若宸\n15\t李運緯\n16\t關羽彤\n17\t黃子瑜\n18\t蘇子芹\n19\t陳予惠\n20\t陳予恩\n21\t陳品卉\n22\t陳楀喬\n23\t林易穎\n24\t朱宥樺\n25\t詹晴帆\n26\t藍元希\n27\t陳敏妮\n28\t陳雯暄\n29\t蕭培芮\n30\t葉明雄\n305\n01\t陳沛謙\n02\t蔡謨澤\n03\t黃宇宸\n04\t柯宗廷\n05\t羅邦維\n06\t蕭凱揚\n07\t蔡秉穆\n08\t葉佳融\n09\t詹翔安\n10\t陳彥碩\n11\t陳秉睿\n12\t羅元佑\n13\t朱偉誠\n14\t林哲宇\n15\t張書睿\n16\t張楷文\n17\t楊謹安\n18\t趙婕瑀\n19\t謝依瑾\n20\t黃祤桐\n21\t葉亭希\n22\t廖晏巧\n23\t施允霏\n24\t孟雨薇\n25\t許菀庭\n26\t顏語樂\n27\t江昕桐\n28\t林睦恩\n29\t蘇稚昀\n306\n01\t周裕軒\n02\t黃若堯\n03\t倪翊哲\n04\t林佑辰\n05\t羅浩仁\n06\t劉程浩\n07\t何帷珵\n08\t蔡宗營\n09\t張勳\n10\t高乙正\n11\t劉弈辰\n12\t方健翔\n13\t李泓毅\n14\t陳誼鴻\n15\t劉牧飛\n16\t張浩哲\n17\t陳芊豫\n18\t蔡宥樂\n19\t賴彥菲\n20\t蘇湘云\n21\t許倪禎\n22\t鄭琳藇\n23\t陳沛均\n24\t楊琁羽\n25\t李昀霏\n26\t黃暄秝\n27\t藍宥淨\n28\t張瑜希\n29\t羅翊菲\n307\n01\t李沅霖\n02\t林安倫\n03\t林楷諭\n04\t李彥澄\n05\t許瓏灝\n06\t陳晨頌\n07\t余柏陞\n08\t蕭靖\n09\t游丁翰\n10\t張立辰\n11\t何定霖\n12\t劉冠霆\n13\t黃楷宸\n14\t蘇宣臣\n15\t許明華\n16\t王沛妮\n17\t詹詠宸\n18\t歐陽甯\n19\t何宇恩\n20\t陳珮萓\n21\t廖芸仟\n22\t何莉綾\n23\t王又萱\n24\t康宸睎\n25\t王若曦\n26\t王若宸\n27\t林畇潔\n28\t胡庭甄\n29\t王宣方\n30\t李宸希\n31\t吳昀晏\n308\n01\t王駿凱\n02\t劉振荿\n03\t宋宥昕\n04\t黃柏瑀\n05\t高晨熙\n06\t林暄\n07\t李翰璋\n08\t何思捷\n09\t錢立喆\n10\t陳旭東\n11\t李彥霆\n13\t蕭禾\n14\t李佑輔\n15\t廖恆豪\n16\t張芮瑄\n17\t蕭可彤\n18\t賴今禾\n19\t王瑜涵\n20\t周沛縈\n21\t楊怡安\n22\t鄭晴文\n23\t郭語璇\n24\t蔡詠捷\n25\t楊琍雅\n26\t李雅芯\n27\t俞心晏\n28\t黃琬容\n29\t黃翊晴\n401\n01\t廖芃宇\n02\t張揚湛\n03\t林家正\n04\t郭善傑\n05\t李少甫\n06\t詹子賢\n07\t鄧宥閎\n08\t玲宸希\n09\t張俊杰\n10\t陳彥碩\n11\t鄭項天\n12\t傅承一\n13\t許洺宸\n14\t黃彥均\n15\t辜允辰\n16\t陳奕呈\n17\t張予寧\n18\t李梓萌\n19\t黃柔瑜\n20\t麥芸瑄\n21\t黃若芸\n22\t陳莉雅\n23\t連敏芯\n24\t曾雨辰\n25\t林妤璇\n26\t曾甯暄\n27\t張莙琳\n28\t洪薇\n29\t張語桐\n30\t陳品璇\n31\t吳若瑜\n32\t呂宣霆\n402\n01\t吳雙\n02\t許以亮\n03\t孫靖鎧\n04\t姚伯錞\n05\t陳炫宇\n06\t曹丞鈞\n07\t蘇澤修\n08\t陳海睿\n09\t陳常緯\n10\t陳廷愷\n11\t陳卓均\n12\t陳奕維\n13\t鄭皓元\n14\t張名維\n15\t詹祐杰\n16\t吳亞叡\n17\t潘宥瑞\n18\t王晨瑀\n20\t劉柔均\n21\t陳琪蓁\n22\t蕭瑩竹\n23\t陳芊默\n24\t黃薇穎\n25\t王常曦\n26\t廖千筑\n27\t詹才萱\n28\t洪仟芮\n29\t姚湘琳\n30\t王又禾\n31\t蘇苡菲\n32\t楊采翎\n33\t廖泰豪\n403\n01\t張誠祐\n02\t彭秉宥\n03\t陳昊廷\n04\t古承弘\n05\t王竑凱\n06\t林佳漢\n07\t陳廣杰\n08\t陳廣翼\n10\t林楷恩\n11\t黃柏泰\n12\t王尚恩\n13\t簡詠騰\n14\t王浤宇\n15\t許柏誠\n16\t李濬城\n17\t李濬盛\n18\t張宇晴\n19\t闕米菲\n20\t陳姿妤\n21\t華晨希\n22\t陳郁晴\n24\t郭采辰\n25\t曾雅淇\n26\t鄭妶僖\n27\t郭采一\n28\t黃歆茹\n29\t李倩儀\n30\t曾芯妮\n31\t徐子晴\n32\t薛伊岑\n33\t何心伃\n404\n01\t蔡承叡\n02\t蕭聿辰\n04\t張閔皓\n05\t李臣榤\n06\t簡辰暟\n07\t游允樂\n08\t何政雍\n09\t陳柏宇\n10\t陳宥崴\n11\t楊承潤\n12\t江聖楷\n13\t簡詠耀\n14\t林洛\n15\t(自學生)\n16\t李宸緯\n17\t王浚誠\n18\t張美琰\n19\t黃咨妮\n20\t曾宥心\n21\t陳楷萱\n22\t吳艾芸\n23\t陳品汝\n24\t黃煦庭\n26\t吳沛璇\n27\t喻語婕\n28\t呂佳恩\n29\t楊羽晴\n30\t葉倢吟\n31\t趙俐綺\n32\t黃洛歆\n405\n01\t李文霖\n02\t李文宇\n03\t朱柏承\n04\t王以謙\n05\t黃宇宸\n06\t王威凱\n07\t馬琮越\n08\t劉渤堂\n09\t蔡杰丞\n10\t楊宸濬\n11\t陳沐言\n12\t詹子硯\n13\t吳宇恩\n14\t葉書榮\n15\t李承澔\n16\t潘宥翔\n17\t林語妡\n18\t蘇若淇\n19\t鍾沛霓\n20\t王若宸\n21\t吳恩柔\n22\t張瑋芯\n23\t簡愷螢\n24\t林佑霓\n25\t許祺鈺\n26\t謝宜潔\n27\t陳俞霏\n28\t石宇希\n29\t李孟璇\n30\t林芯樂\n31\t賴偌涵\n32\t洪靖傑\n406\n01\t林煒哲\n02\t陳士軒\n03\t楊牧\n04\t鄭宇翔\n05\t姜天穎\n06\t賴玄耘\n07\t林浩恩\n08\t陳品叡\n09\t林禹行\n10\t石宏彥\n11\t李哲諺\n12\t羅承恩\n13\t黃品睿\n14\t盧秉弘\n15\t陳宥尊\n16\t林靖丹\n17\t李芷嫻\n18\t林琬翎\n19\t陳奕喬\n20\t詹芷晴\n21\t何瑩晞\n22\t余婉萁\n23\t陳詩芸\n24\t蔡逸梵\n25\t許允姸\n26\t許允慈\n27\t陳宥彤\n28\t鍾佳妍\n29\t連禹喬\n30\t康珈嘉\n407\n01\t黃宥鈞\n02\t陳俊安\n03\t蕭宇\n04\t李語桐\n05\t黃建逢\n06\t賴思愷\n07\t林品碩\n08\t詹濱元\n09\t周子洋\n10\t凱銳\n11\t王立亘\n12\t褚仲權\n13\t黃世堂\n14\t陳澔民\n16\t黃泓邁\n17\t許唐宸\n18\t許宥熙\n19\t范庭嘉\n20\t林孟璇\n21\t鍾和臻\n22\t張文嫙\n23\t張書語\n24\t謝曉玫\n25\t周瑾緗\n26\t黃紫珊\n27\t洪娜恩\n28\t林芊禕\n29\t朱慈慧\n30\t林霈淳\n31\t陳僈妮\n408\n01\t姜宥庭\n02\t吳侑叡\n03\t蘇之榮\n04\t黃照恩\n05\t褚恩霆\n06\t林子睿\n07\t陳宣翰\n08\t王詣傑\n09\t葉庭宇\n10\t陳皓瑞\n11\t莊沛謙\n12\t周奕全\n13\t王尚倫\n14\t康宇程\n15\t李昀豪\n16\t洪語嬣\n17\t蔣舒羽\n18\t蕭品吟\n19\t陳秧萮\n20\t練予璁\n21\t王予愛\n22\t蘇千玥\n23\t黃家榆\n24\t鄭巧愛\n25\t郭語恩\n27\t朱玥綸\n28\t林采秝\n29\t林沛晨\n30\t李宥靚\n31\t吳昕璇\n32\t王永昊\n503\n01\t陳璽銘\n02\t許家睿\n03\t張為紘\n04\t張邑安\n05\t安凱文\n06\t郭澐騁\n07\t洪顥\n08\t陳宇璇\n09\t陳沐恆\n10\t周明豪\n11\t許誌諱\n12\t楊子灝\n13\t邱亦菲\n14\t許芝縈\n15\t黃芷蕎\n16\t林歆菲\n17\t許嘉恩\n18\t吳艾芫\n19\t陳檍心\n20\t賴家柔\n21\t陳媛伶\n22\t高竺妘\n23\t楊子安\n504\n01\t邱宸邦\n02\t莊程瑞\n03\t林睿希\n04\t呂昊擎\n05\t劉奕佑\n06\t張家睿\n07\t許皓昱\n08\t費勤軒\n09\t黃則希\n10\t葉俊焱\n11\t謝卓吾\n12\t洪凡宇\n13\t洪宜萍\n14\t王苡琁\n15\t吳艾芸\n16\t李洛妮\n17\t楊之瑀\n18\t何宜芊\n19\t王宣霓\n20\t孟雨欣\n21\t高子晴\n22\t林璇\n23\t陳品橙\n505\n01\t吳宇倫\n02\t陳晨星\n03\t曹杰霆\n04\t廖宥熏\n05\t鄭有圻\n06\t郭力誠\n07\t張鎧隆\n08\t莊俊宇\n09\t吳其恩\n10\t李秉叡\n11\t李知恆\n12\t陳勁愷\n13\t高品慈\n14\t廖羽旋\n15\t陳姸妡\n16\t吳青蔓\n17\t古若宜\n18\t金楹蕎\n19\t吳苡樂\n20\t蔡宥佑\n21\t黃芷榆\n22\t薛語芯\n23\t邵晨恩\n24\t阮紹軒\n506\n01\t柳翔喆\n02\t陳柏禎\n03\t黃士傑\n04\t李建陞\n05\t胡秉洆\n06\t曾轅馗\n07\t陳佑嘉\n08\t林竑逸\n09\t羅寬宇\n10\t蔡忞修\n11\t周鍇陽\n12\t王禹凱\n13\t江柔瑾\n14\t余羿蓁\n15\t羅子慈\n16\t黃馨辰\n17\t廖安媗\n18\t洪思惟\n19\t唐沐恩\n20\t靖僈可\n21\t林晨熙\n22\t蘇泇鉻`;
 
         // ==========================================
         // 系統狀態
@@ -1278,6 +642,7 @@
             isAuthenticated: false,
             studentsByClass: {},
             attendance: {}, 
+            drawnStudents: {}, // 新增：抽籤紀錄 { "301": ["301-01", "301-05"] }
             currentWeek: '',
             selectedWeek: '', 
             activeClass: '',
@@ -1329,7 +694,7 @@
             trash: `<svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" style="width:100%;height:100%;"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>`
         };
 
-        function shootConfetti() {
+        window.shootConfetti = function() {
             const container = document.getElementById('confetti-container');
             container.innerHTML = ''; 
             const colors = ['#0ea5e9', '#38bdf8', '#fcd34d', '#34d399', '#3b82f6']; 
@@ -1363,33 +728,73 @@
         }
 
         // ==========================================
+        // 自訂提示視窗 (取代 alert 與 confirm)
+        // ==========================================
+        let confirmCallback = null;
+
+        window.showCustomConfirm = function(title, text, onConfirm) {
+            document.getElementById('custom-confirm-title').innerText = title;
+            document.getElementById('custom-confirm-text').innerText = text;
+            confirmCallback = onConfirm;
+            const modal = document.getElementById('custom-confirm-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.add('show'), 10);
+        }
+
+        window.closeCustomConfirm = function(result) {
+            const modal = document.getElementById('custom-confirm-modal');
+            modal.classList.remove('show');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+            if(result && confirmCallback) confirmCallback();
+            confirmCallback = null;
+        }
+
+        window.showCustomAlert = function(title, text, icon = "🎉") {
+            document.getElementById('custom-alert-icon').innerText = icon;
+            document.getElementById('custom-alert-title').innerText = title;
+            document.getElementById('custom-alert-text').innerText = text;
+            const modal = document.getElementById('custom-alert-modal');
+            modal.classList.remove('hidden');
+            setTimeout(() => modal.classList.add('show'), 10);
+        }
+
+        window.closeCustomAlert = function() {
+            const modal = document.getElementById('custom-alert-modal');
+            modal.classList.remove('show');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        }
+
+        // ==========================================
         // 核心函數：保存資料 (自動判斷雲端或本地)
         // ==========================================
         async function saveData() {
             if (isCloudReady && db) {
                 try {
                     const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'attendanceSystem', 'mainData');
-                    // 同步寫入 Firebase 雲端資料庫
                     await setDoc(docRef, {
                         studentsByClass: state.studentsByClass,
-                        attendance: state.attendance
+                        attendance: state.attendance,
+                        drawnStudents: state.drawnStudents
                     });
                 } catch (e) {
                     console.error("雲端存檔失敗:", e);
                 }
             } else {
-                // 退回到離線本地儲存模式
                 localStorage.setItem('attendance_students', JSON.stringify(state.studentsByClass));
                 localStorage.setItem('attendance_records', JSON.stringify(state.attendance));
+                localStorage.setItem('attendance_drawn', JSON.stringify(state.drawnStudents));
             }
             populateWeekDropdown();
         }
 
         // ==========================================
-        // 視圖切換與事件綁定 (因為改為 Module 所以要綁到 window 上)
+        // 視圖切換與事件綁定
         // ==========================================
         window.switchView = function(viewName) {
             if (viewName === 'teacher' && !state.isAuthenticated) {
+                viewName = 'teacherLogin';
+            }
+            if (viewName === 'wheel' && !state.isAuthenticated) {
                 viewName = 'teacherLogin';
             }
             
@@ -1397,6 +802,7 @@
             document.getElementById('view-student').classList.add('hidden');
             document.getElementById('view-teacherLogin').classList.add('hidden');
             document.getElementById('view-teacher').classList.add('hidden');
+            document.getElementById('view-wheel').classList.add('hidden');
             
             document.getElementById('nav-student').classList.remove('active-student');
             document.getElementById('nav-teacher').classList.remove('active-teacher');
@@ -1414,6 +820,10 @@
                 document.getElementById('view-teacher').classList.remove('hidden');
                 document.getElementById('nav-teacher').classList.add('active-teacher');
                 renderTeacherView();
+            } else if (viewName === 'wheel') {
+                document.getElementById('view-wheel').classList.remove('hidden');
+                document.getElementById('nav-teacher').classList.add('active-teacher');
+                renderWheelView();
             }
         };
 
@@ -1534,7 +944,7 @@
             };
             saveData();
             
-            shootConfetti();
+            window.shootConfetti();
             const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
             const randomEmoji = cuteEmojis[Math.floor(Math.random() * cuteEmojis.length)];
             
@@ -1588,6 +998,7 @@
         function renderTeacherView() {
             document.getElementById('teacher-class-title').innerText = state.activeClass;
             document.getElementById('teacher-week-title').innerText = state.selectedWeek;
+            document.getElementById('teacher-week-display').innerText = `目前週數：${state.currentWeek}`;
             
             const students = state.studentsByClass[state.activeClass] || [];
             
@@ -1697,13 +1108,13 @@
             const seatInput = document.getElementById('add-seat').value;
             const nameInput = document.getElementById('add-name').value;
             
-            if (!seatInput || !nameInput) return alert("請輸入座號與姓名");
+            if (!seatInput || !nameInput) return window.showCustomAlert("輸入錯誤", "請輸入座號與姓名喔！", "⚠️");
             
             const seatNumStr = seatInput.padStart(2, '0');
             const students = state.studentsByClass[state.activeClass];
             
             if (students.some(s => s.seat === seatNumStr)) {
-                return alert("這個座號已經有人用囉！請檢查一下。");
+                return window.showCustomAlert("輸入錯誤", "這個座號已經有人用囉！請檢查一下。", "⚠️");
             }
 
             const newStudent = {
@@ -1723,11 +1134,11 @@
 
         window.handleDeleteStudent = function(e, studentId, studentName) {
             e.stopPropagation();
-            if (confirm(`確定要刪除「${studentName}」嗎？\n(注意：相關的點名紀錄不會自動消失喔)`)) {
+            window.showCustomConfirm("刪除學生", `確定要刪除「${studentName}」嗎？\n(注意：相關的點名紀錄不會自動消失喔)`, () => {
                 state.studentsByClass[state.activeClass] = state.studentsByClass[state.activeClass].filter(s => s.id !== studentId);
                 saveData();
                 renderTeacherView();
-            }
+            });
         };
 
         window.openModal = function(id, seat, name) {
@@ -1766,7 +1177,184 @@
             saveData();
             window.closeModal();
             renderTeacherView();
+            if(state.view === 'wheel') renderWheelView();
         };
+
+
+        // ==========================================
+        // 幸運抽籤轉輪 邏輯
+        // ==========================================
+        let currentWheelStudents = [];
+        let startAngle = 0;
+        let arc = 0;
+        let spinTimeout = null;
+        let spinAngleStart = 0;
+        let spinTime = 0;
+        let spinTimeTotal = 0;
+
+        function renderWheelView() {
+            document.getElementById('wheel-class-display').innerText = state.activeClass;
+
+            const students = state.studentsByClass[state.activeClass] || [];
+            const drawnSet = new Set(state.drawnStudents[state.activeClass] || []);
+
+            // 過濾掉「本週請假」及「已抽過」的學生
+            currentWheelStudents = students.filter(s => {
+                const record = state.attendance[s.id]?.[state.currentWeek];
+                const isLeave = record && record.status === 'leave';
+                const isDrawn = drawnSet.has(s.id);
+                return !isLeave && !isDrawn;
+            });
+
+            startAngle = 0; 
+            drawRouletteWheel();
+            renderDrawnList();
+        }
+
+        function drawRouletteWheel() {
+            const canvas = document.getElementById("wheel-canvas");
+            if (!canvas.getContext) return;
+            const ctx = canvas.getContext("2d");
+            ctx.clearRect(0,0,400,400);
+
+            if (currentWheelStudents.length === 0) {
+                ctx.fillStyle = "#f3f4f6";
+                ctx.beginPath();
+                ctx.arc(200, 200, 200, 0, Math.PI*2);
+                ctx.fill();
+                ctx.fillStyle = "#9ca3af";
+                ctx.font = "bold 28px 'Comic Sans MS', '微軟正黑體', sans-serif";
+                ctx.textAlign = "center";
+                ctx.fillText("大家都抽過囉！", 200, 210);
+                document.getElementById('btn-spin').disabled = true;
+                return;
+            }
+
+            document.getElementById('btn-spin').disabled = false;
+            arc = Math.PI * 2 / currentWheelStudents.length;
+
+            const sliceColors = ["#bae6fd", "#bbf7d0", "#fef08a", "#fbcfe8", "#c7d2fe", "#fca5a5"];
+
+            ctx.strokeStyle = "white";
+            ctx.lineWidth = 3;
+
+            for (let i = 0; i < currentWheelStudents.length; i++) {
+                const angle = startAngle + i * arc;
+                ctx.fillStyle = sliceColors[i % sliceColors.length];
+                ctx.beginPath();
+                ctx.arc(200, 200, 200, angle, angle + arc, false);
+                ctx.arc(200, 200, 0, angle + arc, angle, true);
+                ctx.fill();
+                ctx.stroke();
+
+                ctx.save();
+                ctx.fillStyle = "#1e293b";
+                ctx.translate(200, 200);
+                ctx.rotate(angle + arc / 2);
+                ctx.textAlign = "right";
+                ctx.font = "bold 18px '微軟正黑體', sans-serif";
+                ctx.fillText(currentWheelStudents[i].name, 180, 6);
+                ctx.restore();
+            }
+        }
+
+        window.spinWheel = function() {
+            if(currentWheelStudents.length === 0) return;
+            document.getElementById('btn-spin').disabled = true;
+            spinAngleStart = Math.random() * 10 + 15; // 隨機初始速度
+            spinTime = 0;
+            spinTimeTotal = Math.random() * 3000 + 4000; // 轉動時間 4~7秒
+            rotateWheel();
+        }
+
+        function rotateWheel() {
+            spinTime += 30;
+            if(spinTime >= spinTimeTotal) {
+                stopRotateWheel();
+                return;
+            }
+            let spinAngle = spinAngleStart - easeOut(spinTime, 0, spinAngleStart, spinTimeTotal);
+            startAngle += (spinAngle * Math.PI / 180);
+            drawRouletteWheel();
+            spinTimeout = requestAnimationFrame(rotateWheel);
+        }
+
+        function easeOut(t, b, c, d) {
+            let ts = (t/=d)*t;
+            let tc = ts*t;
+            return b+c*(tc + -3*ts + 3*t);
+        }
+
+        function stopRotateWheel() {
+            // 計算上方指針(270度 / 1.5 PI) 指到的索引
+            let targetAngle = (1.5 * Math.PI - startAngle) % (2 * Math.PI);
+            if (targetAngle < 0) targetAngle += 2 * Math.PI;
+            
+            let index = Math.floor(targetAngle / arc);
+            const winner = currentWheelStudents[index];
+
+            // 畫出中獎的 Highlight
+            const ctx = document.getElementById("wheel-canvas").getContext("2d");
+            ctx.save();
+            ctx.beginPath();
+            const angle = startAngle + index * arc;
+            ctx.arc(200, 200, 200, angle, angle + arc, false);
+            ctx.arc(200, 200, 0, angle + arc, angle, true);
+            ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+            ctx.fill();
+            ctx.restore();
+
+            setTimeout(() => {
+                handleWinner(winner);
+            }, 600);
+        }
+
+        function handleWinner(winner) {
+            window.shootConfetti();
+            const randomEmoji = cuteEmojis[Math.floor(Math.random() * cuteEmojis.length)];
+            window.showCustomAlert(`抽中：${winner.seat}號 ${winner.name}`, "恭喜幸運兒！", randomEmoji);
+
+            if(!state.drawnStudents) state.drawnStudents = {};
+            if(!state.drawnStudents[state.activeClass]) state.drawnStudents[state.activeClass] = [];
+            
+            state.drawnStudents[state.activeClass].push(winner.id);
+            saveData();
+            renderWheelView();
+        }
+
+        window.resetWheelRecord = function() {
+            const drawnSet = state.drawnStudents[state.activeClass] || [];
+            if(drawnSet.length === 0) return;
+
+            window.showCustomConfirm("重新一輪", "確定要清除本節課的抽籤紀錄嗎？\n(名單將會全部放回轉盤中)", () => {
+                state.drawnStudents[state.activeClass] = [];
+                saveData();
+                renderWheelView();
+            });
+        }
+
+        function renderDrawnList() {
+            const list = document.getElementById('wheel-drawn-list');
+            list.innerHTML = '';
+            const drawnSet = state.drawnStudents[state.activeClass] || [];
+            
+            if(drawnSet.length === 0) {
+                list.innerHTML = '<p style="color: var(--gray-500); text-align: center; margin-top: 1.5rem; font-weight: bold;">目前還沒有抽籤紀錄喔！</p>';
+                return;
+            }
+
+            // 反轉順序讓最新抽中的在最上面
+            [...drawnSet].reverse().forEach(id => {
+                const s = state.studentsByClass[state.activeClass].find(x => x.id === id);
+                if(s) {
+                    list.innerHTML += `
+                        <div class="drawn-item">
+                            <span style="background: #fef08a; padding: 0.2rem 0.6rem; border-radius: 1rem; color: #b45309; font-size: 0.9rem;">${s.seat}</span> 
+                            ${s.name}
+                        </div>`;
+                }
+            });
+        }
 
         // ==========================================
         // 系統初始化與雲端連線設定
@@ -1775,7 +1363,9 @@
             state.currentWeek = getWeekIdentifier();
             state.selectedWeek = state.currentWeek;
 
-            // 若載入有設定 Firebase Config，則啟用雲端模式
+            // 確保有預設的 drawnStudents 狀態
+            if(!state.drawnStudents) state.drawnStudents = {};
+
             if (firebaseConfig) {
                 const app = initializeApp(firebaseConfig);
                 const auth = getAuth(app);
@@ -1793,16 +1383,15 @@
                 onAuthStateChanged(auth, (u) => {
                     if (!u) return;
                     isCloudReady = true;
-                    // 設定即時監聽雲端資料庫
                     const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'attendanceSystem', 'mainData');
                     onSnapshot(docRef, (snapshot) => {
                         if (snapshot.exists()) {
                             const data = snapshot.data();
                             state.studentsByClass = data.studentsByClass || parseInitialData();
                             state.attendance = data.attendance || {};
+                            state.drawnStudents = data.drawnStudents || {};
                             populateWeekDropdown();
                             
-                            // 更新畫面中的選單
                             const sClassSelect = document.getElementById('student-class-select');
                             const tClassSelect = document.getElementById('teacher-class-select');
                             state.classList = Object.keys(state.studentsByClass).sort();
@@ -1824,8 +1413,8 @@
                             if (currentTeacherClass && state.classList.includes(currentTeacherClass)) tClassSelect.value = currentTeacherClass;
 
                             if (state.view === 'teacher') renderTeacherView();
+                            if (state.view === 'wheel') renderWheelView();
                         } else {
-                            // 第一次進入建立初始資料
                             state.studentsByClass = parseInitialData();
                             saveData(); 
                         }
@@ -1834,7 +1423,6 @@
                     });
                 });
             } else {
-                // 離線本地儲存模式載入
                 const savedStudents = localStorage.getItem('attendance_students');
                 if (savedStudents) {
                     state.studentsByClass = JSON.parse(savedStudents);
@@ -1854,6 +1442,11 @@
                         }
                     }
                     state.attendance = parsed;
+                }
+
+                const savedDrawn = localStorage.getItem('attendance_drawn');
+                if(savedDrawn) {
+                    state.drawnStudents = JSON.parse(savedDrawn);
                 }
 
                 state.classList = Object.keys(state.studentsByClass).sort();
