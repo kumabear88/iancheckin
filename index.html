@@ -523,6 +523,7 @@
                         <svg style="color: var(--indigo);" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path><path d="M9 12l2 2 4-4"></path></svg>
                         教師點名管理中心
                     </h1>
+                    <p id="teacher-week-display" class="text-sm" style="color: var(--gray-500); margin-top: 0.5rem; font-weight: bold;"></p>
                 </div>
                 <div class="flex gap-2">
                     <button class="btn btn-outline btn-sm" onclick="handleLogout()">登出 👋</button>
@@ -626,7 +627,39 @@
 
     </main>
 
-    <script>
+    <!-- 將舊版的 script 改為 type="module" 以引入 Firebase 模組 -->
+    <script type="module">
+        // ==========================================
+        // Firebase 雲端資料庫設定區
+        // 如果您要把這份網頁獨立放到 Github Pages 上，
+        // 請去 Firebase 申請一個免費的資料庫，並把設定碼貼在下方的 {} 裡面。
+        // ==========================================
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        let firebaseConfig = null;
+        // 如果是在本平台 (Canvas) 執行，會自動抓取內建的設定
+        if (typeof __firebase_config !== 'undefined') {
+            firebaseConfig = JSON.parse(__firebase_config);
+        } else {
+            // ⭐⭐⭐ 如果要部署到自己的網站，請在此填入您的 Firebase 設定 ⭐⭐⭐
+            firebaseConfig = {
+              apiKey: "AIzaSyDBLFK7T2ewIk4qgvlBz9hfQuxEALLUezQ",
+              authDomain: "typing-game-755a8.firebaseapp.com",
+              databaseURL: "https://typing-game-755a8-default-rtdb.firebaseio.com",
+              projectId: "typing-game-755a8",
+              storageBucket: "typing-game-755a8.firebasestorage.app",
+              messagingSenderId: "938096537906",
+              appId: "1:938096537906:web:0fb0e431a9fcbb2fcb272b",
+              measurementId: "G-K8NC1SX4X6"
+            };
+        }
+
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'my-awesome-attendance-app';
+        let isCloudReady = false;
+        let db = null;
+
         // ==========================================
         // 題庫資料與隨機可愛圖案
         // ==========================================
@@ -995,7 +1028,7 @@
 12	江聖楷
 13	簡詠耀
 14	林洛
-15	陳禹睿
+15	(自學生)
 16	李宸緯
 17	王浚誠
 18	張美琰
@@ -1029,11 +1062,11 @@
 14	葉書榮
 15	李承澔
 16	潘宥翔
-17	(姓名不詳)
+17	林語妡
 18	蘇若淇
 19	鍾沛霓
 20	王若宸
-21	(姓名不詳)
+21	吳恩柔
 22	張瑋芯
 23	簡愷螢
 24	林佑霓
@@ -1211,7 +1244,7 @@
 21	黃芷榆
 22	薛語芯
 23	邵晨恩
-24	帆玉翔悟
+24	阮紹軒
 506
 01	柳翔喆
 02	陳柏禎
@@ -1238,7 +1271,6 @@
 
         // ==========================================
         // 系統狀態
-        // attendance: { '301-01': { '2026-W15': { status: 'present', timestamp: ... } } }
         // ==========================================
         const state = {
             view: 'student', 
@@ -1300,7 +1332,7 @@
         function shootConfetti() {
             const container = document.getElementById('confetti-container');
             container.innerHTML = ''; 
-            const colors = ['#0ea5e9', '#38bdf8', '#fcd34d', '#34d399', '#3b82f6']; // 調整為配合海洋藍的顏色
+            const colors = ['#0ea5e9', '#38bdf8', '#fcd34d', '#34d399', '#3b82f6']; 
             const confettiCount = 80;
             for(let i = 0; i < confettiCount; i++) {
                 const conf = document.createElement('div');
@@ -1312,53 +1344,6 @@
                 container.appendChild(conf);
             }
             setTimeout(() => { container.innerHTML = ''; }, 4000);
-        }
-
-        // ==========================================
-        // 初始化與本地儲存
-        // ==========================================
-        function initApp() {
-            state.currentWeek = getWeekIdentifier();
-            state.selectedWeek = state.currentWeek;
-
-            const savedStudents = localStorage.getItem('attendance_students');
-            if (savedStudents) {
-                state.studentsByClass = JSON.parse(savedStudents);
-            } else {
-                state.studentsByClass = parseInitialData();
-                localStorage.setItem('attendance_students', JSON.stringify(state.studentsByClass));
-            }
-
-            const savedAttendance = localStorage.getItem('attendance_records');
-            if (savedAttendance) {
-                let parsed = JSON.parse(savedAttendance);
-                for (let key in parsed) {
-                    if (parsed[key].status && parsed[key].week) {
-                        let oldRecord = parsed[key];
-                        parsed[key] = {};
-                        parsed[key][oldRecord.week] = oldRecord;
-                    }
-                }
-                state.attendance = parsed;
-            }
-
-            state.classList = Object.keys(state.studentsByClass).sort();
-            if(state.classList.length > 0) {
-                state.activeClass = state.classList[0];
-            }
-
-            const sClassSelect = document.getElementById('student-class-select');
-            const tClassSelect = document.getElementById('teacher-class-select');
-            sClassSelect.innerHTML = '<option value="">-- 點這裡選擇班級 --</option>';
-            tClassSelect.innerHTML = '';
-            
-            state.classList.forEach(c => {
-                sClassSelect.innerHTML += `<option value="${c}">${c} 班</option>`;
-                tClassSelect.innerHTML += `<option value="${c}">${c} 班</option>`;
-            });
-
-            populateWeekDropdown();
-            switchView('student');
         }
 
         function populateWeekDropdown() {
@@ -1377,16 +1362,33 @@
             select.value = state.selectedWeek;
         }
 
-        function saveData() {
-            localStorage.setItem('attendance_students', JSON.stringify(state.studentsByClass));
-            localStorage.setItem('attendance_records', JSON.stringify(state.attendance));
+        // ==========================================
+        // 核心函數：保存資料 (自動判斷雲端或本地)
+        // ==========================================
+        async function saveData() {
+            if (isCloudReady && db) {
+                try {
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'attendanceSystem', 'mainData');
+                    // 同步寫入 Firebase 雲端資料庫
+                    await setDoc(docRef, {
+                        studentsByClass: state.studentsByClass,
+                        attendance: state.attendance
+                    });
+                } catch (e) {
+                    console.error("雲端存檔失敗:", e);
+                }
+            } else {
+                // 退回到離線本地儲存模式
+                localStorage.setItem('attendance_students', JSON.stringify(state.studentsByClass));
+                localStorage.setItem('attendance_records', JSON.stringify(state.attendance));
+            }
             populateWeekDropdown();
         }
 
         // ==========================================
-        // 視圖切換邏輯
+        // 視圖切換與事件綁定 (因為改為 Module 所以要綁到 window 上)
         // ==========================================
-        function switchView(viewName) {
+        window.switchView = function(viewName) {
             if (viewName === 'teacher' && !state.isAuthenticated) {
                 viewName = 'teacherLogin';
             }
@@ -1402,7 +1404,7 @@
             if (viewName === 'student') {
                 document.getElementById('view-student').classList.remove('hidden');
                 document.getElementById('nav-student').classList.add('active-student');
-                clearStudentForm();
+                window.clearStudentForm();
             } else if (viewName === 'teacherLogin') {
                 document.getElementById('view-teacherLogin').classList.remove('hidden');
                 document.getElementById('nav-teacher').classList.add('active-teacher');
@@ -1413,20 +1415,20 @@
                 document.getElementById('nav-teacher').classList.add('active-teacher');
                 renderTeacherView();
             }
-        }
+        };
 
-        function setDisplayMode(mode) {
+        window.setDisplayMode = function(mode) {
             state.displayMode = mode;
             document.getElementById('btn-view-grid').classList.toggle('active', mode === 'grid');
             document.getElementById('btn-view-list').classList.toggle('active', mode === 'list');
             renderTeacherView();
-        }
+        };
 
         // ==========================================
         // 學生端邏輯
         // ==========================================
         let alertTimeout;
-        function showStudentMessage(type, text, quote = "", emoji = null) {
+        window.showStudentMessage = function(type, text, quote = "", emoji = null) {
             const alertBox = document.getElementById('student-alert');
             const iconContainer = document.getElementById('alert-icon-container');
             const textBox = document.getElementById('alert-text');
@@ -1438,10 +1440,10 @@
             
             if (type === 'success') {
                 iconContainer.innerHTML = emoji ? `<span style="font-size: 2.5rem; line-height: 1;">${emoji}</span>` : Icons.check;
-                typingBtn.classList.remove('hidden'); // 顯示打字練習按鈕
+                typingBtn.classList.remove('hidden'); 
             } else {
                 iconContainer.innerHTML = Icons.error;
-                typingBtn.classList.add('hidden'); // 隱藏打字練習按鈕
+                typingBtn.classList.add('hidden'); 
             }
             
             textBox.innerText = text;
@@ -1449,12 +1451,11 @@
             
             clearTimeout(alertTimeout);
             if(type === 'success'){
-                // 延長提示時間給學生足夠的時間點擊連結
-                alertTimeout = setTimeout(clearStudentForm, 8000); 
+                alertTimeout = setTimeout(window.clearStudentForm, 8000); 
             }
-        }
+        };
 
-        function clearStudentForm() {
+        window.clearStudentForm = function() {
             document.getElementById('student-class-select').value = '';
             const seatSelect = document.getElementById('student-seat-select');
             seatSelect.innerHTML = '<option value="">-- 先選班級才能選座號喔 --</option>';
@@ -1463,16 +1464,16 @@
             document.getElementById('btn-checkin').disabled = true;
             document.getElementById('student-alert').classList.add('hidden');
             document.getElementById('alert-typing-btn').classList.add('hidden');
-        }
+        };
 
-        function onStudentClassChange() {
+        window.onStudentClassChange = function() {
             const classVal = document.getElementById('student-class-select').value;
             const seatSelect = document.getElementById('student-seat-select');
             document.getElementById('student-alert').classList.add('hidden');
             document.getElementById('alert-typing-btn').classList.add('hidden');
             
             if (!classVal) {
-                clearStudentForm();
+                window.clearStudentForm();
                 return;
             }
             
@@ -1484,9 +1485,9 @@
             
             document.getElementById('student-info-display').classList.add('hidden');
             document.getElementById('btn-checkin').disabled = true;
-        }
+        };
 
-        function onStudentSeatChange() {
+        window.onStudentSeatChange = function() {
             const classVal = document.getElementById('student-class-select').value;
             const seatVal = document.getElementById('student-seat-select').value;
             const infoBox = document.getElementById('student-info-display');
@@ -1504,14 +1505,14 @@
                 infoBox.classList.add('hidden');
                 btn.disabled = true;
             }
-        }
+        };
 
-        function handleCheckIn() {
+        window.handleCheckIn = function() {
             const classVal = document.getElementById('student-class-select').value;
             const seatVal = document.getElementById('student-seat-select').value;
             
             if (!classVal || !seatVal) {
-                showStudentMessage('error', '哎呀！請先選好班級跟座號喔！');
+                window.showStudentMessage('error', '哎呀！請先選好班級跟座號喔！');
                 return;
             }
 
@@ -1523,7 +1524,7 @@
             const currentRecord = state.attendance[studentId][state.currentWeek];
 
             if (currentRecord && currentRecord.status === 'present') {
-                showStudentMessage('error', '你這週已經點過名囉！趕快進教室準備上課吧！');
+                window.showStudentMessage('error', '你這週已經點過名囉！趕快進教室準備上課吧！');
                 return;
             }
 
@@ -1537,53 +1538,52 @@
             const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
             const randomEmoji = cuteEmojis[Math.floor(Math.random() * cuteEmojis.length)];
             
-            // 強力提醒去打字
             const reminderText = randomQuote + '\n\n⚠️ 點完名請直接去練習打字，不要亂逛其他網站喔！';
-            showStudentMessage('success', '點名大成功！🎉', reminderText, randomEmoji);
+            window.showStudentMessage('success', '點名大成功！🎉', reminderText, randomEmoji);
             
             document.getElementById('btn-checkin').disabled = true; 
-        }
+        };
 
         // ==========================================
         // 老師登入邏輯
         // ==========================================
-        function handleLogin(e) {
+        window.handleLogin = function(e) {
             e.preventDefault();
             const pass = document.getElementById('login-password').value;
             if (pass === '0316') {
                 state.isAuthenticated = true;
-                switchView('teacher');
+                window.switchView('teacher');
             } else {
                 document.getElementById('login-error').classList.remove('hidden');
             }
-        }
+        };
 
-        function handleLogout() {
+        window.handleLogout = function() {
             state.isAuthenticated = false;
-            switchView('teacherLogin');
-        }
+            window.switchView('teacherLogin');
+        };
 
         // ==========================================
         // 老師後台邏輯
         // ==========================================
-        function onTeacherWeekChange() {
+        window.onTeacherWeekChange = function() {
             state.selectedWeek = document.getElementById('teacher-week-select').value;
-            closeModal();
+            window.closeModal();
             renderTeacherView();
-        }
+        };
 
-        function onTeacherClassChange() {
+        window.onTeacherClassChange = function() {
             state.activeClass = document.getElementById('teacher-class-select').value;
             state.isEditing = false;
-            closeModal();
+            window.closeModal();
             renderTeacherView();
-        }
+        };
 
-        function toggleEditMode() {
+        window.toggleEditMode = function() {
             state.isEditing = !state.isEditing;
-            closeModal();
+            window.closeModal();
             renderTeacherView();
-        }
+        };
 
         function renderTeacherView() {
             document.getElementById('teacher-class-title').innerText = state.activeClass;
@@ -1692,10 +1692,7 @@
             });
         }
 
-        // ==========================================
-        // 增刪學生與點名操作
-        // ==========================================
-        function handleAddStudent(e) {
+        window.handleAddStudent = function(e) {
             e.preventDefault();
             const seatInput = document.getElementById('add-seat').value;
             const nameInput = document.getElementById('add-name').value;
@@ -1722,18 +1719,18 @@
             document.getElementById('add-seat').value = '';
             document.getElementById('add-name').value = '';
             renderTeacherView();
-        }
+        };
 
-        function handleDeleteStudent(e, studentId, studentName) {
+        window.handleDeleteStudent = function(e, studentId, studentName) {
             e.stopPropagation();
             if (confirm(`確定要刪除「${studentName}」嗎？\n(注意：相關的點名紀錄不會自動消失喔)`)) {
                 state.studentsByClass[state.activeClass] = state.studentsByClass[state.activeClass].filter(s => s.id !== studentId);
                 saveData();
                 renderTeacherView();
             }
-        }
+        };
 
-        function openModal(id, seat, name) {
+        window.openModal = function(id, seat, name) {
             if (state.isEditing) return; 
             
             document.querySelectorAll('.student-card').forEach(el => el.classList.remove('selected'));
@@ -1746,33 +1743,142 @@
             document.getElementById('modal-name').innerText = name;
             
             document.getElementById('action-modal').classList.remove('hidden');
-        }
+        };
 
-        function closeModal() {
+        window.closeModal = function() {
             state.selectedStudent = null;
             document.getElementById('action-modal').classList.add('hidden');
             document.querySelectorAll('.student-card').forEach(el => el.classList.remove('selected'));
-        }
+        };
 
-        function handleMarkStatus(status) {
+        window.handleMarkStatus = function(status) {
             if (!state.selectedStudent) return;
             
             if (!state.attendance[state.selectedStudent.id]) {
                 state.attendance[state.selectedStudent.id] = {};
             }
             
-            // 寫入當前所選的週次
             state.attendance[state.selectedStudent.id][state.selectedWeek] = {
                 status: status,
                 timestamp: new Date().toLocaleString('zh-TW'),
                 markedByTeacher: true
             };
             saveData();
-            closeModal();
+            window.closeModal();
             renderTeacherView();
-        }
+        };
 
-        window.onload = initApp;
+        // ==========================================
+        // 系統初始化與雲端連線設定
+        // ==========================================
+        window.initApp = function() {
+            state.currentWeek = getWeekIdentifier();
+            state.selectedWeek = state.currentWeek;
+
+            // 若載入有設定 Firebase Config，則啟用雲端模式
+            if (firebaseConfig) {
+                const app = initializeApp(firebaseConfig);
+                const auth = getAuth(app);
+                db = getFirestore(app);
+
+                const initAuth = async () => {
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                };
+                initAuth();
+
+                onAuthStateChanged(auth, (u) => {
+                    if (!u) return;
+                    isCloudReady = true;
+                    // 設定即時監聽雲端資料庫
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'attendanceSystem', 'mainData');
+                    onSnapshot(docRef, (snapshot) => {
+                        if (snapshot.exists()) {
+                            const data = snapshot.data();
+                            state.studentsByClass = data.studentsByClass || parseInitialData();
+                            state.attendance = data.attendance || {};
+                            populateWeekDropdown();
+                            
+                            // 更新畫面中的選單
+                            const sClassSelect = document.getElementById('student-class-select');
+                            const tClassSelect = document.getElementById('teacher-class-select');
+                            state.classList = Object.keys(state.studentsByClass).sort();
+                            if(state.classList.length > 0 && !state.activeClass) {
+                                state.activeClass = state.classList[0];
+                            }
+                            
+                            const currentStudentClass = sClassSelect.value;
+                            const currentTeacherClass = tClassSelect.value;
+                            
+                            sClassSelect.innerHTML = '<option value="">-- 點這裡選擇班級 --</option>';
+                            tClassSelect.innerHTML = '';
+                            state.classList.forEach(c => {
+                                sClassSelect.innerHTML += `<option value="${c}">${c} 班</option>`;
+                                tClassSelect.innerHTML += `<option value="${c}">${c} 班</option>`;
+                            });
+                            
+                            if (currentStudentClass && state.classList.includes(currentStudentClass)) sClassSelect.value = currentStudentClass;
+                            if (currentTeacherClass && state.classList.includes(currentTeacherClass)) tClassSelect.value = currentTeacherClass;
+
+                            if (state.view === 'teacher') renderTeacherView();
+                        } else {
+                            // 第一次進入建立初始資料
+                            state.studentsByClass = parseInitialData();
+                            saveData(); 
+                        }
+                    }, (error) => {
+                        console.error("即時監聽錯誤:", error);
+                    });
+                });
+            } else {
+                // 離線本地儲存模式載入
+                const savedStudents = localStorage.getItem('attendance_students');
+                if (savedStudents) {
+                    state.studentsByClass = JSON.parse(savedStudents);
+                } else {
+                    state.studentsByClass = parseInitialData();
+                    localStorage.setItem('attendance_students', JSON.stringify(state.studentsByClass));
+                }
+
+                const savedAttendance = localStorage.getItem('attendance_records');
+                if (savedAttendance) {
+                    let parsed = JSON.parse(savedAttendance);
+                    for (let key in parsed) {
+                        if (parsed[key].status && parsed[key].week) {
+                            let oldRecord = parsed[key];
+                            parsed[key] = {};
+                            parsed[key][oldRecord.week] = oldRecord;
+                        }
+                    }
+                    state.attendance = parsed;
+                }
+
+                state.classList = Object.keys(state.studentsByClass).sort();
+                if(state.classList.length > 0) {
+                    state.activeClass = state.classList[0];
+                }
+
+                const sClassSelect = document.getElementById('student-class-select');
+                const tClassSelect = document.getElementById('teacher-class-select');
+                sClassSelect.innerHTML = '<option value="">-- 點這裡選擇班級 --</option>';
+                tClassSelect.innerHTML = '';
+                state.classList.forEach(c => {
+                    sClassSelect.innerHTML += `<option value="${c}">${c} 班</option>`;
+                    tClassSelect.innerHTML += `<option value="${c}">${c} 班</option>`;
+                });
+                
+                populateWeekDropdown();
+            }
+
+            document.getElementById('teacher-week-display').innerText = `目前週數：${state.currentWeek}`;
+            window.switchView('student');
+        };
+
+        // 啟動應用程式
+        window.initApp();
 
     </script>
 </body>
