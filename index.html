@@ -362,7 +362,7 @@
                 <span>校園快樂點名</span>
             </div>
             <div class="nav-buttons flex items-center">
-                <a href="https://kumabear88.github.io/typingpodium/" target="_blank" class="nav-typing-link">⌨️ 打字練習</a>
+                <a href="#" onclick="handleTypingLinkClick(event)" class="nav-typing-link">⌨️ 打字練習</a>
                 <button id="nav-student" class="active-student" onclick="switchView('student')">👶 學生報到</button>
                 <button id="nav-teacher" onclick="switchView('teacherLogin')">👩‍🏫 老師管理</button>
             </div>
@@ -648,7 +648,8 @@
             activeClass: '',
             isEditing: false,
             selectedStudent: null,
-            classList: []
+            classList: [],
+            hasCheckedInThisSession: false // 追蹤是否已完成點名
         };
 
         const getWeekIdentifier = (date = new Date()) => {
@@ -917,6 +918,15 @@
             }
         };
 
+        window.handleTypingLinkClick = function(e) {
+            e.preventDefault();
+            if (state.hasCheckedInThisSession) {
+                window.open("https://kumabear88.github.io/typingpodium/", "_blank");
+            } else {
+                window.showCustomAlert("先等一下喔！", "老師規定：一定要先完成「點名」，才可以開放打字練習功能！加油！💪", "🛑");
+            }
+        };
+
         window.handleCheckIn = function() {
             const classVal = document.getElementById('student-class-select').value;
             const seatVal = document.getElementById('student-seat-select').value;
@@ -934,7 +944,8 @@
             const currentRecord = state.attendance[studentId][state.currentWeek];
 
             if (currentRecord && currentRecord.status === 'present') {
-                window.showStudentMessage('error', '你這週已經點過名囉！趕快進教室準備上課吧！');
+                state.hasCheckedInThisSession = true; // 解鎖打字
+                window.showStudentMessage('success', '你這週已經點過名囉！', '太棒了！可以直接去練習打字囉！👍', '✨');
                 return;
             }
 
@@ -944,6 +955,8 @@
             };
             saveData();
             
+            state.hasCheckedInThisSession = true; // 解鎖打字
+
             window.shootConfetti();
             const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
             const randomEmoji = cuteEmojis[Math.floor(Math.random() * cuteEmojis.length)];
