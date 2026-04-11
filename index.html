@@ -465,7 +465,6 @@
                         <select id="teacher-class-select" onchange="onTeacherClassChange()" style="margin-bottom: 1rem; font-weight: bold; color: var(--indigo);"></select>
                     </div>
                     
-                    <!-- 新增 幸運輪盤按鈕 -->
                     <button class="btn btn-warning w-full flex items-center justify-center gap-2 mt-2 mb-3" onclick="switchView('wheel')">
                         <span style="font-size: 1.25rem;">🎡</span> 本節課抽籤轉輪
                     </button>
@@ -597,23 +596,19 @@
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        let firebaseConfig = null;
-        if (typeof __firebase_config !== 'undefined') {
-            firebaseConfig = JSON.parse(__firebase_config);
-        } else {
-            firebaseConfig = {
-              apiKey: "AIzaSyDBLFK7T2ewIk4qgvlBz9hfQuxEALLUezQ",
-              authDomain: "typing-game-755a8.firebaseapp.com",
-              databaseURL: "https://typing-game-755a8-default-rtdb.firebaseio.com",
-              projectId: "typing-game-755a8",
-              storageBucket: "typing-game-755a8.firebasestorage.app",
-              messagingSenderId: "938096537906",
-              appId: "1:938096537906:web:0fb0e431a9fcbb2fcb272b",
-              measurementId: "G-K8NC1SX4X6"
-            };
-        }
+        // 強制綁定至用戶專屬 Firebase 資料庫
+        const firebaseConfig = {
+            apiKey: "AIzaSyDBLFK7T2ewIk4qgvlBz9hfQuxEALLUezQ",
+            authDomain: "typing-game-755a8.firebaseapp.com",
+            databaseURL: "https://typing-game-755a8-default-rtdb.firebaseio.com",
+            projectId: "typing-game-755a8",
+            storageBucket: "typing-game-755a8.firebasestorage.app",
+            messagingSenderId: "938096537906",
+            appId: "1:938096537906:web:0fb0e431a9fcbb2fcb272b",
+            measurementId: "G-K8NC1SX4X6"
+        };
 
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'my-awesome-attendance-app';
+        const appId = 'my-awesome-attendance-app';
         let isCloudReady = false;
         let db = null;
 
@@ -631,7 +626,627 @@
         ];
         const cuteEmojis = ['🦄', '🦖', '🐳', '🐶', '🐱', '🦊', '🐰', '🐼', '🐨', '🐯', '🐧', '🦉', '🐢', '🐙', '🐸', '🦁'];
 
-        const rawStudentData = `301\n01\t張昱宸\n02\t林祐丞\n03\t林岦\n04\t鄧沐宏\n05\t王佑晅\n06\t翁士翔\n07\t劉鳳文\n08\t林柏辰\n09\t陳柏綸\n10\t黃士玹\n11\t黃品融\n12\t茹語安\n13\t沈祐齊\n14\t李建錕\n15\t連唯霓\n16\t潘允晞\n17\t廖心昀\n18\t黃子柔\n19\t張又心\n20\t童羽宸\n21\t黃睿梓\n22\t林煊庭\n23\t丁晨晞\n24\t吳品榆\n25\t黃卉語\n26\t張竟妤\n27\t蘇若晴\n302\n01\t陳淳理\n02\t劉心宇\n03\t黃詠鐸\n04\t蔡嵃晟\n05\t邱御宸\n06\t劉子睿\n07\t蕭嘉瀅\n08\t邱彥棋\n09\t謝承燁\n10\t蔡昊宸\n11\t許祐霖\n12\t張航瑀\n13\t高靖皓\n14\t姜天穗\n15\t黃品喬\n16\t梁楚艾\n17\t宋亞俽\n18\t劉秉宜\n19\t黃曼惟\n20\t吳苡菲\n21\t羅苡欣\n22\t蕭翊亘\n23\t陳禹欣\n24\t林可晴\n25\t鍾佳妮\n26\t葉晴帆\n27\t鄭晴文\n28\t馬如瑩\n303\n01\t林秉震\n02\t黃衍翔\n03\t陳子惟\n04\t曾轅凰\n05\t簡睿鴻\n06\t游昊庭\n07\t吳明恩\n08\t丁翊宸\n09\t李翔雲\n10\t張耘榐\n11\t呂尚靖\n13\t劉則序\n14\t林佑齊\n15\t黃軒奕\n16\t黃柏軒\n17\t陳希甯\n18\t張語宸\n19\t蔡宥安\n20\t許映晨\n21\t陳禧恩\n22\t沈倢晞\n23\t劉妤瑄\n24\t劉采婕\n25\t王芷婕\n26\t王常慕\n27\t曾歆\n28\t黃貝兒\n29\t蘇承妤\n304\n01\t周品安\n02\t吳宣宇\n03\t余易宸\n04\t黃立言\n05\t楊辰帷\n06\t黄麒愷\n07\t黃紹宸\n08\t林易陞\n09\t李晨維\n10\t蘇柚呈\n11\t許宸碩\n12\t楊昊哲\n13\t袁唯宸\n14\t洪若宸\n15\t李運緯\n16\t關羽彤\n17\t黃子瑜\n18\t蘇子芹\n19\t陳予惠\n20\t陳予恩\n21\t陳品卉\n22\t陳楀喬\n23\t林易穎\n24\t朱宥樺\n25\t詹晴帆\n26\t藍元希\n27\t陳敏妮\n28\t陳雯暄\n29\t蕭培芮\n30\t葉明雄\n305\n01\t陳沛謙\n02\t蔡謨澤\n03\t黃宇宸\n04\t柯宗廷\n05\t羅邦維\n06\t蕭凱揚\n07\t蔡秉穆\n08\t葉佳融\n09\t詹翔安\n10\t陳彥碩\n11\t陳秉睿\n12\t羅元佑\n13\t朱偉誠\n14\t林哲宇\n15\t張書睿\n16\t張楷文\n17\t楊謹安\n18\t趙婕瑀\n19\t謝依瑾\n20\t黃祤桐\n21\t葉亭希\n22\t廖晏巧\n23\t施允霏\n24\t孟雨薇\n25\t許菀庭\n26\t顏語樂\n27\t江昕桐\n28\t林睦恩\n29\t蘇稚昀\n306\n01\t周裕軒\n02\t黃若堯\n03\t倪翊哲\n04\t林佑辰\n05\t羅浩仁\n06\t劉程浩\n07\t何帷珵\n08\t蔡宗營\n09\t張勳\n10\t高乙正\n11\t劉弈辰\n12\t方健翔\n13\t李泓毅\n14\t陳誼鴻\n15\t劉牧飛\n16\t張浩哲\n17\t陳芊豫\n18\t蔡宥樂\n19\t賴彥菲\n20\t蘇湘云\n21\t許倪禎\n22\t鄭琳藇\n23\t陳沛均\n24\t楊琁羽\n25\t李昀霏\n26\t黃暄秝\n27\t藍宥淨\n28\t張瑜希\n29\t羅翊菲\n307\n01\t李沅霖\n02\t林安倫\n03\t林楷諭\n04\t李彥澄\n05\t許瓏灝\n06\t陳晨頌\n07\t余柏陞\n08\t蕭靖\n09\t游丁翰\n10\t張立辰\n11\t何定霖\n12\t劉冠霆\n13\t黃楷宸\n14\t蘇宣臣\n15\t許明華\n16\t王沛妮\n17\t詹詠宸\n18\t歐陽甯\n19\t何宇恩\n20\t陳珮萓\n21\t廖芸仟\n22\t何莉綾\n23\t王又萱\n24\t康宸睎\n25\t王若曦\n26\t王若宸\n27\t林畇潔\n28\t胡庭甄\n29\t王宣方\n30\t李宸希\n31\t吳昀晏\n308\n01\t王駿凱\n02\t劉振荿\n03\t宋宥昕\n04\t黃柏瑀\n05\t高晨熙\n06\t林暄\n07\t李翰璋\n08\t何思捷\n09\t錢立喆\n10\t陳旭東\n11\t李彥霆\n13\t蕭禾\n14\t李佑輔\n15\t廖恆豪\n16\t張芮瑄\n17\t蕭可彤\n18\t賴今禾\n19\t王瑜涵\n20\t周沛縈\n21\t楊怡安\n22\t鄭晴文\n23\t郭語璇\n24\t蔡詠捷\n25\t楊琍雅\n26\t李雅芯\n27\t俞心晏\n28\t黃琬容\n29\t黃翊晴\n401\n01\t廖芃宇\n02\t張揚湛\n03\t林家正\n04\t郭善傑\n05\t李少甫\n06\t詹子賢\n07\t鄧宥閎\n08\t玲宸希\n09\t張俊杰\n10\t陳彥碩\n11\t鄭項天\n12\t傅承一\n13\t許洺宸\n14\t黃彥均\n15\t辜允辰\n16\t陳奕呈\n17\t張予寧\n18\t李梓萌\n19\t黃柔瑜\n20\t麥芸瑄\n21\t黃若芸\n22\t陳莉雅\n23\t連敏芯\n24\t曾雨辰\n25\t林妤璇\n26\t曾甯暄\n27\t張莙琳\n28\t洪薇\n29\t張語桐\n30\t陳品璇\n31\t吳若瑜\n32\t呂宣霆\n402\n01\t吳雙\n02\t許以亮\n03\t孫靖鎧\n04\t姚伯錞\n05\t陳炫宇\n06\t曹丞鈞\n07\t蘇澤修\n08\t陳海睿\n09\t陳常緯\n10\t陳廷愷\n11\t陳卓均\n12\t陳奕維\n13\t鄭皓元\n14\t張名維\n15\t詹祐杰\n16\t吳亞叡\n17\t潘宥瑞\n18\t王晨瑀\n20\t劉柔均\n21\t陳琪蓁\n22\t蕭瑩竹\n23\t陳芊默\n24\t黃薇穎\n25\t王常曦\n26\t廖千筑\n27\t詹才萱\n28\t洪仟芮\n29\t姚湘琳\n30\t王又禾\n31\t蘇苡菲\n32\t楊采翎\n33\t廖泰豪\n403\n01\t張誠祐\n02\t彭秉宥\n03\t陳昊廷\n04\t古承弘\n05\t王竑凱\n06\t林佳漢\n07\t陳廣杰\n08\t陳廣翼\n10\t林楷恩\n11\t黃柏泰\n12\t王尚恩\n13\t簡詠騰\n14\t王浤宇\n15\t許柏誠\n16\t李濬城\n17\t李濬盛\n18\t張宇晴\n19\t闕米菲\n20\t陳姿妤\n21\t華晨希\n22\t陳郁晴\n24\t郭采辰\n25\t曾雅淇\n26\t鄭妶僖\n27\t郭采一\n28\t黃歆茹\n29\t李倩儀\n30\t曾芯妮\n31\t徐子晴\n32\t薛伊岑\n33\t何心伃\n404\n01\t蔡承叡\n02\t蕭聿辰\n04\t張閔皓\n05\t李臣榤\n06\t簡辰暟\n07\t游允樂\n08\t何政雍\n09\t陳柏宇\n10\t陳宥崴\n11\t楊承潤\n12\t江聖楷\n13\t簡詠耀\n14\t林洛\n15\t(自學生)\n16\t李宸緯\n17\t王浚誠\n18\t張美琰\n19\t黃咨妮\n20\t曾宥心\n21\t陳楷萱\n22\t吳艾芸\n23\t陳品汝\n24\t黃煦庭\n26\t吳沛璇\n27\t喻語婕\n28\t呂佳恩\n29\t楊羽晴\n30\t葉倢吟\n31\t趙俐綺\n32\t黃洛歆\n405\n01\t李文霖\n02\t李文宇\n03\t朱柏承\n04\t王以謙\n05\t黃宇宸\n06\t王威凱\n07\t馬琮越\n08\t劉渤堂\n09\t蔡杰丞\n10\t楊宸濬\n11\t陳沐言\n12\t詹子硯\n13\t吳宇恩\n14\t葉書榮\n15\t李承澔\n16\t潘宥翔\n17\t林語妡\n18\t蘇若淇\n19\t鍾沛霓\n20\t王若宸\n21\t吳恩柔\n22\t張瑋芯\n23\t簡愷螢\n24\t林佑霓\n25\t許祺鈺\n26\t謝宜潔\n27\t陳俞霏\n28\t石宇希\n29\t李孟璇\n30\t林芯樂\n31\t賴偌涵\n32\t洪靖傑\n406\n01\t林煒哲\n02\t陳士軒\n03\t楊牧\n04\t鄭宇翔\n05\t姜天穎\n06\t賴玄耘\n07\t林浩恩\n08\t陳品叡\n09\t林禹行\n10\t石宏彥\n11\t李哲諺\n12\t羅承恩\n13\t黃品睿\n14\t盧秉弘\n15\t陳宥尊\n16\t林靖丹\n17\t李芷嫻\n18\t林琬翎\n19\t陳奕喬\n20\t詹芷晴\n21\t何瑩晞\n22\t余婉萁\n23\t陳詩芸\n24\t蔡逸梵\n25\t許允姸\n26\t許允慈\n27\t陳宥彤\n28\t鍾佳妍\n29\t連禹喬\n30\t康珈嘉\n407\n01\t黃宥鈞\n02\t陳俊安\n03\t蕭宇\n04\t李語桐\n05\t黃建逢\n06\t賴思愷\n07\t林品碩\n08\t詹濱元\n09\t周子洋\n10\t凱銳\n11\t王立亘\n12\t褚仲權\n13\t黃世堂\n14\t陳澔民\n16\t黃泓邁\n17\t許唐宸\n18\t許宥熙\n19\t范庭嘉\n20\t林孟璇\n21\t鍾和臻\n22\t張文嫙\n23\t張書語\n24\t謝曉玫\n25\t周瑾緗\n26\t黃紫珊\n27\t洪娜恩\n28\t林芊禕\n29\t朱慈慧\n30\t林霈淳\n31\t陳僈妮\n408\n01\t姜宥庭\n02\t吳侑叡\n03\t蘇之榮\n04\t黃照恩\n05\t褚恩霆\n06\t林子睿\n07\t陳宣翰\n08\t王詣傑\n09\t葉庭宇\n10\t陳皓瑞\n11\t莊沛謙\n12\t周奕全\n13\t王尚倫\n14\t康宇程\n15\t李昀豪\n16\t洪語嬣\n17\t蔣舒羽\n18\t蕭品吟\n19\t陳秧萮\n20\t練予璁\n21\t王予愛\n22\t蘇千玥\n23\t黃家榆\n24\t鄭巧愛\n25\t郭語恩\n27\t朱玥綸\n28\t林采秝\n29\t林沛晨\n30\t李宥靚\n31\t吳昕璇\n32\t王永昊\n503\n01\t陳璽銘\n02\t許家睿\n03\t張為紘\n04\t張邑安\n05\t安凱文\n06\t郭澐騁\n07\t洪顥\n08\t陳宇璇\n09\t陳沐恆\n10\t周明豪\n11\t許誌諱\n12\t楊子灝\n13\t邱亦菲\n14\t許芝縈\n15\t黃芷蕎\n16\t林歆菲\n17\t許嘉恩\n18\t吳艾芫\n19\t陳檍心\n20\t賴家柔\n21\t陳媛伶\n22\t高竺妘\n23\t楊子安\n504\n01\t邱宸邦\n02\t莊程瑞\n03\t林睿希\n04\t呂昊擎\n05\t劉奕佑\n06\t張家睿\n07\t許皓昱\n08\t費勤軒\n09\t黃則希\n10\t葉俊焱\n11\t謝卓吾\n12\t洪凡宇\n13\t洪宜萍\n14\t王苡琁\n15\t吳艾芸\n16\t李洛妮\n17\t楊之瑀\n18\t何宜芊\n19\t王宣霓\n20\t孟雨欣\n21\t高子晴\n22\t林璇\n23\t陳品橙\n505\n01\t吳宇倫\n02\t陳晨星\n03\t曹杰霆\n04\t廖宥熏\n05\t鄭有圻\n06\t郭力誠\n07\t張鎧隆\n08\t莊俊宇\n09\t吳其恩\n10\t李秉叡\n11\t李知恆\n12\t陳勁愷\n13\t高品慈\n14\t廖羽旋\n15\t陳姸妡\n16\t吳青蔓\n17\t古若宜\n18\t金楹蕎\n19\t吳苡樂\n20\t蔡宥佑\n21\t黃芷榆\n22\t薛語芯\n23\t邵晨恩\n24\t阮紹軒\n506\n01\t柳翔喆\n02\t陳柏禎\n03\t黃士傑\n04\t李建陞\n05\t胡秉洆\n06\t曾轅馗\n07\t陳佑嘉\n08\t林竑逸\n09\t羅寬宇\n10\t蔡忞修\n11\t周鍇陽\n12\t王禹凱\n13\t江柔瑾\n14\t余羿蓁\n15\t羅子慈\n16\t黃馨辰\n17\t廖安媗\n18\t洪思惟\n19\t唐沐恩\n20\t靖僈可\n21\t林晨熙\n22\t蘇泇鉻`;
+        const rawStudentData = `309
+01	哆啦A夢
+02	大雄
+03	靜香
+04	胖虎
+05	小夫
+06	哆啦美
+07	皮卡丘
+08	蠟筆小新
+09	小白
+10	妮妮
+11	風間
+12	正男
+13	阿呆
+14	柯南
+15	小蘭
+16	灰原
+17	步美
+18	光彥
+19	元太
+20	阿笠博士
+21	魯夫
+22	索隆
+23	娜美
+24	騙人布
+25	香吉士
+26	喬巴
+27	羅賓
+28	佛朗基
+29	布魯克
+30	吉貝爾
+301
+01	張昱宸
+02	林祐丞
+03	林岦
+04	鄧沐宏
+05	王佑晅
+06	翁士翔
+07	劉鳳文
+08	林柏辰
+09	陳柏綸
+10	黃士玹
+11	黃品融
+12	茹語安
+13	沈祐齊
+14	李建錕
+15	連唯霓
+16	潘允晞
+17	廖心昀
+18	黃子柔
+19	張又心
+20	童羽宸
+21	黃睿梓
+22	林煊庭
+23	丁晨晞
+24	吳品榆
+25	黃卉語
+26	張竟妤
+27	蘇若晴
+302
+01	陳淳理
+02	劉心宇
+03	黃詠鐸
+04	蔡嵃晟
+05	邱御宸
+06	劉子睿
+07	蕭嘉瀅
+08	邱彥棋
+09	謝承燁
+10	蔡昊宸
+11	許祐霖
+12	張航瑀
+13	高靖皓
+14	姜天穗
+15	黃品喬
+16	梁楚艾
+17	宋亞俽
+18	劉秉宜
+19	黃曼惟
+20	吳苡菲
+21	羅苡欣
+22	蕭翊亘
+23	陳禹欣
+24	林可晴
+25	鍾佳妮
+26	葉晴帆
+27	鄭晴文
+28	馬如瑩
+303
+01	林秉震
+02	黃衍翔
+03	陳子惟
+04	曾轅凰
+05	簡睿鴻
+06	游昊庭
+07	吳明恩
+08	丁翊宸
+09	李翔雲
+10	張耘榐
+11	呂尚靖
+13	劉則序
+14	林佑齊
+15	黃軒奕
+16	黃柏軒
+17	陳希甯
+18	張語宸
+19	蔡宥安
+20	許映晨
+21	陳禧恩
+22	沈倢晞
+23	劉妤瑄
+24	劉采婕
+25	王芷婕
+26	王常慕
+27	曾歆
+28	黃貝兒
+29	蘇承妤
+304
+01	周品安
+02	吳宣宇
+03	余易宸
+04	黃立言
+05	楊辰帷
+06	黄麒愷
+07	黃紹宸
+08	林易陞
+09	李晨維
+10	蘇柚呈
+11	許宸碩
+12	楊昊哲
+13	袁唯宸
+14	洪若宸
+15	李運緯
+16	關羽彤
+17	黃子瑜
+18	蘇子芹
+19	陳予惠
+20	陳予恩
+21	陳品卉
+22	陳楀喬
+23	林易穎
+24	朱宥樺
+25	詹晴帆
+26	藍元希
+27	陳敏妮
+28	陳雯暄
+29	蕭培芮
+30	葉明雄
+305
+01	陳沛謙
+02	蔡謨澤
+03	黃宇宸
+04	柯宗廷
+05	羅邦維
+06	蕭凱揚
+07	蔡秉穆
+08	葉佳融
+09	詹翔安
+10	陳彥碩
+11	陳秉睿
+12	羅元佑
+13	朱偉誠
+14	林哲宇
+15	張書睿
+16	張楷文
+17	楊謹安
+18	趙婕瑀
+19	謝依瑾
+20	黃祤桐
+21	葉亭希
+22	廖晏巧
+23	施允霏
+24	孟雨薇
+25	許菀庭
+26	顏語樂
+27	江昕桐
+28	林睦恩
+29	蘇稚昀
+306
+01	周裕軒
+02	黃若堯
+03	倪翊哲
+04	林佑辰
+05	羅浩仁
+06	劉程浩
+07	何帷珵
+08	蔡宗營
+09	張勳
+10	高乙正
+11	劉弈辰
+12	方健翔
+13	李泓毅
+14	陳誼鴻
+15	劉牧飛
+16	張浩哲
+17	陳芊豫
+18	蔡宥樂
+19	賴彥菲
+20	蘇湘云
+21	許倪禎
+22	鄭琳藇
+23	陳沛均
+24	楊琁羽
+25	李昀霏
+26	黃暄秝
+27	藍宥淨
+28	張瑜希
+29	羅翊菲
+307
+01	李沅霖
+02	林安倫
+03	林楷諭
+04	李彥澄
+05	許瓏灝
+06	陳晨頌
+07	余柏陞
+08	蕭靖
+09	游丁翰
+10	張立辰
+11	何定霖
+12	劉冠霆
+13	黃楷宸
+14	蘇宣臣
+15	許明華
+16	王沛妮
+17	詹詠宸
+18	歐陽甯
+19	何宇恩
+20	陳珮萓
+21	廖芸仟
+22	何莉綾
+23	王又萱
+24	康宸睎
+25	王若曦
+26	王若宸
+27	林畇潔
+28	胡庭甄
+29	王宣方
+30	李宸希
+31	吳昀晏
+308
+01	王駿凱
+02	劉振荿
+03	宋宥昕
+04	黃柏瑀
+05	高晨熙
+06	林暄
+07	李翰璋
+08	何思捷
+09	錢立喆
+10	陳旭東
+11	李彥霆
+13	蕭禾
+14	李佑輔
+15	廖恆豪
+16	張芮瑄
+17	蕭可彤
+18	賴今禾
+19	王瑜涵
+20	周沛縈
+21	楊怡安
+22	鄭晴文
+23	郭語璇
+24	蔡詠捷
+25	楊琍雅
+26	李雅芯
+27	俞心晏
+28	黃琬容
+29	黃翊晴
+401
+01	廖芃宇
+02	張揚湛
+03	林家正
+04	郭善傑
+05	李少甫
+06	詹子賢
+07	鄧宥閎
+08	玲宸希
+09	張俊杰
+10	陳彥碩
+11	鄭項天
+12	傅承一
+13	許洺宸
+14	黃彥均
+15	辜允辰
+16	陳奕呈
+17	張予寧
+18	李梓萌
+19	黃柔瑜
+20	麥芸瑄
+21	黃若芸
+22	陳莉雅
+23	連敏芯
+24	曾雨辰
+25	林妤璇
+26	曾甯暄
+27	張莙琳
+28	洪薇
+29	張語桐
+30	陳品璇
+31	吳若瑜
+32	呂宣霆
+402
+01	吳雙
+02	許以亮
+03	孫靖鎧
+04	姚伯錞
+05	陳炫宇
+06	曹丞鈞
+07	蘇澤修
+08	陳海睿
+09	陳常緯
+10	陳廷愷
+11	陳卓均
+12	陳奕維
+13	鄭皓元
+14	張名維
+15	詹祐杰
+16	吳亞叡
+17	潘宥瑞
+18	王晨瑀
+20	劉柔均
+21	陳琪蓁
+22	蕭瑩竹
+23	陳芊默
+24	黃薇穎
+25	王常曦
+26	廖千筑
+27	詹才萱
+28	洪仟芮
+29	姚湘琳
+30	王又禾
+31	蘇苡菲
+32	楊采翎
+33	廖泰豪
+403
+01	張誠祐
+02	彭秉宥
+03	陳昊廷
+04	古承弘
+05	王竑凱
+06	林佳漢
+07	陳廣杰
+08	陳廣翼
+10	林楷恩
+11	黃柏泰
+12	王尚恩
+13	簡詠騰
+14	王浤宇
+15	許柏誠
+16	李濬城
+17	李濬盛
+18	張宇晴
+19	闕米菲
+20	陳姿妤
+21	華晨希
+22	陳郁晴
+24	郭采辰
+25	曾雅淇
+26	鄭妶僖
+27	郭采一
+28	黃歆茹
+29	李倩儀
+30	曾芯妮
+31	徐子晴
+32	薛伊岑
+33	何心伃
+404
+01	蔡承叡
+02	蕭聿辰
+04	張閔皓
+05	李臣榤
+06	簡辰暟
+07	游允樂
+08	何政雍
+09	陳柏宇
+10	陳宥崴
+11	楊承潤
+12	江聖楷
+13	簡詠耀
+14	林洛
+15	(自學生)
+16	李宸緯
+17	王浚誠
+18	張美琰
+19	黃咨妮
+20	曾宥心
+21	陳楷萱
+22	吳艾芸
+23	陳品汝
+24	黃煦庭
+26	吳沛璇
+27	喻語婕
+28	呂佳恩
+29	楊羽晴
+30	葉倢吟
+31	趙俐綺
+32	黃洛歆
+405
+01	李文霖
+02	李文宇
+03	朱柏承
+04	王以謙
+05	黃宇宸
+06	王威凱
+07	馬琮越
+08	劉渤堂
+09	蔡杰丞
+10	楊宸濬
+11	陳沐言
+12	詹子硯
+13	吳宇恩
+14	葉書榮
+15	李承澔
+16	潘宥翔
+17	林語妡
+18	蘇若淇
+19	鍾沛霓
+20	王若宸
+21	吳恩柔
+22	張瑋芯
+23	簡愷螢
+24	林佑霓
+25	許祺鈺
+26	謝宜潔
+27	陳俞霏
+28	石宇希
+29	李孟璇
+30	林芯樂
+31	賴偌涵
+32	洪靖傑
+406
+01	林煒哲
+02	陳士軒
+03	楊牧
+04	鄭宇翔
+05	姜天穎
+06	賴玄耘
+07	林浩恩
+08	陳品叡
+09	林禹行
+10	石宏彥
+11	李哲諺
+12	羅承恩
+13	黃品睿
+14	盧秉弘
+15	陳宥尊
+16	林靖丹
+17	李芷嫻
+18	林琬翎
+19	陳奕喬
+20	詹芷晴
+21	何瑩晞
+22	余婉萁
+23	陳詩芸
+24	蔡逸梵
+25	許允姸
+26	許允慈
+27	陳宥彤
+28	鍾佳妍
+29	連禹喬
+30	康珈嘉
+407
+01	黃宥鈞
+02	陳俊安
+03	蕭宇
+04	李語桐
+05	黃建逢
+06	賴思愷
+07	林品碩
+08	詹濱元
+09	周子洋
+10	凱銳
+11	王立亘
+12	褚仲權
+13	黃世堂
+14	陳澔民
+16	黃泓邁
+17	許唐宸
+18	許宥熙
+19	范庭嘉
+20	林孟璇
+21	鍾和臻
+22	張文嫙
+23	張書語
+24	謝曉玫
+25	周瑾緗
+26	黃紫珊
+27	洪娜恩
+28	林芊禕
+29	朱慈慧
+30	林霈淳
+31	陳僈妮
+408
+01	姜宥庭
+02	吳侑叡
+03	蘇之榮
+04	黃照恩
+05	褚恩霆
+06	林子睿
+07	陳宣翰
+08	王詣傑
+09	葉庭宇
+10	陳皓瑞
+11	莊沛謙
+12	周奕全
+13	王尚倫
+14	康宇程
+15	李昀豪
+16	洪語嬣
+17	蔣舒羽
+18	蕭品吟
+19	陳秧萮
+20	練予璁
+21	王予愛
+22	蘇千玥
+23	黃家榆
+24	鄭巧愛
+25	郭語恩
+27	朱玥綸
+28	林采秝
+29	林沛晨
+30	李宥靚
+31	吳昕璇
+32	王永昊
+503
+01	陳璽銘
+02	許家睿
+03	張為紘
+04	張邑安
+05	安凱文
+06	郭澐騁
+07	洪顥
+08	陳宇璇
+09	陳沐恆
+10	周明豪
+11	許誌諱
+12	楊子灝
+13	邱亦菲
+14	許芝縈
+15	黃芷蕎
+16	林歆菲
+17	許嘉恩
+18	吳艾芫
+19	陳檍心
+20	賴家柔
+21	陳媛伶
+22	高竺妘
+23	楊子安
+504
+01	邱宸邦
+02	莊程瑞
+03	林睿希
+04	呂昊擎
+05	劉奕佑
+06	張家睿
+07	許皓昱
+08	費勤軒
+09	黃則希
+10	葉俊焱
+11	謝卓吾
+12	洪凡宇
+13	洪宜萍
+14	王苡琁
+15	吳艾芸
+16	李洛妮
+17	楊之瑀
+18	何宜芊
+19	王宣霓
+20	孟雨欣
+21	高子晴
+22	林璇
+23	陳品橙
+505
+01	吳宇倫
+02	陳晨星
+03	曹杰霆
+04	廖宥熏
+05	鄭有圻
+06	郭力誠
+07	張鎧隆
+08	莊俊宇
+09	吳其恩
+10	李秉叡
+11	李知恆
+12	陳勁愷
+13	高品慈
+14	廖羽旋
+15	陳姸妡
+16	吳青蔓
+17	古若宜
+18	金楹蕎
+19	吳苡樂
+20	蔡宥佑
+21	黃芷榆
+22	薛語芯
+23	邵晨恩
+24	阮紹軒
+506
+01	柳翔喆
+02	陳柏禎
+03	黃士傑
+04	李建陞
+05	胡秉洆
+06	曾轅馗
+07	陳佑嘉
+08	林竑逸
+09	羅寬宇
+10	蔡忞修
+11	周鍇陽
+12	王禹凱
+13	江柔瑾
+14	余羿蓁
+15	羅子慈
+16	黃馨辰
+17	廖安媗
+18	洪思惟
+19	唐沐恩
+20	靖僈可
+21	林晨熙
+22	蘇泇鉻`;
 
         // ==========================================
         // 系統狀態
@@ -642,14 +1257,14 @@
             isAuthenticated: false,
             studentsByClass: {},
             attendance: {}, 
-            drawnStudents: {}, // 新增：抽籤紀錄 { "301": ["301-01", "301-05"] }
+            drawnStudents: {}, 
             currentWeek: '',
             selectedWeek: '', 
             activeClass: '',
             isEditing: false,
             selectedStudent: null,
             classList: [],
-            hasCheckedInThisSession: false // 追蹤是否已完成點名
+            hasCheckedInThisSession: false
         };
 
         const getWeekIdentifier = (date = new Date()) => {
@@ -685,6 +1300,27 @@
                 }
             });
             return data;
+        };
+
+        // 新增：自動合併新班級資料的函數
+        const mergeStudentData = (savedData) => {
+            const freshData = parseInitialData();
+            if (!savedData || Object.keys(savedData).length === 0) return freshData;
+            
+            // 檢查程式碼中是否有雲端尚未記錄的新班級 (例如剛加上的 309 班)
+            let hasChanges = false;
+            for (let className in freshData) {
+                if (!savedData[className]) {
+                    savedData[className] = freshData[className];
+                    hasChanges = true;
+                }
+            }
+            // 如果有合併新班級，立刻將合併後的資料存回雲端
+            if (hasChanges) {
+                state.studentsByClass = savedData;
+                saveData(); 
+            }
+            return savedData;
         };
 
         const Icons = {
@@ -772,7 +1408,6 @@
             if (isCloudReady && db) {
                 try {
                     const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'attendanceSystem', 'mainData');
-                    // 升級加入 { merge: true } 以防止多人同時點名造成的互相覆蓋
                     await setDoc(docRef, {
                         studentsByClass: state.studentsByClass,
                         attendance: state.attendance,
@@ -944,7 +1579,7 @@
             const currentRecord = state.attendance[studentId][state.currentWeek];
 
             if (currentRecord && currentRecord.status === 'present') {
-                state.hasCheckedInThisSession = true; // 解鎖打字
+                state.hasCheckedInThisSession = true; 
                 window.showStudentMessage('success', '你這週已經點過名囉！', '太棒了！可以直接去練習打字囉！👍', '✨');
                 return;
             }
@@ -955,7 +1590,7 @@
             };
             saveData();
             
-            state.hasCheckedInThisSession = true; // 解鎖打字
+            state.hasCheckedInThisSession = true; 
 
             window.shootConfetti();
             const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
@@ -1370,80 +2005,72 @@
         }
 
         // ==========================================
-        // 系統初始化與雲端連線設定 (移除本地儲存，強制雲端)
+        // 系統初始化與雲端連線設定 (純雲端模式)
         // ==========================================
         window.initApp = function() {
             state.currentWeek = getWeekIdentifier();
             state.selectedWeek = state.currentWeek;
 
-            // 確保有預設的 drawnStudents 狀態
             if(!state.drawnStudents) state.drawnStudents = {};
 
-            if (firebaseConfig) {
-                const app = initializeApp(firebaseConfig);
-                const auth = getAuth(app);
-                db = getFirestore(app);
+            const app = initializeApp(firebaseConfig);
+            const auth = getAuth(app);
+            db = getFirestore(app);
 
-                const initAuth = async () => {
-                    try {
-                        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                            await signInWithCustomToken(auth, __initial_auth_token);
-                        } else {
-                            await signInAnonymously(auth);
+            const initAuth = async () => {
+                try {
+                    await signInAnonymously(auth);
+                } catch (error) {
+                    console.error("Firebase 驗證失敗:", error);
+                    window.showCustomAlert("連線異常", "系統無法登入雲端。請至 Firebase 確認「匿名登入 (Anonymous)」是否已成功開啟！", "⚠️");
+                }
+            };
+            initAuth();
+
+            onAuthStateChanged(auth, (u) => {
+                if (!u) return;
+                isCloudReady = true;
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'attendanceSystem', 'mainData');
+                onSnapshot(docRef, (snapshot) => {
+                    if (snapshot.exists()) {
+                        const data = snapshot.data();
+                        // 修改此處：使用自動合併函數，而不是只讀取雲端舊資料
+                        state.studentsByClass = mergeStudentData(data.studentsByClass);
+                        state.attendance = data.attendance || {};
+                        state.drawnStudents = data.drawnStudents || {};
+                        populateWeekDropdown();
+                        
+                        const sClassSelect = document.getElementById('student-class-select');
+                        const tClassSelect = document.getElementById('teacher-class-select');
+                        state.classList = Object.keys(state.studentsByClass).sort();
+                        if(state.classList.length > 0 && !state.activeClass) {
+                            state.activeClass = state.classList[0];
                         }
-                    } catch (error) {
-                        console.error("Firebase 驗證失敗:", error);
-                        window.showCustomAlert("連線異常", "系統無法登入雲端。請至 Firebase 確認「匿名登入 (Anonymous)」是否已成功開啟！", "⚠️");
+                        
+                        const currentStudentClass = sClassSelect.value;
+                        const currentTeacherClass = tClassSelect.value;
+                        
+                        sClassSelect.innerHTML = '<option value="">-- 點這裡選擇班級 --</option>';
+                        tClassSelect.innerHTML = '';
+                        state.classList.forEach(c => {
+                            sClassSelect.innerHTML += `<option value="${c}">${c} 班</option>`;
+                            tClassSelect.innerHTML += `<option value="${c}">${c} 班</option>`;
+                        });
+                        
+                        if (currentStudentClass && state.classList.includes(currentStudentClass)) sClassSelect.value = currentStudentClass;
+                        if (currentTeacherClass && state.classList.includes(currentTeacherClass)) tClassSelect.value = currentTeacherClass;
+
+                        if (state.view === 'teacher') renderTeacherView();
+                        if (state.view === 'wheel') renderWheelView();
+                    } else {
+                        state.studentsByClass = parseInitialData();
+                        saveData(); 
                     }
-                };
-                initAuth();
-
-                onAuthStateChanged(auth, (u) => {
-                    if (!u) return;
-                    isCloudReady = true;
-                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'attendanceSystem', 'mainData');
-                    onSnapshot(docRef, (snapshot) => {
-                        if (snapshot.exists()) {
-                            const data = snapshot.data();
-                            state.studentsByClass = data.studentsByClass || parseInitialData();
-                            state.attendance = data.attendance || {};
-                            state.drawnStudents = data.drawnStudents || {};
-                            populateWeekDropdown();
-                            
-                            const sClassSelect = document.getElementById('student-class-select');
-                            const tClassSelect = document.getElementById('teacher-class-select');
-                            state.classList = Object.keys(state.studentsByClass).sort();
-                            if(state.classList.length > 0 && !state.activeClass) {
-                                state.activeClass = state.classList[0];
-                            }
-                            
-                            const currentStudentClass = sClassSelect.value;
-                            const currentTeacherClass = tClassSelect.value;
-                            
-                            sClassSelect.innerHTML = '<option value="">-- 點這裡選擇班級 --</option>';
-                            tClassSelect.innerHTML = '';
-                            state.classList.forEach(c => {
-                                sClassSelect.innerHTML += `<option value="${c}">${c} 班</option>`;
-                                tClassSelect.innerHTML += `<option value="${c}">${c} 班</option>`;
-                            });
-                            
-                            if (currentStudentClass && state.classList.includes(currentStudentClass)) sClassSelect.value = currentStudentClass;
-                            if (currentTeacherClass && state.classList.includes(currentTeacherClass)) tClassSelect.value = currentTeacherClass;
-
-                            if (state.view === 'teacher') renderTeacherView();
-                            if (state.view === 'wheel') renderWheelView();
-                        } else {
-                            state.studentsByClass = parseInitialData();
-                            saveData(); 
-                        }
-                    }, (error) => {
-                        console.error("即時監聽錯誤:", error);
-                        window.showCustomAlert("讀取錯誤", "從雲端讀取資料時發生錯誤。", "❌");
-                    });
+                }, (error) => {
+                    console.error("即時監聽錯誤:", error);
+                    window.showCustomAlert("讀取錯誤", "從雲端讀取資料時發生錯誤。", "❌");
                 });
-            } else {
-                window.showCustomAlert("系統錯誤", "找不到 Firebase 設定碼，系統無法運作。", "❌");
-            }
+            });
 
             document.getElementById('teacher-week-display').innerText = `目前週數：${state.currentWeek}`;
             window.switchView('student');
