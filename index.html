@@ -510,6 +510,8 @@
                         </h2>
                     </div>
                     <div class="flex gap-2 items-center">
+                        <button class="btn btn-success btn-sm" onclick="markAllPresent()" style="box-shadow: none;">✅ 一鍵全班已到</button>
+
                         <div class="btn-group">
                             <button id="btn-view-grid" class="active" onclick="setDisplayMode('grid')">
                                 <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:1.2rem; height:1.2rem; vertical-align: text-bottom; margin-right: 2px;"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect></svg>卡片
@@ -1402,7 +1404,7 @@
             }
             if (hasChanges) {
                 state.studentsByClass = savedData;
-                saveData(); 
+                saveData(true); 
             }
             return savedData;
         };
@@ -1444,13 +1446,15 @@
             const weekArray = Array.from(weeks).sort().reverse(); 
             
             const select = document.getElementById('teacher-week-select');
-            select.innerHTML = '';
-            weekArray.forEach(w => {
-                const isCurrent = w === state.currentWeek ? ' (本週)' : '';
-                const displayW = w.replace('-W', ' 年第 ') + ' 週';
-                select.innerHTML += `<option value="${w}">${displayW}${isCurrent}</option>`;
-            });
-            select.value = state.selectedWeek;
+            if(select) {
+                select.innerHTML = '';
+                weekArray.forEach(w => {
+                    const isCurrent = w === state.currentWeek ? ' (本週)' : '';
+                    const displayW = w.replace('-W', ' 年第 ') + ' 週';
+                    select.innerHTML += `<option value="${w}">${displayW}${isCurrent}</option>`;
+                });
+                select.value = state.selectedWeek;
+            }
         }
 
         // ==========================================
@@ -1491,9 +1495,9 @@
         }
 
         // ==========================================
-        // 核心函數：保存資料 (純雲端模式)
+        // 核心函數：保存資料 (純雲端模式，新增斷線回報機制)
         // ==========================================
-        async function saveData() {
+        async function saveData(silent = false) {
             if (isCloudReady && db) {
                 try {
                     const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'attendanceSystem', 'mainData');
@@ -1502,14 +1506,17 @@
                         attendance: state.attendance,
                         drawnStudents: state.drawnStudents
                     }, { merge: true });
+                    populateWeekDropdown();
+                    return true;
                 } catch (e) {
                     console.error("雲端存檔失敗:", e);
-                    window.showCustomAlert("存檔失敗", "無法將資料寫入雲端，請確認網路連線狀態！", "⚠️");
+                    if (!silent) window.showCustomAlert("存檔失敗", "無法將資料寫入雲端，請確認網路連線狀態！", "⚠️");
+                    return false;
                 }
             } else {
-                window.showCustomAlert("尚未連線", "目前尚未連線至雲端資料庫，資料無法儲存喔！", "⚠️");
+                if (!silent) window.showCustomAlert("尚未連線", "目前尚未連線至雲端資料庫，資料無法儲存喔！", "⚠️");
+                return false;
             }
-            populateWeekDropdown();
         }
 
         // ==========================================
@@ -1551,7 +1558,7 @@
             } else if (viewName === 'timer') {
                 document.getElementById('view-timer').classList.remove('hidden');
                 document.getElementById('nav-teacher').classList.add('active-teacher');
-                window.updateTimerDisplay(); // 確保顯示預設時間
+                window.updateTimerDisplay(); 
             } else if (viewName === 'billboard') {
                 document.getElementById('view-billboard').classList.remove('hidden');
                 document.getElementById('nav-teacher').classList.add('active-teacher');
@@ -1657,7 +1664,7 @@
             }
         };
 
-        window.handleCheckIn = function() {
+        window.handleCheckIn = async function() {
             const classVal = document.getElementById('student-class-select').value;
             const seatVal = document.getElementById('student-seat-select').value;
             
@@ -1679,22 +1686,39 @@
                 return;
             }
 
+            // 先將按鈕禁用，防止連點造成錯誤
+            document.getElementById('btn-checkin').disabled = true;
+
+            // 備份舊資料，以防寫入失敗需要復原
+            const previousStatus = currentRecord ? { ...currentRecord } : null;
+
             state.attendance[studentId][state.currentWeek] = {
                 status: 'present',
                 timestamp: new Date().toLocaleString('zh-TW')
             };
-            saveData();
             
-            state.hasCheckedInThisSession = true; 
+            // 等待雲端寫入完成 (開啟靜默模式，錯誤交給下面處理)
+            const success = await saveData(true);
+            
+            if (success) {
+                state.hasCheckedInThisSession = true; 
 
-            window.shootConfetti();
-            const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
-            const randomEmoji = cuteEmojis[Math.floor(Math.random() * cuteEmojis.length)];
-            
-            const reminderText = randomQuote + '\n\n⚠️ 點完名請直接去練習打字，不要亂逛其他網站喔！';
-            window.showStudentMessage('success', '點名大成功！🎉', reminderText, randomEmoji);
-            
-            document.getElementById('btn-checkin').disabled = true; 
+                window.shootConfetti();
+                const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+                const randomEmoji = cuteEmojis[Math.floor(Math.random() * cuteEmojis.length)];
+                
+                const reminderText = randomQuote + '\n\n⚠️ 點完名請直接去練習打字，不要亂逛其他網站喔！';
+                window.showStudentMessage('success', '點名大成功！🎉', reminderText, randomEmoji);
+            } else {
+                // 如果失敗，退回原本狀態，並要求學生重試
+                if (previousStatus) {
+                    state.attendance[studentId][state.currentWeek] = previousStatus;
+                } else {
+                    delete state.attendance[studentId][state.currentWeek];
+                }
+                window.showStudentMessage('error', '網路連線不穩，點名沒有成功！請檢查網路後再按一次試試看 📡');
+                document.getElementById('btn-checkin').disabled = false; 
+            }
         };
 
         // ==========================================
@@ -1846,6 +1870,45 @@
             });
         }
 
+        window.markAllPresent = function() {
+            window.showCustomConfirm("一鍵全班已到", `確定要將「${state.activeClass} 班」目前所有未到的學生，全部標記為「已到」嗎？`, async () => {
+                const students = state.studentsByClass[state.activeClass] || [];
+                let changed = false;
+                const timestamp = new Date().toLocaleString('zh-TW');
+
+                // 備份以防連線失敗
+                const backupAttendance = JSON.parse(JSON.stringify(state.attendance));
+
+                students.forEach(s => {
+                    if (!state.attendance[s.id]) {
+                        state.attendance[s.id] = {};
+                    }
+                    const record = state.attendance[s.id][state.selectedWeek];
+                    if (!record || record.status === 'missing') {
+                        state.attendance[s.id][state.selectedWeek] = {
+                            status: 'present',
+                            timestamp: timestamp,
+                            markedByTeacher: true
+                        };
+                        changed = true;
+                    }
+                });
+
+                if (changed) {
+                    const success = await saveData(false); // 允許顯示內建錯誤視窗
+                    if (success) {
+                        window.showCustomAlert("設定成功", "已將剩餘未到學生全部標記為「已到」！", "✅");
+                        renderTeacherView();
+                    } else {
+                        // 復原
+                        state.attendance = backupAttendance;
+                    }
+                } else {
+                    window.showCustomAlert("無需變更", "班上目前沒有未到的學生囉！", "💡");
+                }
+            });
+        };
+
         window.handleAddStudent = function(e) {
             e.preventDefault();
             const seatInput = document.getElementById('add-seat').value;
@@ -1869,7 +1932,7 @@
             students.push(newStudent);
             students.sort((a, b) => parseInt(a.seat) - parseInt(b.seat));
             
-            saveData();
+            saveData(false);
             document.getElementById('add-seat').value = '';
             document.getElementById('add-name').value = '';
             renderTeacherView();
@@ -1879,7 +1942,7 @@
             e.stopPropagation();
             window.showCustomConfirm("刪除學生", `確定要刪除「${studentName}」嗎？\n(注意：相關的點名紀錄不會自動消失喔)`, () => {
                 state.studentsByClass[state.activeClass] = state.studentsByClass[state.activeClass].filter(s => s.id !== studentId);
-                saveData();
+                saveData(false);
                 renderTeacherView();
             });
         };
@@ -1892,16 +1955,29 @@
             if(cardEl) cardEl.classList.add('selected');
 
             state.selectedStudent = { id, seat, name };
-            document.getElementById('modal-seat').innerText = seat;
-            document.getElementById('modal-class').innerText = `${state.activeClass} 班`;
-            document.getElementById('modal-name').innerText = name;
             
-            document.getElementById('action-modal').classList.remove('hidden');
+            const modalSeat = document.getElementById('modal-seat');
+            const modalClass = document.getElementById('modal-class');
+            const modalName = document.getElementById('modal-name');
+            const actionModal = document.getElementById('action-modal');
+
+            if (modalSeat) modalSeat.innerText = seat;
+            if (modalClass) modalClass.innerText = `${state.activeClass} 班`;
+            if (modalName) modalName.innerText = name;
+            
+            if (actionModal) {
+                actionModal.classList.remove('hidden');
+            }
         };
 
         window.closeModal = function() {
             state.selectedStudent = null;
-            document.getElementById('action-modal').classList.add('hidden');
+            const actionModal = document.getElementById('action-modal');
+            
+            if (actionModal) {
+                actionModal.classList.add('hidden');
+            }
+            
             document.querySelectorAll('.student-card').forEach(el => el.classList.remove('selected'));
         };
 
@@ -1917,7 +1993,7 @@
                 timestamp: new Date().toLocaleString('zh-TW'),
                 markedByTeacher: true
             };
-            saveData();
+            saveData(false);
             window.closeModal();
             renderTeacherView();
             if(state.view === 'wheel') renderWheelView();
@@ -2061,7 +2137,7 @@
             if(!state.drawnStudents[state.activeClass]) state.drawnStudents[state.activeClass] = [];
             
             state.drawnStudents[state.activeClass].push(winner.id);
-            saveData();
+            saveData(false);
             renderWheelView();
         }
 
@@ -2071,7 +2147,7 @@
 
             window.showCustomConfirm("重新一輪", "確定要清除本節課的抽籤紀錄嗎？\n(名單將會全部放回轉盤中)", () => {
                 state.drawnStudents[state.activeClass] = [];
-                saveData();
+                saveData(false);
                 renderWheelView();
             });
         }
@@ -2261,7 +2337,7 @@
                         populateWeekDropdown();
                         
                         if (needCloudSync) {
-                            saveData(); // 將升級後的正確格式寫回雲端
+                            saveData(true); // 將升級後的正確格式寫回雲端
                         }
                         
                         const sClassSelect = document.getElementById('student-class-select');
@@ -2288,7 +2364,7 @@
                         if (state.view === 'wheel') renderWheelView();
                     } else {
                         state.studentsByClass = parseInitialData();
-                        saveData(); 
+                        saveData(true); 
                     }
                 }, (error) => {
                     console.error("即時監聽錯誤:", error);
