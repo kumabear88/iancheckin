@@ -1404,9 +1404,30 @@
             }
             if (hasChanges) {
                 state.studentsByClass = savedData;
-                saveData(true); 
             }
             return savedData;
+        };
+
+        const extractWeeks = (obj, targetMap) => {
+            if (!obj || typeof obj !== 'object') return;
+            
+            if (obj.week && obj.status && typeof obj.week === 'string' && obj.week.includes('-W')) {
+                if (!targetMap[obj.week]) {
+                    targetMap[obj.week] = { status: obj.status, timestamp: obj.timestamp || '' };
+                }
+            }
+            
+            for (let key in obj) {
+                if (key.includes('-W')) {
+                    let val = obj[key];
+                    if (val && typeof val === 'object') {
+                        if (val.status && !targetMap[key]) {
+                            targetMap[key] = { status: val.status, timestamp: val.timestamp || '' };
+                        }
+                        extractWeeks(val, targetMap);
+                    }
+                }
+            }
         };
 
         const Icons = {
@@ -1436,6 +1457,19 @@
 
         function populateWeekDropdown() {
             const weeks = new Set([state.currentWeek]);
+            
+            if (state.currentWeek.includes('-W')) {
+                let parts = state.currentWeek.split('-W');
+                let y = parseInt(parts[0]);
+                let w = parseInt(parts[1]);
+                for(let i = 1; i <= 5; i++) {
+                    let pastW = w - i;
+                    let pastY = y;
+                    if(pastW <= 0) { pastY -= 1; pastW += 52; }
+                    weeks.add(`${pastY}-W${pastW.toString().padStart(2, '0')}`);
+                }
+            }
+            
             Object.values(state.attendance).forEach(studentRecords => {
                 if (studentRecords && typeof studentRecords === 'object') {
                     Object.keys(studentRecords).forEach(w => {
@@ -1495,7 +1529,7 @@
         }
 
         // ==========================================
-        // 核心函數：保存資料 (純雲端模式，新增斷線回報機制)
+        // 核心函數：保存資料 (純雲端模式)
         // ==========================================
         async function saveData(silent = false) {
             if (isCloudReady && db) {
@@ -1686,10 +1720,8 @@
                 return;
             }
 
-            // 先將按鈕禁用，防止連點造成錯誤
             document.getElementById('btn-checkin').disabled = true;
 
-            // 備份舊資料，以防寫入失敗需要復原
             const previousStatus = currentRecord ? { ...currentRecord } : null;
 
             state.attendance[studentId][state.currentWeek] = {
@@ -1697,7 +1729,6 @@
                 timestamp: new Date().toLocaleString('zh-TW')
             };
             
-            // 等待雲端寫入完成 (開啟靜默模式，錯誤交給下面處理)
             const success = await saveData(true);
             
             if (success) {
@@ -1710,7 +1741,6 @@
                 const reminderText = randomQuote + '\n\n⚠️ 點完名請直接去練習打字，不要亂逛其他網站喔！';
                 window.showStudentMessage('success', '點名大成功！🎉', reminderText, randomEmoji);
             } else {
-                // 如果失敗，退回原本狀態，並要求學生重試
                 if (previousStatus) {
                     state.attendance[studentId][state.currentWeek] = previousStatus;
                 } else {
@@ -1876,7 +1906,6 @@
                 let changed = false;
                 const timestamp = new Date().toLocaleString('zh-TW');
 
-                // 備份以防連線失敗
                 const backupAttendance = JSON.parse(JSON.stringify(state.attendance));
 
                 students.forEach(s => {
@@ -1895,12 +1924,11 @@
                 });
 
                 if (changed) {
-                    const success = await saveData(false); // 允許顯示內建錯誤視窗
+                    const success = await saveData(false); 
                     if (success) {
                         window.showCustomAlert("設定成功", "已將剩餘未到學生全部標記為「已到」！", "✅");
                         renderTeacherView();
                     } else {
-                        // 復原
                         state.attendance = backupAttendance;
                     }
                 } else {
@@ -1999,7 +2027,6 @@
             if(state.view === 'wheel') renderWheelView();
         };
 
-
         // ==========================================
         // 幸運抽籤轉輪 邏輯
         // ==========================================
@@ -2017,7 +2044,6 @@
             const students = state.studentsByClass[state.activeClass] || [];
             const drawnSet = new Set(state.drawnStudents[state.activeClass] || []);
 
-            // 過濾掉「本週請假」及「已抽過」的學生
             currentWheelStudents = students.filter(s => {
                 const record = state.attendance[s.id]?.[state.currentWeek];
                 const isLeave = record && record.status === 'leave';
@@ -2080,9 +2106,9 @@
         window.spinWheel = function() {
             if(currentWheelStudents.length === 0) return;
             document.getElementById('btn-spin').disabled = true;
-            spinAngleStart = Math.random() * 10 + 15; // 隨機初始速度
+            spinAngleStart = Math.random() * 10 + 15; 
             spinTime = 0;
-            spinTimeTotal = Math.random() * 3000 + 4000; // 轉動時間 4~7秒
+            spinTimeTotal = Math.random() * 3000 + 4000; 
             rotateWheel();
         }
 
@@ -2105,14 +2131,12 @@
         }
 
         function stopRotateWheel() {
-            // 計算上方指針(270度 / 1.5 PI) 指到的索引
             let targetAngle = (1.5 * Math.PI - startAngle) % (2 * Math.PI);
             if (targetAngle < 0) targetAngle += 2 * Math.PI;
             
             let index = Math.floor(targetAngle / arc);
             const winner = currentWheelStudents[index];
 
-            // 畫出中獎的 Highlight
             const ctx = document.getElementById("wheel-canvas").getContext("2d");
             ctx.save();
             ctx.beginPath();
@@ -2162,7 +2186,6 @@
                 return;
             }
 
-            // 反轉順序讓最新抽中的在最上面
             [...drawnSet].reverse().forEach(id => {
                 const s = state.studentsByClass[state.activeClass].find(x => x.id === id);
                 if(s) {
@@ -2179,14 +2202,14 @@
         // 倒數計時器 邏輯
         // ==========================================
         let timerInterval = null;
-        let timerSeconds = 300; // 預設 5 分鐘
+        let timerSeconds = 300; 
 
         window.setTimer = function() {
             const m = parseInt(document.getElementById('timer-min-input').value) || 0;
             const s = parseInt(document.getElementById('timer-sec-input').value) || 0;
             timerSeconds = (m * 60) + s;
             window.updateTimerDisplay();
-            window.pauseTimer(); // 若在計時中設定，則先暫停
+            window.pauseTimer(); 
         };
 
         window.updateTimerDisplay = function() {
@@ -2195,7 +2218,6 @@
             const display = document.getElementById('timer-display');
             display.innerText = `${m}:${s}`;
             
-            // 倒數 10 秒內變紅色警告
             if (timerSeconds <= 10 && timerSeconds > 0) {
                 display.style.color = 'var(--danger)';
             } else {
@@ -2244,7 +2266,6 @@
             const textDiv = document.getElementById('billboard-text');
             textDiv.innerText = text;
             
-            // 根據字數多寡動態調整字體大小
             const length = text.length;
             let fontSize = "10vw"; 
             if (length < 5) fontSize = "25vw";
@@ -2255,8 +2276,6 @@
             else fontSize = "3vw";
             
             textDiv.style.fontSize = fontSize;
-            
-            // 移除 hidden 以顯示全螢幕
             fsDiv.classList.remove('hidden');
         };
 
@@ -2277,59 +2296,29 @@
             const auth = getAuth(app);
             db = getFirestore(app);
 
-            const initAuth = async () => {
-                try {
-                    await signInAnonymously(auth);
-                } catch (error) {
-                    console.error("Firebase 驗證失敗:", error);
-                    window.showCustomAlert("連線異常", "系統無法登入雲端。請至 Firebase 確認「匿名登入 (Anonymous)」是否已成功開啟！", "⚠️");
-                }
-            };
-            initAuth();
-
-            onAuthStateChanged(auth, (u) => {
-                if (!u) return;
+            const loadDataFromCloud = () => {
                 isCloudReady = true;
                 const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'attendanceSystem', 'mainData');
+                
                 onSnapshot(docRef, (snapshot) => {
                     if (snapshot.exists()) {
                         const data = snapshot.data();
                         state.studentsByClass = mergeStudentData(data.studentsByClass);
                         
-                        // --- 【自動搶救與升級舊資料】 ---
                         const rawAttendance = data.attendance || {};
                         state.attendance = {};
                         let needCloudSync = false;
 
-                        // 1. 處理 Firebase 上可能殘留的舊 1D 格式
                         for (let sId in rawAttendance) {
-                            let studentData = rawAttendance[sId];
-                            if (studentData && studentData.status && studentData.week) {
-                                state.attendance[sId] = {};
-                                state.attendance[sId][studentData.week] = studentData;
+                            state.attendance[sId] = {};
+                            let studentObj = rawAttendance[sId];
+                            
+                            extractWeeks(studentObj, state.attendance[sId]);
+                            
+                            let originalKeysCount = Object.keys(studentObj).length;
+                            let rescuedKeysCount = Object.keys(state.attendance[sId]).length;
+                            if (originalKeysCount !== rescuedKeysCount) {
                                 needCloudSync = true;
-                            } else {
-                                state.attendance[sId] = studentData;
-                            }
-                        }
-
-                        // 2. 如果 Firebase 上的 attendance 是空的，嘗試從本機 LocalStorage 搶救以前的紀錄
-                        if (Object.keys(state.attendance).length === 0) {
-                            const localAttendance = localStorage.getItem('attendance_records');
-                            if (localAttendance) {
-                                let parsed = JSON.parse(localAttendance);
-                                for (let sId in parsed) {
-                                    let studentData = parsed[sId];
-                                    if (studentData && studentData.status && studentData.week) {
-                                        state.attendance[sId] = {};
-                                        state.attendance[sId][studentData.week] = studentData;
-                                    } else {
-                                        state.attendance[sId] = studentData;
-                                    }
-                                }
-                                if (Object.keys(state.attendance).length > 0) {
-                                    needCloudSync = true;
-                                }
                             }
                         }
 
@@ -2337,7 +2326,7 @@
                         populateWeekDropdown();
                         
                         if (needCloudSync) {
-                            saveData(true); // 將升級後的正確格式寫回雲端
+                            saveData(true); 
                         }
                         
                         const sClassSelect = document.getElementById('student-class-select');
@@ -2347,18 +2336,18 @@
                             state.activeClass = state.classList[0];
                         }
                         
-                        const currentStudentClass = sClassSelect.value;
-                        const currentTeacherClass = tClassSelect.value;
+                        const currentStudentClass = sClassSelect ? sClassSelect.value : null;
+                        const currentTeacherClass = tClassSelect ? tClassSelect.value : null;
                         
-                        sClassSelect.innerHTML = '<option value="">-- 點這裡選擇班級 --</option>';
-                        tClassSelect.innerHTML = '';
+                        if(sClassSelect) sClassSelect.innerHTML = '<option value="">-- 點這裡選擇班級 --</option>';
+                        if(tClassSelect) tClassSelect.innerHTML = '';
                         state.classList.forEach(c => {
-                            sClassSelect.innerHTML += `<option value="${c}">${c} 班</option>`;
-                            tClassSelect.innerHTML += `<option value="${c}">${c} 班</option>`;
+                            if(sClassSelect) sClassSelect.innerHTML += `<option value="${c}">${c} 班</option>`;
+                            if(tClassSelect) tClassSelect.innerHTML += `<option value="${c}">${c} 班</option>`;
                         });
                         
-                        if (currentStudentClass && state.classList.includes(currentStudentClass)) sClassSelect.value = currentStudentClass;
-                        if (currentTeacherClass && state.classList.includes(currentTeacherClass)) tClassSelect.value = currentTeacherClass;
+                        if (currentStudentClass && state.classList.includes(currentStudentClass) && sClassSelect) sClassSelect.value = currentStudentClass;
+                        if (currentTeacherClass && state.classList.includes(currentTeacherClass) && tClassSelect) tClassSelect.value = currentTeacherClass;
 
                         if (state.view === 'teacher') renderTeacherView();
                         if (state.view === 'wheel') renderWheelView();
@@ -2368,11 +2357,25 @@
                     }
                 }, (error) => {
                     console.error("即時監聽錯誤:", error);
-                    window.showCustomAlert("讀取錯誤", "從雲端讀取資料時發生錯誤。", "❌");
+                    window.showCustomAlert("讀取錯誤", "從雲端讀取資料時發生錯誤，請確認網路連線。", "❌");
                 });
-            });
+            };
 
-            document.getElementById('teacher-week-display').innerText = `目前週數：${state.currentWeek.replace('-W', ' 年第 ')} 週`;
+            const initAuth = async () => {
+                try {
+                    await signInAnonymously(auth);
+                } catch (error) {
+                    console.error("Firebase 驗證失敗:", error);
+                    // 即使驗證失敗（可能被擴充套件阻擋），由於資料庫規則是公開的，直接嘗試連線資料庫
+                } finally {
+                    loadDataFromCloud();
+                }
+            };
+            
+            initAuth();
+
+            const twDisplay = document.getElementById('teacher-week-display');
+            if(twDisplay) twDisplay.innerText = `目前週數：${state.currentWeek.replace('-W', ' 年第 ')} 週`;
             window.switchView('student');
         };
 
