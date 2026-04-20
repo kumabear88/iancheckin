@@ -685,21 +685,33 @@
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // 強制綁定至用戶專屬 Firebase 資料庫
-        const firebaseConfig = {
-            apiKey: "AIzaSyDBLFK7T2ewIk4qgvlBz9hfQuxEALLUezQ",
-            authDomain: "typing-game-755a8.firebaseapp.com",
-            databaseURL: "https://typing-game-755a8-default-rtdb.firebaseio.com",
-            projectId: "typing-game-755a8",
-            storageBucket: "typing-game-755a8.firebasestorage.app",
-            messagingSenderId: "938096537906",
-            appId: "1:938096537906:web:0fb0e431a9fcbb2fcb272b",
-            measurementId: "G-K8NC1SX4X6"
-        };
+        // ==========================================
+        // Firebase 連線配置
+        // (支援 Canvas 環境變數與本地原設定備用)
+        // ==========================================
+        let firebaseConfig;
+        if (typeof __firebase_config !== 'undefined') {
+            firebaseConfig = JSON.parse(__firebase_config);
+        } else {
+            // 用戶原設定作為本機備用
+            firebaseConfig = {
+                apiKey: "AIzaSyDBLFK7T2ewIk4qgvlBz9hfQuxEALLUezQ",
+                authDomain: "typing-game-755a8.firebaseapp.com",
+                databaseURL: "https://typing-game-755a8-default-rtdb.firebaseio.com",
+                projectId: "typing-game-755a8",
+                storageBucket: "typing-game-755a8.firebasestorage.app",
+                messagingSenderId: "938096537906",
+                appId: "1:938096537906:web:0fb0e431a9fcbb2fcb272b",
+                measurementId: "G-K8NC1SX4X6"
+            };
+        }
 
-        const appId = 'my-awesome-attendance-app';
+        const appIdStr = typeof __app_id !== 'undefined' ? __app_id : 'my-awesome-attendance-app';
         let isCloudReady = false;
+        let currentUser = null;
         let db = null;
+        let auth = null;
+        let unsubscribeSnapshot = null;
 
         const quotes = [
             "太棒了！準備好迎接有趣的一天了嗎？🚀",
@@ -1356,13 +1368,23 @@
             hasCheckedInThisSession: false
         };
 
+        // 🐛 修正點 1: 取得週數時必定補零（例如 2026-W09 而不是 2026-W9），避免字串比對與排序錯誤
         const getWeekIdentifier = (date = new Date()) => {
             const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
             const dayNum = d.getUTCDay() || 7;
             d.setUTCDate(d.getUTCDate() + 4 - dayNum);
             const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
             const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-            return `${d.getUTCFullYear()}-W${weekNo}`;
+            return `${d.getUTCFullYear()}-W${weekNo.toString().padStart(2, '0')}`;
+        };
+
+        // 🐛 修正點 2: 建立修復機制函數，將任何舊有 W9 修正為 W09 格式
+        const normalizeWeekKey = (key) => {
+            const parts = key.split('-W');
+            if (parts.length === 2) {
+                return `${parts[0]}-W${parts[1].padStart(2, '0')}`;
+            }
+            return key;
         };
 
         const parseInitialData = () => {
@@ -1408,24 +1430,32 @@
             return savedData;
         };
 
-        const extractWeeks = (obj, targetMap) => {
+        // 安全地解析出學生的點名紀錄，支援多種資料型態與舊格式修正
+        const parseStudentRecords = (obj, targetMap) => {
             if (!obj || typeof obj !== 'object') return;
-            
-            if (obj.week && obj.status && typeof obj.week === 'string' && obj.week.includes('-W')) {
-                if (!targetMap[obj.week]) {
-                    targetMap[obj.week] = { status: obj.status, timestamp: obj.timestamp || '' };
-                }
+
+            if (Array.isArray(obj)) {
+                obj.forEach(item => parseStudentRecords(item, targetMap));
+                return;
             }
-            
+
+            if (obj.week && typeof obj.week === 'string' && obj.week.includes('-W') && obj.status) {
+                let normKey = normalizeWeekKey(obj.week);
+                targetMap[normKey] = { status: obj.status, timestamp: obj.timestamp || '' };
+                return;
+            }
+
             for (let key in obj) {
                 if (key.includes('-W')) {
+                    let normKey = normalizeWeekKey(key);
                     let val = obj[key];
-                    if (val && typeof val === 'object') {
-                        if (val.status && !targetMap[key]) {
-                            targetMap[key] = { status: val.status, timestamp: val.timestamp || '' };
-                        }
-                        extractWeeks(val, targetMap);
+                    if (val && typeof val === 'object' && val.status) {
+                        targetMap[normKey] = { status: val.status, timestamp: val.timestamp || '' };
+                    } else if (val && typeof val === 'object') {
+                        parseStudentRecords(val, targetMap);
                     }
+                } else if (typeof obj[key] === 'object') {
+                    parseStudentRecords(obj[key], targetMap);
                 }
             }
         };
@@ -1473,11 +1503,16 @@
             Object.values(state.attendance).forEach(studentRecords => {
                 if (studentRecords && typeof studentRecords === 'object') {
                     Object.keys(studentRecords).forEach(w => {
-                        if (w.includes('-W')) weeks.add(w);
+                        if (w.includes('-W')) {
+                            // 🐛 修正點 3: 防錯，再次確保收集到的過往周數標籤都被補零
+                            weeks.add(normalizeWeekKey(w));
+                        }
                     });
                 }
             });
-            const weekArray = Array.from(weeks).sort().reverse(); 
+
+            // 🐛 localeCompare 會安全的將 "2024-W10" 排在 "2024-W09" 之前
+            const weekArray = Array.from(weeks).sort((a, b) => b.localeCompare(a)); 
             
             const select = document.getElementById('teacher-week-select');
             if(select) {
@@ -1487,6 +1522,11 @@
                     const displayW = w.replace('-W', ' 年第 ') + ' 週';
                     select.innerHTML += `<option value="${w}">${displayW}${isCurrent}</option>`;
                 });
+                
+                // 確保老師選擇的週次一直存在，不然退回本週
+                if (!weekArray.includes(state.selectedWeek)) {
+                    state.selectedWeek = state.currentWeek;
+                }
                 select.value = state.selectedWeek;
             }
         }
@@ -1532,9 +1572,9 @@
         // 核心函數：保存資料 (純雲端模式)
         // ==========================================
         async function saveData(silent = false) {
-            if (isCloudReady && db) {
+            if (isCloudReady && db && currentUser) {
                 try {
-                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'attendanceSystem', 'mainData');
+                    const docRef = doc(db, 'artifacts', appIdStr, 'public', 'data', 'attendanceSystem', 'mainData');
                     await setDoc(docRef, {
                         studentsByClass: state.studentsByClass,
                         attendance: state.attendance,
@@ -2284,23 +2324,27 @@
         };
 
         // ==========================================
-        // 系統初始化與雲端連線設定 (純雲端模式)
+        // 系統初始化與 Firebase 認證及連線
         // ==========================================
         window.initApp = function() {
+            // 初始化並確保週數必然補足兩位數
             state.currentWeek = getWeekIdentifier();
             state.selectedWeek = state.currentWeek;
 
             if(!state.drawnStudents) state.drawnStudents = {};
 
             const app = initializeApp(firebaseConfig);
-            const auth = getAuth(app);
+            auth = getAuth(app);
             db = getFirestore(app);
 
-            const loadDataFromCloud = () => {
+            const loadDataFromCloud = (user) => {
+                if (!user) return;
                 isCloudReady = true;
-                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'attendanceSystem', 'mainData');
+                const docRef = doc(db, 'artifacts', appIdStr, 'public', 'data', 'attendanceSystem', 'mainData');
                 
-                onSnapshot(docRef, (snapshot) => {
+                if(unsubscribeSnapshot) unsubscribeSnapshot();
+
+                unsubscribeSnapshot = onSnapshot(docRef, (snapshot) => {
                     if (snapshot.exists()) {
                         const data = snapshot.data();
                         state.studentsByClass = mergeStudentData(data.studentsByClass);
@@ -2313,22 +2357,30 @@
                             state.attendance[sId] = {};
                             let studentObj = rawAttendance[sId];
                             
-                            extractWeeks(studentObj, state.attendance[sId]);
-                            
+                            // 🐛 核心修復：使用強化後的解析器，將舊的 W9 轉為標準的 W09
                             let originalKeysCount = Object.keys(studentObj).length;
+                            parseStudentRecords(studentObj, state.attendance[sId]);
                             let rescuedKeysCount = Object.keys(state.attendance[sId]).length;
+                            
                             if (originalKeysCount !== rescuedKeysCount) {
                                 needCloudSync = true;
+                            } else {
+                                // 檢查是否因為格式轉換而需要回存覆蓋（確保舊資料從 W9 變成 W09）
+                                for (let key in state.attendance[sId]) {
+                                    if (!studentObj[key]) needCloudSync = true;
+                                }
                             }
                         }
 
                         state.drawnStudents = data.drawnStudents || {};
                         populateWeekDropdown();
                         
+                        // 若發現有格式不同的舊資料被修復，自動寫回雲端更新
                         if (needCloudSync) {
                             saveData(true); 
                         }
                         
+                        // 更新畫面UI與選單狀態
                         const sClassSelect = document.getElementById('student-class-select');
                         const tClassSelect = document.getElementById('teacher-class-select');
                         state.classList = Object.keys(state.studentsByClass).sort();
@@ -2363,14 +2415,26 @@
 
             const initAuth = async () => {
                 try {
-                    await signInAnonymously(auth);
+                    // 標準化 Firebase 認證流程（防護 Firebase rules 阻擋）
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
                 } catch (error) {
                     console.error("Firebase 驗證失敗:", error);
-                    // 即使驗證失敗（可能被擴充套件阻擋），由於資料庫規則是公開的，直接嘗試連線資料庫
-                } finally {
-                    loadDataFromCloud();
                 }
             };
+
+            onAuthStateChanged(auth, (user) => {
+                currentUser = user;
+                if (user) {
+                    loadDataFromCloud(user);
+                } else {
+                    isCloudReady = false;
+                    if(unsubscribeSnapshot) unsubscribeSnapshot();
+                }
+            });
             
             initAuth();
 
