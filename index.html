@@ -316,6 +316,7 @@
         
         /* Layout Helpers */
         .col-span-1 { grid-column: span 1 / span 1; }
+        .col-span-2 { grid-column: span 2 / span 2; }
         .col-span-3 { grid-column: span 3 / span 3; }
         @media (min-width: 768px) {
             .md-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
@@ -331,10 +332,11 @@
         .confetti-piece.circle { border-radius: 50%; }
         @keyframes fall { 0% { transform: translateY(0) rotate(0deg) rotateX(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg) rotateX(360deg); opacity: 0.5; } }
 
-        /* ====== 大字報全螢幕覆蓋 ====== */
-        #billboard-fullscreen { position: fixed; inset: 0; background: var(--indigo-light); z-index: 99999; display: flex; align-items: center; justify-content: center; cursor: pointer; text-align: center; padding: 2rem; overflow: hidden; }
+        /* ====== 大字報全螢幕覆蓋 (整合版) ====== */
+        #billboard-fullscreen { position: fixed; inset: 0; background: var(--indigo); z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; text-align: center; padding: 2rem; overflow: hidden; }
         #billboard-fullscreen.hidden { display: none !important; }
-        #billboard-text { font-weight: bold; color: var(--indigo-hover); line-height: 1.3; word-break: break-word; white-space: pre-wrap; transition: font-size 0.3s; }
+        #fullscreen-timer { font-size: 22vw; font-family: monospace; font-weight: bold; font-variant-numeric: tabular-nums; line-height: 1; color: white; text-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: color 0.3s; margin-bottom: 1rem;}
+        #billboard-text { font-weight: bold; color: var(--warning-bg); line-height: 1.3; word-break: break-word; white-space: pre-wrap; transition: font-size 0.3s; text-shadow: 0 4px 8px rgba(0,0,0,0.2); }
     </style>
 </head>
 <body>
@@ -480,12 +482,8 @@
                         <span style="font-size: 1.25rem;">🎡</span> 本節課抽籤轉輪
                     </button>
 
-                    <button class="btn btn-success w-full flex items-center justify-center gap-2 mt-2" onclick="switchView('timer')">
-                        <span style="font-size: 1.25rem;">⏱️</span> 倒數計時器
-                    </button>
-
-                    <button class="btn btn-purple w-full flex items-center justify-center gap-2 mt-2 mb-3" onclick="switchView('billboard')">
-                        <span style="font-size: 1.25rem;">📢</span> 全螢幕大字報
+                    <button class="btn btn-success w-full flex items-center justify-center gap-2 mt-2 mb-3" onclick="switchView('timer')">
+                        <span style="font-size: 1.25rem;">⏱️📢</span> 課堂計時與大字報
                     </button>
                     
                     <button id="btn-toggle-edit" class="btn w-full flex items-center justify-center gap-2" style="background-color: var(--indigo-light); color: var(--indigo);" onclick="toggleEditMode()">
@@ -591,51 +589,15 @@
             </div>
         </div>
 
-        <!-- ================= TIMER VIEW ================= -->
+        <!-- ================= COMBINED TIMER & BILLBOARD VIEW ================= -->
         <div id="view-timer" class="hidden" style="padding-bottom: 6rem;">
             <div class="card card-body flex md-flex-row gap-4" style="border-color: #10b981;">
                 <div>
                     <h1 class="text-2xl font-bold flex items-center gap-2" style="color: #047857;">
-                        ⏱️ 課堂倒數計時器
-                    </h1>
-                </div>
-                <div class="flex gap-2">
-                    <button class="btn btn-outline btn-sm" onclick="switchView('teacher')">🔙 返回管理中心</button>
-                </div>
-            </div>
-
-            <div class="card card-body" style="text-align: center; border-color: var(--primary-light); padding: 3rem 1rem;">
-                <div id="timer-display" style="font-size: clamp(5rem, 15vw, 10rem); font-weight: bold; color: var(--gray-800); font-variant-numeric: tabular-nums; line-height: 1; font-family: monospace;">05:00</div>
-                
-                <div class="flex justify-center gap-4 mt-8 mb-8 flex-wrap">
-                    <div class="form-group mb-0 flex items-center gap-2">
-                        <input type="number" id="timer-min-input" value="5" min="0" max="99" style="width: 5rem; text-align: center; font-size: 1.5rem;">
-                        <label style="margin: 0; font-size: 1.5rem;">分</label>
-                    </div>
-                    <div class="form-group mb-0 flex items-center gap-2">
-                        <input type="number" id="timer-sec-input" value="0" min="0" max="59" style="width: 5rem; text-align: center; font-size: 1.5rem;">
-                        <label style="margin: 0; font-size: 1.5rem;">秒</label>
-                    </div>
-                    <button class="btn btn-outline" onclick="setTimer()">設定時間</button>
-                </div>
-
-                <div class="flex justify-center gap-4 flex-wrap">
-                    <button id="btn-timer-start" class="btn btn-success" style="font-size: 1.5rem; padding: 1rem 2.5rem;" onclick="startTimer()">▶️ 開始</button>
-                    <button id="btn-timer-pause" class="btn btn-warning hidden" style="font-size: 1.5rem; padding: 1rem 2.5rem;" onclick="pauseTimer()">⏸️ 暫停</button>
-                    <button class="btn btn-outline" style="font-size: 1.5rem; padding: 1rem 2.5rem;" onclick="resetTimer()">🔄 重設</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- ================= BILLBOARD VIEW ================= -->
-        <div id="view-billboard" class="hidden" style="padding-bottom: 6rem;">
-            <div class="card card-body flex md-flex-row gap-4" style="border-color: #8b5cf6;">
-                <div>
-                    <h1 class="text-2xl font-bold flex items-center gap-2" style="color: #5b21b6;">
-                        📢 全螢幕大字報
+                        ⏱️📢 課堂計時與大字報
                     </h1>
                     <p class="text-sm mt-2" style="color: var(--gray-500); font-weight: bold;">
-                        輸入訊息後點擊「顯示」，文字會自動填滿螢幕。展示時點擊畫面任意處即可退出。
+                        你可以獨立使用計時器，或是輸入文字後點擊「📺 全螢幕」，將會同時放大展示倒數與訊息。時間到時會播放高分貝鬧鐘！
                     </p>
                 </div>
                 <div class="flex gap-2">
@@ -643,20 +605,47 @@
                 </div>
             </div>
 
-            <div class="card card-body" style="text-align: center;">
-                <textarea id="billboard-input" rows="4" style="width: 100%; padding: 1.5rem; font-size: 1.5rem; border: 2px solid var(--gray-300); border-radius: 1rem; resize: vertical;" placeholder="請輸入要廣播給學生的訊息... (例如：安靜自習)"></textarea>
-                <div class="flex justify-center mt-6">
-                    <button class="btn btn-purple" style="font-size: 1.5rem; padding: 1rem 3rem;" onclick="showBillboard()">
-                        📺 顯示全螢幕大字報
+            <div class="md-grid">
+                <!-- 左側：計時器控制 -->
+                <div class="card card-body col-span-2 text-center" style="border-color: var(--primary-light); padding: 3rem 1rem;">
+                    <div id="timer-display" style="font-size: clamp(4rem, 10vw, 7rem); font-weight: bold; color: var(--gray-800); font-variant-numeric: tabular-nums; line-height: 1; font-family: monospace; transition: color 0.3s;">05:00</div>
+                    
+                    <div class="flex justify-center gap-3 mt-6 mb-6 flex-wrap">
+                        <div class="form-group mb-0 flex items-center gap-2">
+                            <input type="number" id="timer-min-input" value="5" min="0" max="99" style="width: 4.5rem; text-align: center; font-size: 1.25rem; padding: 0.5rem;">
+                            <label style="margin: 0; font-size: 1.25rem;">分</label>
+                        </div>
+                        <div class="form-group mb-0 flex items-center gap-2">
+                            <input type="number" id="timer-sec-input" value="0" min="0" max="59" style="width: 4.5rem; text-align: center; font-size: 1.25rem; padding: 0.5rem;">
+                            <label style="margin: 0; font-size: 1.25rem;">秒</label>
+                        </div>
+                        <button class="btn btn-outline btn-sm" onclick="setTimer()">設定</button>
+                    </div>
+
+                    <div class="flex justify-center gap-3 flex-wrap">
+                        <button id="btn-timer-start" class="btn btn-success" style="font-size: 1.25rem; padding: 0.75rem 2rem;" onclick="startTimer()">▶️ 開始計時</button>
+                        <button id="btn-timer-pause" class="btn btn-warning hidden" style="font-size: 1.25rem; padding: 0.75rem 2rem;" onclick="pauseTimer()">⏸️ 暫停</button>
+                        <button class="btn btn-outline" style="font-size: 1.25rem; padding: 0.75rem 2rem;" onclick="resetTimer()">🔄 重設</button>
+                    </div>
+                </div>
+
+                <!-- 右側：大字報控制 -->
+                <div class="card card-body col-span-2 flex flex-col justify-center" style="border-color: #8b5cf6;">
+                    <label class="text-lg" style="color: #5b21b6;">📝 全螢幕廣播訊息 (可留白)</label>
+                    <textarea id="billboard-input" rows="4" style="width: 100%; padding: 1.25rem; font-size: 1.25rem; border: 2px solid var(--gray-300); border-radius: 1rem; resize: vertical; margin-bottom: 1.5rem;" placeholder="請輸入要廣播給學生的訊息... &#10;(例如：考試中、安靜自習)"></textarea>
+                    
+                    <button class="btn btn-purple w-full" style="font-size: 1.5rem; padding: 1.25rem;" onclick="showFullscreen()">
+                        📺 開啟全螢幕模式
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Fullscreen Billboard Overlay -->
-        <div id="billboard-fullscreen" class="hidden" onclick="hideBillboard()">
+        <!-- Fullscreen Integrated Overlay -->
+        <div id="billboard-fullscreen" class="hidden" onclick="hideFullscreen()">
+            <div id="fullscreen-timer">05:00</div>
             <div id="billboard-text"></div>
-            <div style="position: absolute; bottom: 1rem; right: 1rem; font-size: 1rem; color: var(--gray-500); opacity: 0.7; font-weight: normal;">點擊畫面任意處退出</div>
+            <div style="position: absolute; bottom: 1rem; right: 1rem; font-size: 1rem; color: rgba(255,255,255,0.6); font-weight: normal;">點擊畫面任意處退出全螢幕</div>
         </div>
 
         <!-- ================= ACTION MODAL (卡片狀態設定) ================= -->
@@ -683,17 +672,15 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // ==========================================
         // Firebase 連線配置
-        // (支援 Canvas 環境變數與本地原設定備用)
         // ==========================================
         let firebaseConfig;
         if (typeof __firebase_config !== 'undefined') {
             firebaseConfig = JSON.parse(__firebase_config);
         } else {
-            // 用戶原設定作為本機備用
             firebaseConfig = {
                 apiKey: "AIzaSyDBLFK7T2ewIk4qgvlBz9hfQuxEALLUezQ",
                 authDomain: "typing-game-755a8.firebaseapp.com",
@@ -1368,7 +1355,6 @@
             hasCheckedInThisSession: false
         };
 
-        // 🐛 修正點 1: 取得週數時必定補零（例如 2026-W09 而不是 2026-W9），避免字串比對與排序錯誤
         const getWeekIdentifier = (date = new Date()) => {
             const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()));
             const dayNum = d.getUTCDay() || 7;
@@ -1378,7 +1364,6 @@
             return `${d.getUTCFullYear()}-W${weekNo.toString().padStart(2, '0')}`;
         };
 
-        // 🐛 修正點 2: 建立修復機制函數，將任何舊有 W9 修正為 W09 格式
         const normalizeWeekKey = (key) => {
             const parts = key.split('-W');
             if (parts.length === 2) {
@@ -1430,7 +1415,6 @@
             return savedData;
         };
 
-        // 安全地解析出學生的點名紀錄，支援多種資料型態與舊格式修正
         const parseStudentRecords = (obj, targetMap) => {
             if (!obj || typeof obj !== 'object') return;
 
@@ -1504,14 +1488,12 @@
                 if (studentRecords && typeof studentRecords === 'object') {
                     Object.keys(studentRecords).forEach(w => {
                         if (w.includes('-W')) {
-                            // 🐛 修正點 3: 防錯，再次確保收集到的過往周數標籤都被補零
                             weeks.add(normalizeWeekKey(w));
                         }
                     });
                 }
             });
 
-            // 🐛 localeCompare 會安全的將 "2024-W10" 排在 "2024-W09" 之前
             const weekArray = Array.from(weeks).sort((a, b) => b.localeCompare(a)); 
             
             const select = document.getElementById('teacher-week-select');
@@ -1523,7 +1505,6 @@
                     select.innerHTML += `<option value="${w}">${displayW}${isCurrent}</option>`;
                 });
                 
-                // 確保老師選擇的週次一直存在，不然退回本週
                 if (!weekArray.includes(state.selectedWeek)) {
                     state.selectedWeek = state.currentWeek;
                 }
@@ -1532,7 +1513,7 @@
         }
 
         // ==========================================
-        // 自訂提示視窗 (取代 alert 與 confirm)
+        // 自訂提示視窗
         // ==========================================
         let confirmCallback = null;
 
@@ -1569,26 +1550,39 @@
         }
 
         // ==========================================
-        // 核心函數：保存資料 (純雲端模式)
+        // 安全且原子化的更新機制
         // ==========================================
-        async function saveData(silent = false) {
-            if (isCloudReady && db && currentUser) {
-                try {
-                    const docRef = doc(db, 'artifacts', appIdStr, 'public', 'data', 'attendanceSystem', 'mainData');
-                    await setDoc(docRef, {
-                        studentsByClass: state.studentsByClass,
-                        attendance: state.attendance,
-                        drawnStudents: state.drawnStudents
-                    }, { merge: true });
-                    populateWeekDropdown();
-                    return true;
-                } catch (e) {
-                    console.error("雲端存檔失敗:", e);
-                    if (!silent) window.showCustomAlert("存檔失敗", "無法將資料寫入雲端，請確認網路連線狀態！", "⚠️");
-                    return false;
+        async function safeUpdate(updatePaths, isFullReplace = false) {
+            if (!isCloudReady || !db || !currentUser) {
+                window.showCustomAlert("尚未連線", "目前尚未連線至雲端資料庫，資料無法儲存喔！", "⚠️");
+                return false;
+            }
+            
+            const docRef = doc(db, 'artifacts', appIdStr, 'public', 'data', 'attendanceSystem', 'mainData');
+            
+            try {
+                if (isFullReplace) {
+                    await setDoc(docRef, updatePaths, { merge: true });
+                } else {
+                    await updateDoc(docRef, updatePaths);
                 }
-            } else {
-                if (!silent) window.showCustomAlert("尚未連線", "目前尚未連線至雲端資料庫，資料無法儲存喔！", "⚠️");
+                return true;
+            } catch (e) {
+                if (e.code === 'not-found') {
+                    try {
+                        await setDoc(docRef, {
+                            studentsByClass: state.studentsByClass,
+                            attendance: state.attendance,
+                            drawnStudents: state.drawnStudents
+                        });
+                        return true;
+                    } catch (err) {
+                        console.error("初始化存檔失敗:", err);
+                        return false;
+                    }
+                }
+                console.error("雲端存檔失敗:", e);
+                window.showCustomAlert("存檔失敗", "無法將資料寫入雲端，請確認網路連線狀態！", "⚠️");
                 return false;
             }
         }
@@ -1597,7 +1591,7 @@
         // 視圖切換與事件綁定
         // ==========================================
         window.switchView = function(viewName) {
-            if ((viewName === 'teacher' || viewName === 'wheel' || viewName === 'timer' || viewName === 'billboard') && !state.isAuthenticated) {
+            if ((viewName === 'teacher' || viewName === 'wheel' || viewName === 'timer') && !state.isAuthenticated) {
                 viewName = 'teacherLogin';
             }
             
@@ -1607,7 +1601,6 @@
             document.getElementById('view-teacher').classList.add('hidden');
             document.getElementById('view-wheel').classList.add('hidden');
             document.getElementById('view-timer').classList.add('hidden');
-            document.getElementById('view-billboard').classList.add('hidden');
             
             document.getElementById('nav-student').classList.remove('active-student');
             document.getElementById('nav-teacher').classList.remove('active-teacher');
@@ -1633,9 +1626,6 @@
                 document.getElementById('view-timer').classList.remove('hidden');
                 document.getElementById('nav-teacher').classList.add('active-teacher');
                 window.updateTimerDisplay(); 
-            } else if (viewName === 'billboard') {
-                document.getElementById('view-billboard').classList.remove('hidden');
-                document.getElementById('nav-teacher').classList.add('active-teacher');
             }
         };
 
@@ -1763,13 +1753,16 @@
             document.getElementById('btn-checkin').disabled = true;
 
             const previousStatus = currentRecord ? { ...currentRecord } : null;
-
-            state.attendance[studentId][state.currentWeek] = {
+            const newRecord = {
                 status: 'present',
                 timestamp: new Date().toLocaleString('zh-TW')
             };
+
+            state.attendance[studentId][state.currentWeek] = newRecord;
             
-            const success = await saveData(true);
+            const success = await safeUpdate({
+                [`attendance.${studentId}.${state.currentWeek}`]: newRecord
+            });
             
             if (success) {
                 state.hasCheckedInThisSession = true; 
@@ -1943,10 +1936,9 @@
         window.markAllPresent = function() {
             window.showCustomConfirm("一鍵全班已到", `確定要將「${state.activeClass} 班」目前所有未到的學生，全部標記為「已到」嗎？`, async () => {
                 const students = state.studentsByClass[state.activeClass] || [];
-                let changed = false;
                 const timestamp = new Date().toLocaleString('zh-TW');
-
-                const backupAttendance = JSON.parse(JSON.stringify(state.attendance));
+                
+                let updates = {};
 
                 students.forEach(s => {
                     if (!state.attendance[s.id]) {
@@ -1954,22 +1946,23 @@
                     }
                     const record = state.attendance[s.id][state.selectedWeek];
                     if (!record || record.status === 'missing') {
-                        state.attendance[s.id][state.selectedWeek] = {
+                        const newRecord = {
                             status: 'present',
                             timestamp: timestamp,
                             markedByTeacher: true
                         };
-                        changed = true;
+                        state.attendance[s.id][state.selectedWeek] = newRecord;
+                        updates[`attendance.${s.id}.${state.selectedWeek}`] = newRecord;
                     }
                 });
 
-                if (changed) {
-                    const success = await saveData(false); 
+                if (Object.keys(updates).length > 0) {
+                    const success = await safeUpdate(updates); 
                     if (success) {
                         window.showCustomAlert("設定成功", "已將剩餘未到學生全部標記為「已到」！", "✅");
                         renderTeacherView();
                     } else {
-                        state.attendance = backupAttendance;
+                        window.showCustomAlert("設定失敗", "網路異常，請稍後重試！", "❌");
                     }
                 } else {
                     window.showCustomAlert("無需變更", "班上目前沒有未到的學生囉！", "💡");
@@ -1977,7 +1970,7 @@
             });
         };
 
-        window.handleAddStudent = function(e) {
+        window.handleAddStudent = async function(e) {
             e.preventDefault();
             const seatInput = document.getElementById('add-seat').value;
             const nameInput = document.getElementById('add-name').value;
@@ -2000,7 +1993,10 @@
             students.push(newStudent);
             students.sort((a, b) => parseInt(a.seat) - parseInt(b.seat));
             
-            saveData(false);
+            await safeUpdate({
+                [`studentsByClass.${state.activeClass}`]: students
+            });
+            
             document.getElementById('add-seat').value = '';
             document.getElementById('add-name').value = '';
             renderTeacherView();
@@ -2008,9 +2004,11 @@
 
         window.handleDeleteStudent = function(e, studentId, studentName) {
             e.stopPropagation();
-            window.showCustomConfirm("刪除學生", `確定要刪除「${studentName}」嗎？\n(注意：相關的點名紀錄不會自動消失喔)`, () => {
+            window.showCustomConfirm("刪除學生", `確定要刪除「${studentName}」嗎？\n(注意：相關的點名紀錄不會自動消失喔)`, async () => {
                 state.studentsByClass[state.activeClass] = state.studentsByClass[state.activeClass].filter(s => s.id !== studentId);
-                saveData(false);
+                await safeUpdate({
+                    [`studentsByClass.${state.activeClass}`]: state.studentsByClass[state.activeClass]
+                });
                 renderTeacherView();
             });
         };
@@ -2041,27 +2039,26 @@
         window.closeModal = function() {
             state.selectedStudent = null;
             const actionModal = document.getElementById('action-modal');
-            
-            if (actionModal) {
-                actionModal.classList.add('hidden');
-            }
-            
+            if (actionModal) actionModal.classList.add('hidden');
             document.querySelectorAll('.student-card').forEach(el => el.classList.remove('selected'));
         };
 
-        window.handleMarkStatus = function(status) {
+        window.handleMarkStatus = async function(status) {
             if (!state.selectedStudent) return;
+            if (!state.attendance[state.selectedStudent.id]) state.attendance[state.selectedStudent.id] = {};
             
-            if (!state.attendance[state.selectedStudent.id]) {
-                state.attendance[state.selectedStudent.id] = {};
-            }
-            
-            state.attendance[state.selectedStudent.id][state.selectedWeek] = {
+            const newRecord = {
                 status: status,
                 timestamp: new Date().toLocaleString('zh-TW'),
                 markedByTeacher: true
             };
-            saveData(false);
+
+            state.attendance[state.selectedStudent.id][state.selectedWeek] = newRecord;
+            
+            await safeUpdate({
+                [`attendance.${state.selectedStudent.id}.${state.selectedWeek}`]: newRecord
+            });
+            
             window.closeModal();
             renderTeacherView();
             if(state.view === 'wheel') renderWheelView();
@@ -2080,7 +2077,6 @@
 
         function renderWheelView() {
             document.getElementById('wheel-class-display').innerText = state.activeClass;
-
             const students = state.studentsByClass[state.activeClass] || [];
             const drawnSet = new Set(state.drawnStudents[state.activeClass] || []);
 
@@ -2117,7 +2113,6 @@
 
             document.getElementById('btn-spin').disabled = false;
             arc = Math.PI * 2 / currentWheelStudents.length;
-
             const sliceColors = ["#bae6fd", "#bbf7d0", "#fef08a", "#fbcfe8", "#c7d2fe", "#fca5a5"];
 
             ctx.strokeStyle = "white";
@@ -2192,7 +2187,7 @@
             }, 600);
         }
 
-        function handleWinner(winner) {
+        async function handleWinner(winner) {
             window.shootConfetti();
             const randomEmoji = cuteEmojis[Math.floor(Math.random() * cuteEmojis.length)];
             window.showCustomAlert(`抽中：${winner.seat}號 ${winner.name}`, "恭喜幸運兒！", randomEmoji);
@@ -2201,7 +2196,9 @@
             if(!state.drawnStudents[state.activeClass]) state.drawnStudents[state.activeClass] = [];
             
             state.drawnStudents[state.activeClass].push(winner.id);
-            saveData(false);
+            await safeUpdate({
+                [`drawnStudents.${state.activeClass}`]: state.drawnStudents[state.activeClass]
+            });
             renderWheelView();
         }
 
@@ -2209,9 +2206,11 @@
             const drawnSet = state.drawnStudents[state.activeClass] || [];
             if(drawnSet.length === 0) return;
 
-            window.showCustomConfirm("重新一輪", "確定要清除本節課的抽籤紀錄嗎？\n(名單將會全部放回轉盤中)", () => {
+            window.showCustomConfirm("重新一輪", "確定要清除本節課的抽籤紀錄嗎？\n(名單將會全部放回轉盤中)", async () => {
                 state.drawnStudents[state.activeClass] = [];
-                saveData(false);
+                await safeUpdate({
+                    [`drawnStudents.${state.activeClass}`]: []
+                });
                 renderWheelView();
             });
         }
@@ -2239,10 +2238,45 @@
         }
 
         // ==========================================
-        // 倒數計時器 邏輯
+        // 🔥 計時器 & 整合版大字報 邏輯 🔥
         // ==========================================
         let timerInterval = null;
         let timerSeconds = 300; 
+
+        // 播放高分貝警報聲 (利用 Web Audio API 原生發聲，免去外部音檔失效風險)
+        function playLoudAlarm() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const burstDuration = 0.12; 
+                const gap = 0.08; 
+                
+                // 製造經典電子鬧鐘：嗶嗶嗶--嗶嗶嗶--嗶嗶嗶
+                for(let burst = 0; burst < 5; burst++) { 
+                    for (let beep = 0; beep < 3; beep++) { 
+                        const startTime = audioCtx.currentTime + burst*(burstDuration*3 + gap*3 + 0.4) + beep*(burstDuration + gap);
+                        
+                        const osc = audioCtx.createOscillator();
+                        const gain = audioCtx.createGain();
+                        
+                        osc.connect(gain);
+                        gain.connect(audioCtx.destination);
+                        
+                        osc.type = 'square';
+                        osc.frequency.value = 1200; // 高音頻更刺耳明顯
+                        
+                        gain.gain.setValueAtTime(0, startTime);
+                        gain.gain.linearRampToValueAtTime(0.5, startTime + 0.02);
+                        gain.gain.setValueAtTime(0.5, startTime + burstDuration - 0.02);
+                        gain.gain.linearRampToValueAtTime(0, startTime + burstDuration);
+                        
+                        osc.start(startTime);
+                        osc.stop(startTime + burstDuration);
+                    }
+                }
+            } catch(e) {
+                console.error("無法播放音效", e);
+            }
+        }
 
         window.setTimer = function() {
             const m = parseInt(document.getElementById('timer-min-input').value) || 0;
@@ -2255,18 +2289,35 @@
         window.updateTimerDisplay = function() {
             const m = Math.floor(timerSeconds / 60).toString().padStart(2, '0');
             const s = (timerSeconds % 60).toString().padStart(2, '0');
-            const display = document.getElementById('timer-display');
-            display.innerText = `${m}:${s}`;
+            const timeString = `${m}:${s}`;
+            
+            const mainDisplay = document.getElementById('timer-display');
+            const fsDisplay = document.getElementById('fullscreen-timer');
+            
+            mainDisplay.innerText = timeString;
+            fsDisplay.innerText = timeString;
             
             if (timerSeconds <= 10 && timerSeconds > 0) {
-                display.style.color = 'var(--danger)';
+                mainDisplay.style.color = 'var(--danger)';
+                fsDisplay.style.color = '#fca5a5'; // 在深色背景中的亮紅色
+            } else if (timerSeconds <= 0) {
+                mainDisplay.style.color = 'var(--danger)';
+                fsDisplay.style.color = '#ef4444';
             } else {
-                display.style.color = 'var(--gray-800)';
+                mainDisplay.style.color = 'var(--gray-800)';
+                fsDisplay.style.color = 'white';
             }
         };
 
         window.startTimer = function() {
             if (timerSeconds <= 0) return;
+            
+            // 由於現代瀏覽器需要「使用者互動」才能解鎖音效，在點擊按鈕時先啟動一個無聲的音軌解鎖它
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                ctx.resume();
+            } catch(e) {}
+
             document.getElementById('btn-timer-start').classList.add('hidden');
             document.getElementById('btn-timer-pause').classList.remove('hidden');
             
@@ -2279,6 +2330,8 @@
                     clearInterval(timerInterval);
                     document.getElementById('btn-timer-start').classList.remove('hidden');
                     document.getElementById('btn-timer-pause').classList.add('hidden');
+                    
+                    playLoudAlarm(); // 🔊 觸發大音量鬧鐘
                     window.showCustomAlert("時間到！", "計時已經結束囉！", "⏰");
                     window.shootConfetti();
                 }
@@ -2295,31 +2348,42 @@
             window.setTimer();
         };
 
-        // ==========================================
-        // 全螢幕大字報 邏輯
-        // ==========================================
-        window.showBillboard = function() {
+        // 全螢幕整合模式
+        window.showFullscreen = function() {
             const text = document.getElementById('billboard-input').value.trim();
-            if (!text) return window.showCustomAlert("提示", "請先輸入要顯示的文字喔！", "⚠️");
-            
             const fsDiv = document.getElementById('billboard-fullscreen');
             const textDiv = document.getElementById('billboard-text');
-            textDiv.innerText = text;
+            const fsTimer = document.getElementById('fullscreen-timer');
             
-            const length = text.length;
-            let fontSize = "10vw"; 
-            if (length < 5) fontSize = "25vw";
-            else if (length < 15) fontSize = "15vw";
-            else if (length < 30) fontSize = "10vw";
-            else if (length < 50) fontSize = "8vw";
-            else if (length < 100) fontSize = "5vw";
-            else fontSize = "3vw";
+            // 解鎖音效權限（防止使用者直接開全螢幕後倒數結束沒聲音）
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                ctx.resume();
+            } catch(e) {}
+
+            if (text) {
+                textDiv.innerText = text;
+                textDiv.style.display = 'block';
+                // 依照文字長度自動調整字體大小，給計時器留出空間
+                const length = text.length;
+                let fontSize = "6vw"; 
+                if (length < 5) fontSize = "12vw";
+                else if (length < 15) fontSize = "8vw";
+                else if (length < 30) fontSize = "6vw";
+                else if (length < 50) fontSize = "4.5vw";
+                else fontSize = "3vw";
+                
+                textDiv.style.fontSize = fontSize;
+                fsTimer.style.fontSize = "20vw"; // 稍微縮小計時器以容納文字
+            } else {
+                textDiv.style.display = 'none';
+                fsTimer.style.fontSize = "30vw"; // 沒文字時計時器放到最大
+            }
             
-            textDiv.style.fontSize = fontSize;
             fsDiv.classList.remove('hidden');
         };
 
-        window.hideBillboard = function() {
+        window.hideFullscreen = function() {
             document.getElementById('billboard-fullscreen').classList.add('hidden');
         };
 
@@ -2327,7 +2391,6 @@
         // 系統初始化與 Firebase 認證及連線
         // ==========================================
         window.initApp = function() {
-            // 初始化並確保週數必然補足兩位數
             state.currentWeek = getWeekIdentifier();
             state.selectedWeek = state.currentWeek;
 
@@ -2347,40 +2410,20 @@
                 unsubscribeSnapshot = onSnapshot(docRef, (snapshot) => {
                     if (snapshot.exists()) {
                         const data = snapshot.data();
-                        state.studentsByClass = mergeStudentData(data.studentsByClass);
+                        
+                        state.studentsByClass = mergeStudentData(data.studentsByClass || {});
                         
                         const rawAttendance = data.attendance || {};
                         state.attendance = {};
-                        let needCloudSync = false;
 
                         for (let sId in rawAttendance) {
                             state.attendance[sId] = {};
-                            let studentObj = rawAttendance[sId];
-                            
-                            // 🐛 核心修復：使用強化後的解析器，將舊的 W9 轉為標準的 W09
-                            let originalKeysCount = Object.keys(studentObj).length;
-                            parseStudentRecords(studentObj, state.attendance[sId]);
-                            let rescuedKeysCount = Object.keys(state.attendance[sId]).length;
-                            
-                            if (originalKeysCount !== rescuedKeysCount) {
-                                needCloudSync = true;
-                            } else {
-                                // 檢查是否因為格式轉換而需要回存覆蓋（確保舊資料從 W9 變成 W09）
-                                for (let key in state.attendance[sId]) {
-                                    if (!studentObj[key]) needCloudSync = true;
-                                }
-                            }
+                            parseStudentRecords(rawAttendance[sId], state.attendance[sId]);
                         }
 
                         state.drawnStudents = data.drawnStudents || {};
                         populateWeekDropdown();
                         
-                        // 若發現有格式不同的舊資料被修復，自動寫回雲端更新
-                        if (needCloudSync) {
-                            saveData(true); 
-                        }
-                        
-                        // 更新畫面UI與選單狀態
                         const sClassSelect = document.getElementById('student-class-select');
                         const tClassSelect = document.getElementById('teacher-class-select');
                         state.classList = Object.keys(state.studentsByClass).sort();
@@ -2405,7 +2448,7 @@
                         if (state.view === 'wheel') renderWheelView();
                     } else {
                         state.studentsByClass = parseInitialData();
-                        saveData(true); 
+                        safeUpdate({}, true); 
                     }
                 }, (error) => {
                     console.error("即時監聽錯誤:", error);
@@ -2415,7 +2458,6 @@
 
             const initAuth = async () => {
                 try {
-                    // 標準化 Firebase 認證流程（防護 Firebase rules 阻擋）
                     if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                         await signInWithCustomToken(auth, __initial_auth_token);
                     } else {
