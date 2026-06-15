@@ -115,6 +115,7 @@
         .nav-buttons button:hover { background-color: var(--gray-100); transform: scale(1.05); }
         .nav-buttons button.active-student { background-color: var(--primary-light); color: var(--primary-hover); box-shadow: 0 2px 4px rgba(14, 165, 233, 0.2); }
         .nav-buttons button.active-teacher { background-color: var(--indigo-light); color: var(--indigo-hover); box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2); }
+        .nav-buttons button.active-review { background-color: #fef08a; color: #b45309; box-shadow: 0 2px 4px rgba(202, 138, 4, 0.2); }
 
         /* 打字練習專屬連結樣式 */
         .nav-typing-link {
@@ -155,6 +156,7 @@
         .card-header { padding: 1.75rem; color: white; text-align: center; border-radius: calc(var(--radius) - 4px) calc(var(--radius) - 4px) 0 0; }
         .card-header.student { background: linear-gradient(135deg, var(--primary), var(--primary-hover)); }
         .card-header.teacher { background: linear-gradient(135deg, var(--indigo), var(--indigo-hover)); }
+        .card-header.review { background: linear-gradient(135deg, #f59e0b, #d97706); }
         .card-body { padding: 1.75rem; }
 
         /* Forms */
@@ -316,7 +318,6 @@
         
         /* Layout Helpers */
         .col-span-1 { grid-column: span 1 / span 1; }
-        .col-span-2 { grid-column: span 2 / span 2; }
         .col-span-3 { grid-column: span 3 / span 3; }
         @media (min-width: 768px) {
             .md-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
@@ -332,11 +333,20 @@
         .confetti-piece.circle { border-radius: 50%; }
         @keyframes fall { 0% { transform: translateY(0) rotate(0deg) rotateX(0deg); opacity: 1; } 100% { transform: translateY(100vh) rotate(720deg) rotateX(360deg); opacity: 0.5; } }
 
-        /* ====== 大字報全螢幕覆蓋 (整合版) ====== */
-        #billboard-fullscreen { position: fixed; inset: 0; background: var(--indigo); z-index: 99999; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; text-align: center; padding: 2rem; overflow: hidden; }
+        /* ====== 大字報全螢幕覆蓋 ====== */
+        #billboard-fullscreen { position: fixed; inset: 0; background: var(--indigo-light); z-index: 99999; display: flex; align-items: center; justify-content: center; cursor: pointer; text-align: center; padding: 2rem; overflow: hidden; }
         #billboard-fullscreen.hidden { display: none !important; }
-        #fullscreen-timer { font-size: 22vw; font-family: monospace; font-weight: bold; font-variant-numeric: tabular-nums; line-height: 1; color: white; text-shadow: 0 10px 20px rgba(0,0,0,0.3); transition: color 0.3s; margin-bottom: 1rem;}
-        #billboard-text { font-weight: bold; color: var(--warning-bg); line-height: 1.3; word-break: break-word; white-space: pre-wrap; transition: font-size 0.3s; text-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        #billboard-text { font-weight: bold; color: var(--indigo-hover); line-height: 1.3; word-break: break-word; white-space: pre-wrap; transition: font-size 0.3s; }
+        
+        /* ====== 評分星星樣式 ====== */
+        .star-rating { display: inline-flex; flex-direction: row-reverse; gap: 0.25rem; justify-content: flex-end; }
+        .star-btn { cursor: pointer; color: var(--gray-300); font-size: 2rem; line-height: 1; transition: 0.2s; user-select: none; }
+        .star-rating input { display: none; }
+        .star-rating label { cursor: pointer; color: var(--gray-300); font-size: 2rem; transition: 0.2s; user-select: none; }
+        .star-rating input:checked ~ label { color: #f59e0b; }
+        .star-rating label:hover, .star-rating label:hover ~ label { color: #fbbf24; transform: scale(1.1); }
+        .review-row { border-bottom: 1px solid var(--gray-100); padding: 1rem 0; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
+        .review-row:last-child { border-bottom: none; }
     </style>
 </head>
 <body>
@@ -375,6 +385,7 @@
                 <span>校園快樂點名</span>
             </div>
             <div class="nav-buttons flex items-center">
+                <button id="nav-review" onclick="switchView('studentReview')">⭐ 同儕互評</button>
                 <a href="#" onclick="handleTypingLinkClick(event)" class="nav-typing-link">⌨️ 打字練習</a>
                 <button id="nav-student" class="active-student" onclick="switchView('student')">👶 學生報到</button>
                 <button id="nav-teacher" onclick="switchView('teacherLogin')">👩‍🏫 老師管理</button>
@@ -435,6 +446,65 @@
             </div>
         </div>
 
+        <!-- ================= STUDENT REVIEW VIEW (前台評分) ================= -->
+        <div id="view-studentReview" class="flex flex-col items-center justify-center hidden">
+            <div class="card" style="width: 100%; max-width: 40rem;">
+                <div class="card-header review">
+                    <div style="font-size: 4rem; margin-bottom: 0.5rem;">⭐</div>
+                    <h1 class="text-2xl font-bold" style="letter-spacing: 2px;">同儕互評系統</h1>
+                    <p id="student-review-topic-display" class="text-md mt-2 font-bold" style="color: #fef3c7;">目前主題：(載入中...)</p>
+                </div>
+                
+                <div class="card-body">
+                    <!-- 步驟一：確認身分 -->
+                    <div id="student-review-step-1">
+                        <div class="warning-box" style="background-color: #f0f9ff; border-color: #7dd3fc; color: #0284c7;">
+                            <div><strong>請先確認您的身分，才能開始幫同學評分喔！</strong></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>📝 請選擇你的班級</label>
+                            <select id="sr-class-select" onchange="onSRClassChange()">
+                                <option value="">-- 點這裡選擇班級 --</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>🪑 請選擇你的座號</label>
+                            <select id="sr-seat-select" disabled onchange="onSRSeatChange()">
+                                <option value="">-- 先選班級才能選座號喔 --</option>
+                            </select>
+                        </div>
+                        <button id="btn-start-review" class="btn btn-warning w-full text-xl mt-4" style="padding: 1.25rem;" disabled onclick="startStudentReview()">
+                            進入評分畫面 👉
+                        </button>
+                    </div>
+
+                    <!-- 步驟二：評分列表 -->
+                    <div id="student-review-step-2" class="hidden">
+                        <div class="flex justify-between items-center mb-4 pb-4 border-b-2 border-gray-200">
+                            <div>
+                                <span class="text-gray-500 text-sm font-bold">評分人</span>
+                                <div id="sr-identity-display" class="text-xl font-bold text-indigo-700"></div>
+                            </div>
+                            <button class="btn btn-outline btn-sm" onclick="cancelStudentReview()">重新選擇身分</button>
+                        </div>
+
+                        <div class="warning-box mb-4">
+                            ⭐ 請給班上的同學打分數 (最高 5 顆星)，評分完記得拉到最下方點擊「送出評分」喔！
+                        </div>
+
+                        <div id="sr-classmates-list" style="max-height: 50vh; overflow-y: auto; padding-right: 0.5rem;">
+                            <!-- 同學列表會渲染在這裡 -->
+                        </div>
+
+                        <button class="btn btn-primary w-full text-xl mt-6" style="padding: 1.25rem;" onclick="submitPeerReviews()">
+                            ✅ 完成！送出所有評分
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- ================= TEACHER LOGIN VIEW ================= -->
         <div id="view-teacherLogin" class="flex flex-col items-center justify-center hidden">
             <div class="card text-center" style="width: 100%; max-width: 26rem;">
@@ -478,12 +548,20 @@
                         <select id="teacher-class-select" onchange="onTeacherClassChange()" style="margin-bottom: 1rem; font-weight: bold; color: var(--indigo);"></select>
                     </div>
                     
+                    <button class="btn btn-primary w-full flex items-center justify-center gap-2 mt-2" style="background-color: #f59e0b; box-shadow: 0 4px 0 #b45309;" onclick="switchView('teacherReview')">
+                        <span style="font-size: 1.25rem;">⭐</span> 同儕互評管理
+                    </button>
+
                     <button class="btn btn-warning w-full flex items-center justify-center gap-2 mt-2" onclick="switchView('wheel')">
                         <span style="font-size: 1.25rem;">🎡</span> 本節課抽籤轉輪
                     </button>
 
-                    <button class="btn btn-success w-full flex items-center justify-center gap-2 mt-2 mb-3" onclick="switchView('timer')">
-                        <span style="font-size: 1.25rem;">⏱️📢</span> 課堂計時與大字報
+                    <button class="btn btn-success w-full flex items-center justify-center gap-2 mt-2" onclick="switchView('timer')">
+                        <span style="font-size: 1.25rem;">⏱️</span> 倒數計時器
+                    </button>
+
+                    <button class="btn btn-purple w-full flex items-center justify-center gap-2 mt-2 mb-3" onclick="switchView('billboard')">
+                        <span style="font-size: 1.25rem;">📢</span> 全螢幕大字報
                     </button>
                     
                     <button id="btn-toggle-edit" class="btn w-full flex items-center justify-center gap-2" style="background-color: var(--indigo-light); color: var(--indigo);" onclick="toggleEditMode()">
@@ -547,6 +625,64 @@
             </div>
         </div>
 
+        <!-- ================= TEACHER REVIEW VIEW (後台互評管理) ================= -->
+        <div id="view-teacherReview" class="hidden" style="padding-bottom: 6rem;">
+            <div class="card card-body flex md-flex-row gap-4" style="border-color: #f59e0b;">
+                <div>
+                    <h1 class="text-2xl font-bold flex items-center gap-2" style="color: #b45309;">
+                        ⭐ 同儕互評管理系統
+                    </h1>
+                </div>
+                <div class="flex gap-2">
+                    <button class="btn btn-outline btn-sm" onclick="switchView('teacher')">🔙 返回管理中心</button>
+                </div>
+            </div>
+
+            <div class="md-grid" style="margin-bottom: 1.5rem;">
+                <div class="card card-body col-span-1 flex flex-col justify-between" style="border-color: var(--primary-light);">
+                    <div>
+                        <label class="text-sm">📌 設定評分主題</label>
+                        <input type="text" id="tr-topic-input" placeholder="例如：期中報告評分" class="mb-4">
+
+                        <div class="p-3 rounded-lg mb-4 text-center font-bold" id="tr-status-badge">
+                            <!-- 狀態徽章 -->
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-col gap-2">
+                        <button id="btn-tr-open" class="btn btn-success w-full" onclick="toggleReviewStatus(true)">✅ 開放學生評分</button>
+                        <button id="btn-tr-close" class="btn w-full" style="background: var(--danger); color: white;" onclick="toggleReviewStatus(false)">🛑 關閉並鎖定</button>
+                    </div>
+                </div>
+
+                <div class="col-span-3 card card-body" style="border-color: var(--primary-light);">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xl font-bold text-gray-800">📊 評分結果統計</h2>
+                        <div class="flex items-center gap-2">
+                            <label class="text-sm mb-0">🏫 切換班級查看：</label>
+                            <select id="tr-class-select" onchange="renderTeacherReviewResults()" style="width: auto; padding: 0.5rem;"></select>
+                        </div>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>🪑 座號</th>
+                                    <th>👤 姓名</th>
+                                    <th>👥 收到評分人數</th>
+                                    <th>⭐ 平均得分 (最高 5 分)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tr-results-tbody">
+                                <!-- 評分結果會渲染在這裡 -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- ================= WHEEL VIEW ================= -->
         <div id="view-wheel" class="hidden" style="padding-bottom: 6rem;">
             <div class="card card-body flex md-flex-row gap-4" style="border-color: #fcd34d;">
@@ -565,7 +701,6 @@
             </div>
 
             <div class="wheel-layout">
-                <!-- 左側：幸運轉盤 -->
                 <div class="card card-body" style="text-align: center; border-color: var(--primary-light);">
                     <div class="wheel-container">
                         <div class="wheel-pointer"></div>
@@ -576,28 +711,61 @@
                     </button>
                 </div>
 
-                <!-- 右側：抽籤紀錄 -->
                 <div class="card card-body" style="background: #fffbeb; border-color: #fde68a; height: 100%;">
                     <h2 class="text-lg font-bold mb-4 flex justify-between items-center" style="color: #b45309;">
                         <span>📝 本節抽中名單</span>
                         <button class="btn btn-sm" style="background: white; color: var(--danger); border: 2px solid var(--danger-bg); box-shadow: none;" onclick="resetWheelRecord()">重新一輪</button>
                     </h2>
-                    <div id="wheel-drawn-list" class="drawn-list">
-                        <!-- 名單將會注入這裡 -->
-                    </div>
+                    <div id="wheel-drawn-list" class="drawn-list"></div>
                 </div>
             </div>
         </div>
 
-        <!-- ================= COMBINED TIMER & BILLBOARD VIEW ================= -->
+        <!-- ================= TIMER VIEW ================= -->
         <div id="view-timer" class="hidden" style="padding-bottom: 6rem;">
             <div class="card card-body flex md-flex-row gap-4" style="border-color: #10b981;">
                 <div>
                     <h1 class="text-2xl font-bold flex items-center gap-2" style="color: #047857;">
-                        ⏱️📢 課堂計時與大字報
+                        ⏱️ 課堂倒數計時器
+                    </h1>
+                </div>
+                <div class="flex gap-2">
+                    <button class="btn btn-outline btn-sm" onclick="switchView('teacher')">🔙 返回管理中心</button>
+                </div>
+            </div>
+
+            <div class="card card-body" style="text-align: center; border-color: var(--primary-light); padding: 3rem 1rem;">
+                <div id="timer-display" style="font-size: clamp(5rem, 15vw, 10rem); font-weight: bold; color: var(--gray-800); font-variant-numeric: tabular-nums; line-height: 1; font-family: monospace;">05:00</div>
+                
+                <div class="flex justify-center gap-4 mt-8 mb-8 flex-wrap">
+                    <div class="form-group mb-0 flex items-center gap-2">
+                        <input type="number" id="timer-min-input" value="5" min="0" max="99" style="width: 5rem; text-align: center; font-size: 1.5rem;">
+                        <label style="margin: 0; font-size: 1.5rem;">分</label>
+                    </div>
+                    <div class="form-group mb-0 flex items-center gap-2">
+                        <input type="number" id="timer-sec-input" value="0" min="0" max="59" style="width: 5rem; text-align: center; font-size: 1.5rem;">
+                        <label style="margin: 0; font-size: 1.5rem;">秒</label>
+                    </div>
+                    <button class="btn btn-outline" onclick="setTimer()">設定時間</button>
+                </div>
+
+                <div class="flex justify-center gap-4 flex-wrap">
+                    <button id="btn-timer-start" class="btn btn-success" style="font-size: 1.5rem; padding: 1rem 2.5rem;" onclick="startTimer()">▶️ 開始</button>
+                    <button id="btn-timer-pause" class="btn btn-warning hidden" style="font-size: 1.5rem; padding: 1rem 2.5rem;" onclick="pauseTimer()">⏸️ 暫停</button>
+                    <button class="btn btn-outline" style="font-size: 1.5rem; padding: 1rem 2.5rem;" onclick="resetTimer()">🔄 重設</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ================= BILLBOARD VIEW ================= -->
+        <div id="view-billboard" class="hidden" style="padding-bottom: 6rem;">
+            <div class="card card-body flex md-flex-row gap-4" style="border-color: #8b5cf6;">
+                <div>
+                    <h1 class="text-2xl font-bold flex items-center gap-2" style="color: #5b21b6;">
+                        📢 全螢幕大字報
                     </h1>
                     <p class="text-sm mt-2" style="color: var(--gray-500); font-weight: bold;">
-                        你可以獨立使用計時器，或是輸入文字後點擊「📺 全螢幕」，將會同時放大展示倒數與訊息。時間到時會播放高分貝鬧鐘！
+                        輸入訊息後點擊「顯示」，文字會自動填滿螢幕。展示時點擊畫面任意處即可退出。
                     </p>
                 </div>
                 <div class="flex gap-2">
@@ -605,47 +773,20 @@
                 </div>
             </div>
 
-            <div class="md-grid">
-                <!-- 左側：計時器控制 -->
-                <div class="card card-body col-span-2 text-center" style="border-color: var(--primary-light); padding: 3rem 1rem;">
-                    <div id="timer-display" style="font-size: clamp(4rem, 10vw, 7rem); font-weight: bold; color: var(--gray-800); font-variant-numeric: tabular-nums; line-height: 1; font-family: monospace; transition: color 0.3s;">05:00</div>
-                    
-                    <div class="flex justify-center gap-3 mt-6 mb-6 flex-wrap">
-                        <div class="form-group mb-0 flex items-center gap-2">
-                            <input type="number" id="timer-min-input" value="5" min="0" max="99" style="width: 4.5rem; text-align: center; font-size: 1.25rem; padding: 0.5rem;">
-                            <label style="margin: 0; font-size: 1.25rem;">分</label>
-                        </div>
-                        <div class="form-group mb-0 flex items-center gap-2">
-                            <input type="number" id="timer-sec-input" value="0" min="0" max="59" style="width: 4.5rem; text-align: center; font-size: 1.25rem; padding: 0.5rem;">
-                            <label style="margin: 0; font-size: 1.25rem;">秒</label>
-                        </div>
-                        <button class="btn btn-outline btn-sm" onclick="setTimer()">設定</button>
-                    </div>
-
-                    <div class="flex justify-center gap-3 flex-wrap">
-                        <button id="btn-timer-start" class="btn btn-success" style="font-size: 1.25rem; padding: 0.75rem 2rem;" onclick="startTimer()">▶️ 開始計時</button>
-                        <button id="btn-timer-pause" class="btn btn-warning hidden" style="font-size: 1.25rem; padding: 0.75rem 2rem;" onclick="pauseTimer()">⏸️ 暫停</button>
-                        <button class="btn btn-outline" style="font-size: 1.25rem; padding: 0.75rem 2rem;" onclick="resetTimer()">🔄 重設</button>
-                    </div>
-                </div>
-
-                <!-- 右側：大字報控制 -->
-                <div class="card card-body col-span-2 flex flex-col justify-center" style="border-color: #8b5cf6;">
-                    <label class="text-lg" style="color: #5b21b6;">📝 全螢幕廣播訊息 (可留白)</label>
-                    <textarea id="billboard-input" rows="4" style="width: 100%; padding: 1.25rem; font-size: 1.25rem; border: 2px solid var(--gray-300); border-radius: 1rem; resize: vertical; margin-bottom: 1.5rem;" placeholder="請輸入要廣播給學生的訊息... &#10;(例如：考試中、安靜自習)"></textarea>
-                    
-                    <button class="btn btn-purple w-full" style="font-size: 1.5rem; padding: 1.25rem;" onclick="showFullscreen()">
-                        📺 開啟全螢幕模式
+            <div class="card card-body" style="text-align: center;">
+                <textarea id="billboard-input" rows="4" style="width: 100%; padding: 1.5rem; font-size: 1.5rem; border: 2px solid var(--gray-300); border-radius: 1rem; resize: vertical;" placeholder="請輸入要廣播給學生的訊息... (例如：安靜自習)"></textarea>
+                <div class="flex justify-center mt-6">
+                    <button class="btn btn-purple" style="font-size: 1.5rem; padding: 1rem 3rem;" onclick="showBillboard()">
+                        📺 顯示全螢幕大字報
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Fullscreen Integrated Overlay -->
-        <div id="billboard-fullscreen" class="hidden" onclick="hideFullscreen()">
-            <div id="fullscreen-timer">05:00</div>
+        <!-- Fullscreen Billboard Overlay -->
+        <div id="billboard-fullscreen" class="hidden" onclick="hideBillboard()">
             <div id="billboard-text"></div>
-            <div style="position: absolute; bottom: 1rem; right: 1rem; font-size: 1rem; color: rgba(255,255,255,0.6); font-weight: normal;">點擊畫面任意處退出全螢幕</div>
+            <div style="position: absolute; bottom: 1rem; right: 1rem; font-size: 1rem; color: var(--gray-500); opacity: 0.7; font-weight: normal;">點擊畫面任意處退出</div>
         </div>
 
         <!-- ================= ACTION MODAL (卡片狀態設定) ================= -->
@@ -672,33 +813,23 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, updateDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // ==========================================
-        // Firebase 連線配置
-        // ==========================================
-        let firebaseConfig;
-        if (typeof __firebase_config !== 'undefined') {
-            firebaseConfig = JSON.parse(__firebase_config);
-        } else {
-            firebaseConfig = {
-                apiKey: "AIzaSyDBLFK7T2ewIk4qgvlBz9hfQuxEALLUezQ",
-                authDomain: "typing-game-755a8.firebaseapp.com",
-                databaseURL: "https://typing-game-755a8-default-rtdb.firebaseio.com",
-                projectId: "typing-game-755a8",
-                storageBucket: "typing-game-755a8.firebasestorage.app",
-                messagingSenderId: "938096537906",
-                appId: "1:938096537906:web:0fb0e431a9fcbb2fcb272b",
-                measurementId: "G-K8NC1SX4X6"
-            };
-        }
+        // 強制綁定至用戶專屬 Firebase 資料庫
+        const firebaseConfig = {
+            apiKey: "AIzaSyDBLFK7T2ewIk4qgvlBz9hfQuxEALLUezQ",
+            authDomain: "typing-game-755a8.firebaseapp.com",
+            databaseURL: "https://typing-game-755a8-default-rtdb.firebaseio.com",
+            projectId: "typing-game-755a8",
+            storageBucket: "typing-game-755a8.firebasestorage.app",
+            messagingSenderId: "938096537906",
+            appId: "1:938096537906:web:0fb0e431a9fcbb2fcb272b",
+            measurementId: "G-K8NC1SX4X6"
+        };
 
-        const appIdStr = typeof __app_id !== 'undefined' ? __app_id : 'my-awesome-attendance-app';
+        const appId = 'my-awesome-attendance-app';
         let isCloudReady = false;
-        let currentUser = null;
         let db = null;
-        let auth = null;
-        let unsubscribeSnapshot = null;
 
         const quotes = [
             "太棒了！準備好迎接有趣的一天了嗎？🚀",
@@ -1346,13 +1477,22 @@
             studentsByClass: {},
             attendance: {}, 
             drawnStudents: {}, 
+            // 同儕互評系統狀態
+            reviewTopic: { title: "", isActive: false },
+            peerReviews: {}, // 結構: { "主題名": { "評分人ID": { "被評分人ID": 分數 } } }
+            
             currentWeek: '',
             selectedWeek: '', 
             activeClass: '',
             isEditing: false,
             selectedStudent: null,
             classList: [],
-            hasCheckedInThisSession: false
+            hasCheckedInThisSession: false,
+            
+            // 學生互評前台暫存狀態
+            reviewStudentClass: '',
+            reviewStudentSeat: '',
+            currentDraftReviews: {}
         };
 
         const getWeekIdentifier = (date = new Date()) => {
@@ -1361,15 +1501,7 @@
             d.setUTCDate(d.getUTCDate() + 4 - dayNum);
             const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1));
             const weekNo = Math.ceil((((d - yearStart) / 86400000) + 1) / 7);
-            return `${d.getUTCFullYear()}-W${weekNo.toString().padStart(2, '0')}`;
-        };
-
-        const normalizeWeekKey = (key) => {
-            const parts = key.split('-W');
-            if (parts.length === 2) {
-                return `${parts[0]}-W${parts[1].padStart(2, '0')}`;
-            }
-            return key;
+            return `${d.getUTCFullYear()}-W${weekNo}`;
         };
 
         const parseInitialData = () => {
@@ -1415,31 +1547,24 @@
             return savedData;
         };
 
-        const parseStudentRecords = (obj, targetMap) => {
+        const extractWeeks = (obj, targetMap) => {
             if (!obj || typeof obj !== 'object') return;
-
-            if (Array.isArray(obj)) {
-                obj.forEach(item => parseStudentRecords(item, targetMap));
-                return;
+            
+            if (obj.week && obj.status && typeof obj.week === 'string' && obj.week.includes('-W')) {
+                if (!targetMap[obj.week]) {
+                    targetMap[obj.week] = { status: obj.status, timestamp: obj.timestamp || '' };
+                }
             }
-
-            if (obj.week && typeof obj.week === 'string' && obj.week.includes('-W') && obj.status) {
-                let normKey = normalizeWeekKey(obj.week);
-                targetMap[normKey] = { status: obj.status, timestamp: obj.timestamp || '' };
-                return;
-            }
-
+            
             for (let key in obj) {
                 if (key.includes('-W')) {
-                    let normKey = normalizeWeekKey(key);
                     let val = obj[key];
-                    if (val && typeof val === 'object' && val.status) {
-                        targetMap[normKey] = { status: val.status, timestamp: val.timestamp || '' };
-                    } else if (val && typeof val === 'object') {
-                        parseStudentRecords(val, targetMap);
+                    if (val && typeof val === 'object') {
+                        if (val.status && !targetMap[key]) {
+                            targetMap[key] = { status: val.status, timestamp: val.timestamp || '' };
+                        }
+                        extractWeeks(val, targetMap);
                     }
-                } else if (typeof obj[key] === 'object') {
-                    parseStudentRecords(obj[key], targetMap);
                 }
             }
         };
@@ -1487,14 +1612,11 @@
             Object.values(state.attendance).forEach(studentRecords => {
                 if (studentRecords && typeof studentRecords === 'object') {
                     Object.keys(studentRecords).forEach(w => {
-                        if (w.includes('-W')) {
-                            weeks.add(normalizeWeekKey(w));
-                        }
+                        if (w.includes('-W')) weeks.add(w);
                     });
                 }
             });
-
-            const weekArray = Array.from(weeks).sort((a, b) => b.localeCompare(a)); 
+            const weekArray = Array.from(weeks).sort().reverse(); 
             
             const select = document.getElementById('teacher-week-select');
             if(select) {
@@ -1504,16 +1626,12 @@
                     const displayW = w.replace('-W', ' 年第 ') + ' 週';
                     select.innerHTML += `<option value="${w}">${displayW}${isCurrent}</option>`;
                 });
-                
-                if (!weekArray.includes(state.selectedWeek)) {
-                    state.selectedWeek = state.currentWeek;
-                }
                 select.value = state.selectedWeek;
             }
         }
 
         // ==========================================
-        // 自訂提示視窗
+        // 自訂提示視窗 (取代 alert 與 confirm)
         // ==========================================
         let confirmCallback = null;
 
@@ -1550,39 +1668,28 @@
         }
 
         // ==========================================
-        // 安全且原子化的更新機制
+        // 核心函數：保存資料 (純雲端模式)
         // ==========================================
-        async function safeUpdate(updatePaths, isFullReplace = false) {
-            if (!isCloudReady || !db || !currentUser) {
-                window.showCustomAlert("尚未連線", "目前尚未連線至雲端資料庫，資料無法儲存喔！", "⚠️");
-                return false;
-            }
-            
-            const docRef = doc(db, 'artifacts', appIdStr, 'public', 'data', 'attendanceSystem', 'mainData');
-            
-            try {
-                if (isFullReplace) {
-                    await setDoc(docRef, updatePaths, { merge: true });
-                } else {
-                    await updateDoc(docRef, updatePaths);
+        async function saveData(silent = false) {
+            if (isCloudReady && db) {
+                try {
+                    const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'attendanceSystem', 'mainData');
+                    await setDoc(docRef, {
+                        studentsByClass: state.studentsByClass,
+                        attendance: state.attendance,
+                        drawnStudents: state.drawnStudents,
+                        reviewTopic: state.reviewTopic,
+                        peerReviews: state.peerReviews
+                    }, { merge: true });
+                    populateWeekDropdown();
+                    return true;
+                } catch (e) {
+                    console.error("雲端存檔失敗:", e);
+                    if (!silent) window.showCustomAlert("存檔失敗", "無法將資料寫入雲端，請確認網路連線狀態！", "⚠️");
+                    return false;
                 }
-                return true;
-            } catch (e) {
-                if (e.code === 'not-found') {
-                    try {
-                        await setDoc(docRef, {
-                            studentsByClass: state.studentsByClass,
-                            attendance: state.attendance,
-                            drawnStudents: state.drawnStudents
-                        });
-                        return true;
-                    } catch (err) {
-                        console.error("初始化存檔失敗:", err);
-                        return false;
-                    }
-                }
-                console.error("雲端存檔失敗:", e);
-                window.showCustomAlert("存檔失敗", "無法將資料寫入雲端，請確認網路連線狀態！", "⚠️");
+            } else {
+                if (!silent) window.showCustomAlert("尚未連線", "目前尚未連線至雲端資料庫，資料無法儲存喔！", "⚠️");
                 return false;
             }
         }
@@ -1591,24 +1698,36 @@
         // 視圖切換與事件綁定
         // ==========================================
         window.switchView = function(viewName) {
-            if ((viewName === 'teacher' || viewName === 'wheel' || viewName === 'timer') && !state.isAuthenticated) {
+            // 需要驗證的頁面
+            if ((viewName === 'teacher' || viewName === 'wheel' || viewName === 'timer' || viewName === 'billboard' || viewName === 'teacherReview') && !state.isAuthenticated) {
                 viewName = 'teacherLogin';
             }
             
             state.view = viewName;
+            
+            // 隱藏所有視圖
             document.getElementById('view-student').classList.add('hidden');
+            document.getElementById('view-studentReview').classList.add('hidden');
             document.getElementById('view-teacherLogin').classList.add('hidden');
             document.getElementById('view-teacher').classList.add('hidden');
+            document.getElementById('view-teacherReview').classList.add('hidden');
             document.getElementById('view-wheel').classList.add('hidden');
             document.getElementById('view-timer').classList.add('hidden');
+            document.getElementById('view-billboard').classList.add('hidden');
             
+            // 移除導航列的 active 狀態
             document.getElementById('nav-student').classList.remove('active-student');
+            document.getElementById('nav-review').classList.remove('active-review');
             document.getElementById('nav-teacher').classList.remove('active-teacher');
             
             if (viewName === 'student') {
                 document.getElementById('view-student').classList.remove('hidden');
                 document.getElementById('nav-student').classList.add('active-student');
                 window.clearStudentForm();
+            } else if (viewName === 'studentReview') {
+                document.getElementById('view-studentReview').classList.remove('hidden');
+                document.getElementById('nav-review').classList.add('active-review');
+                renderStudentReviewInit();
             } else if (viewName === 'teacherLogin') {
                 document.getElementById('view-teacherLogin').classList.remove('hidden');
                 document.getElementById('nav-teacher').classList.add('active-teacher');
@@ -1618,6 +1737,10 @@
                 document.getElementById('view-teacher').classList.remove('hidden');
                 document.getElementById('nav-teacher').classList.add('active-teacher');
                 renderTeacherView();
+            } else if (viewName === 'teacherReview') {
+                document.getElementById('view-teacherReview').classList.remove('hidden');
+                document.getElementById('nav-teacher').classList.add('active-teacher');
+                renderTeacherReviewInit();
             } else if (viewName === 'wheel') {
                 document.getElementById('view-wheel').classList.remove('hidden');
                 document.getElementById('nav-teacher').classList.add('active-teacher');
@@ -1626,6 +1749,9 @@
                 document.getElementById('view-timer').classList.remove('hidden');
                 document.getElementById('nav-teacher').classList.add('active-teacher');
                 window.updateTimerDisplay(); 
+            } else if (viewName === 'billboard') {
+                document.getElementById('view-billboard').classList.remove('hidden');
+                document.getElementById('nav-teacher').classList.add('active-teacher');
             }
         };
 
@@ -1637,7 +1763,7 @@
         };
 
         // ==========================================
-        // 學生端邏輯
+        // 學生端邏輯 (點名系統)
         // ==========================================
         let alertTimeout;
         window.showStudentMessage = function(type, text, quote = "", emoji = null) {
@@ -1753,16 +1879,13 @@
             document.getElementById('btn-checkin').disabled = true;
 
             const previousStatus = currentRecord ? { ...currentRecord } : null;
-            const newRecord = {
+
+            state.attendance[studentId][state.currentWeek] = {
                 status: 'present',
                 timestamp: new Date().toLocaleString('zh-TW')
             };
-
-            state.attendance[studentId][state.currentWeek] = newRecord;
             
-            const success = await safeUpdate({
-                [`attendance.${studentId}.${state.currentWeek}`]: newRecord
-            });
+            const success = await saveData(true);
             
             if (success) {
                 state.hasCheckedInThisSession = true; 
@@ -1781,6 +1904,157 @@
                 }
                 window.showStudentMessage('error', '網路連線不穩，點名沒有成功！請檢查網路後再按一次試試看 📡');
                 document.getElementById('btn-checkin').disabled = false; 
+            }
+        };
+
+        // ==========================================
+        // 學生端邏輯 (同儕互評系統)
+        // ==========================================
+        window.renderStudentReviewInit = function() {
+            document.getElementById('student-review-step-1').classList.remove('hidden');
+            document.getElementById('student-review-step-2').classList.add('hidden');
+            
+            const topicDisplay = document.getElementById('student-review-topic-display');
+            if (state.reviewTopic.isActive && state.reviewTopic.title) {
+                topicDisplay.innerHTML = `目前主題：<span style="color:white; text-decoration: underline;">${state.reviewTopic.title}</span>`;
+            } else {
+                topicDisplay.innerHTML = `⚠️ 目前老師沒有開放評分主題喔！`;
+            }
+
+            const classSelect = document.getElementById('sr-class-select');
+            classSelect.innerHTML = '<option value="">-- 點這裡選擇班級 --</option>';
+            state.classList.forEach(c => {
+                classSelect.innerHTML += `<option value="${c}">${c} 班</option>`;
+            });
+            document.getElementById('sr-seat-select').innerHTML = '<option value="">-- 先選班級才能選座號喔 --</option>';
+            document.getElementById('sr-seat-select').disabled = true;
+            document.getElementById('btn-start-review').disabled = true;
+        };
+
+        window.onSRClassChange = function() {
+            const classVal = document.getElementById('sr-class-select').value;
+            const seatSelect = document.getElementById('sr-seat-select');
+            
+            if (!classVal) {
+                seatSelect.innerHTML = '<option value="">-- 先選班級才能選座號喔 --</option>';
+                seatSelect.disabled = true;
+                document.getElementById('btn-start-review').disabled = true;
+                return;
+            }
+            
+            seatSelect.disabled = false;
+            seatSelect.innerHTML = '<option value="">-- 請選擇你的座號 --</option>';
+            state.studentsByClass[classVal].forEach(s => {
+                seatSelect.innerHTML += `<option value="${s.seat}">${s.seat}號 - ${s.name}</option>`;
+            });
+            document.getElementById('btn-start-review').disabled = true;
+        };
+
+        window.onSRSeatChange = function() {
+            const seatVal = document.getElementById('sr-seat-select').value;
+            document.getElementById('btn-start-review').disabled = !seatVal;
+        };
+
+        window.startStudentReview = function() {
+            if (!state.reviewTopic.isActive || !state.reviewTopic.title) {
+                window.showCustomAlert("無法評分", "老師目前沒有開放任何評分主題喔！", "🛑");
+                return;
+            }
+
+            const classVal = document.getElementById('sr-class-select').value;
+            const seatVal = document.getElementById('sr-seat-select').value;
+            state.reviewStudentClass = classVal;
+            state.reviewStudentSeat = seatVal;
+
+            const studentInfo = state.studentsByClass[classVal].find(s => s.seat === seatVal);
+            document.getElementById('sr-identity-display').innerText = `${classVal}班 ${seatVal}號 ${studentInfo.name}`;
+
+            // 載入該學生之前的評分草稿 (如果有的話)
+            const myId = `${classVal}-${seatVal}`;
+            const topic = state.reviewTopic.title;
+            
+            if (state.peerReviews && state.peerReviews[topic] && state.peerReviews[topic][myId]) {
+                state.currentDraftReviews = { ...state.peerReviews[topic][myId] };
+            } else {
+                state.currentDraftReviews = {};
+            }
+
+            document.getElementById('student-review-step-1').classList.add('hidden');
+            document.getElementById('student-review-step-2').classList.remove('hidden');
+            
+            renderStudentReviewList();
+        };
+
+        window.cancelStudentReview = function() {
+            state.reviewStudentClass = '';
+            state.reviewStudentSeat = '';
+            state.currentDraftReviews = {};
+            renderStudentReviewInit();
+        };
+
+        window.renderStudentReviewList = function() {
+            const listDiv = document.getElementById('sr-classmates-list');
+            listDiv.innerHTML = '';
+            
+            const classVal = state.reviewStudentClass;
+            const mySeat = state.reviewStudentSeat;
+            const classmates = state.studentsByClass[classVal] || [];
+
+            classmates.forEach(peer => {
+                if (peer.seat === mySeat) return; // 排除自己
+
+                const peerId = peer.id;
+                const currentScore = state.currentDraftReviews[peerId] || 0;
+                
+                // 產生 5 顆星星的 HTML (使用 Radio 按鈕隱藏技巧)
+                let starsHtml = '';
+                for(let i = 5; i >= 1; i--) {
+                    const isChecked = currentScore === i ? 'checked' : '';
+                    starsHtml += `
+                        <input type="radio" id="star-${peerId}-${i}" name="rating-${peerId}" value="${i}" ${isChecked} onchange="setReviewScore('${peerId}', ${i})">
+                        <label for="star-${peerId}-${i}">★</label>
+                    `;
+                }
+
+                const rowHtml = `
+                    <div class="review-row">
+                        <div class="font-bold text-lg text-gray-800">
+                            <span style="background: var(--gray-100); padding: 0.2rem 0.5rem; border-radius: 0.5rem; color: var(--gray-500); font-size: 0.9rem; margin-right: 0.5rem;">${peer.seat}</span>
+                            ${peer.name}
+                        </div>
+                        <div class="star-rating">
+                            ${starsHtml}
+                        </div>
+                    </div>
+                `;
+                listDiv.innerHTML += rowHtml;
+            });
+        };
+
+        window.setReviewScore = function(peerId, score) {
+            state.currentDraftReviews[peerId] = score;
+        };
+
+        window.submitPeerReviews = async function() {
+            const topic = state.reviewTopic.title;
+            const myId = `${state.reviewStudentClass}-${state.reviewStudentSeat}`;
+
+            if (Object.keys(state.currentDraftReviews).length === 0) {
+                window.showCustomAlert("提示", "您還沒有為任何同學評分喔！", "⚠️");
+                return;
+            }
+
+            if (!state.peerReviews) state.peerReviews = {};
+            if (!state.peerReviews[topic]) state.peerReviews[topic] = {};
+
+            // 將草稿寫入全域狀態
+            state.peerReviews[topic][myId] = { ...state.currentDraftReviews };
+
+            const success = await saveData(false);
+            if (success) {
+                window.shootConfetti();
+                window.showCustomAlert("送出成功", "太棒了！您的評分已經成功送出給老師囉！", "✅");
+                renderStudentReviewInit(); // 回到起始畫面
             }
         };
 
@@ -1804,7 +2078,7 @@
         };
 
         // ==========================================
-        // 老師後台邏輯
+        // 老師後台邏輯 (點名系統)
         // ==========================================
         window.onTeacherWeekChange = function() {
             state.selectedWeek = document.getElementById('teacher-week-select').value;
@@ -1936,9 +2210,10 @@
         window.markAllPresent = function() {
             window.showCustomConfirm("一鍵全班已到", `確定要將「${state.activeClass} 班」目前所有未到的學生，全部標記為「已到」嗎？`, async () => {
                 const students = state.studentsByClass[state.activeClass] || [];
+                let changed = false;
                 const timestamp = new Date().toLocaleString('zh-TW');
-                
-                let updates = {};
+
+                const backupAttendance = JSON.parse(JSON.stringify(state.attendance));
 
                 students.forEach(s => {
                     if (!state.attendance[s.id]) {
@@ -1946,23 +2221,22 @@
                     }
                     const record = state.attendance[s.id][state.selectedWeek];
                     if (!record || record.status === 'missing') {
-                        const newRecord = {
+                        state.attendance[s.id][state.selectedWeek] = {
                             status: 'present',
                             timestamp: timestamp,
                             markedByTeacher: true
                         };
-                        state.attendance[s.id][state.selectedWeek] = newRecord;
-                        updates[`attendance.${s.id}.${state.selectedWeek}`] = newRecord;
+                        changed = true;
                     }
                 });
 
-                if (Object.keys(updates).length > 0) {
-                    const success = await safeUpdate(updates); 
+                if (changed) {
+                    const success = await saveData(false); 
                     if (success) {
                         window.showCustomAlert("設定成功", "已將剩餘未到學生全部標記為「已到」！", "✅");
                         renderTeacherView();
                     } else {
-                        window.showCustomAlert("設定失敗", "網路異常，請稍後重試！", "❌");
+                        state.attendance = backupAttendance;
                     }
                 } else {
                     window.showCustomAlert("無需變更", "班上目前沒有未到的學生囉！", "💡");
@@ -1970,7 +2244,7 @@
             });
         };
 
-        window.handleAddStudent = async function(e) {
+        window.handleAddStudent = function(e) {
             e.preventDefault();
             const seatInput = document.getElementById('add-seat').value;
             const nameInput = document.getElementById('add-name').value;
@@ -1993,10 +2267,7 @@
             students.push(newStudent);
             students.sort((a, b) => parseInt(a.seat) - parseInt(b.seat));
             
-            await safeUpdate({
-                [`studentsByClass.${state.activeClass}`]: students
-            });
-            
+            saveData(false);
             document.getElementById('add-seat').value = '';
             document.getElementById('add-name').value = '';
             renderTeacherView();
@@ -2004,11 +2275,9 @@
 
         window.handleDeleteStudent = function(e, studentId, studentName) {
             e.stopPropagation();
-            window.showCustomConfirm("刪除學生", `確定要刪除「${studentName}」嗎？\n(注意：相關的點名紀錄不會自動消失喔)`, async () => {
+            window.showCustomConfirm("刪除學生", `確定要刪除「${studentName}」嗎？\n(注意：相關的點名紀錄不會自動消失喔)`, () => {
                 state.studentsByClass[state.activeClass] = state.studentsByClass[state.activeClass].filter(s => s.id !== studentId);
-                await safeUpdate({
-                    [`studentsByClass.${state.activeClass}`]: state.studentsByClass[state.activeClass]
-                });
+                saveData(false);
                 renderTeacherView();
             });
         };
@@ -2039,29 +2308,139 @@
         window.closeModal = function() {
             state.selectedStudent = null;
             const actionModal = document.getElementById('action-modal');
-            if (actionModal) actionModal.classList.add('hidden');
+            
+            if (actionModal) {
+                actionModal.classList.add('hidden');
+            }
+            
             document.querySelectorAll('.student-card').forEach(el => el.classList.remove('selected'));
         };
 
-        window.handleMarkStatus = async function(status) {
+        window.handleMarkStatus = function(status) {
             if (!state.selectedStudent) return;
-            if (!state.attendance[state.selectedStudent.id]) state.attendance[state.selectedStudent.id] = {};
             
-            const newRecord = {
+            if (!state.attendance[state.selectedStudent.id]) {
+                state.attendance[state.selectedStudent.id] = {};
+            }
+            
+            state.attendance[state.selectedStudent.id][state.selectedWeek] = {
                 status: status,
                 timestamp: new Date().toLocaleString('zh-TW'),
                 markedByTeacher: true
             };
-
-            state.attendance[state.selectedStudent.id][state.selectedWeek] = newRecord;
-            
-            await safeUpdate({
-                [`attendance.${state.selectedStudent.id}.${state.selectedWeek}`]: newRecord
-            });
-            
+            saveData(false);
             window.closeModal();
             renderTeacherView();
             if(state.view === 'wheel') renderWheelView();
+        };
+
+        // ==========================================
+        // 老師後台邏輯 (互評管理系統)
+        // ==========================================
+        window.renderTeacherReviewInit = function() {
+            const topicInput = document.getElementById('tr-topic-input');
+            const btnOpen = document.getElementById('btn-tr-open');
+            const btnClose = document.getElementById('btn-tr-close');
+            const badge = document.getElementById('tr-status-badge');
+            
+            topicInput.value = state.reviewTopic.title;
+
+            if (state.reviewTopic.isActive) {
+                badge.innerText = "🟢 目前狀態：開放學生評分中";
+                badge.style.backgroundColor = "var(--success-bg)";
+                badge.style.color = "var(--success)";
+                topicInput.disabled = true;
+                btnOpen.classList.add('hidden');
+                btnClose.classList.remove('hidden');
+            } else {
+                badge.innerText = "🔴 目前狀態：已關閉評分";
+                badge.style.backgroundColor = "var(--gray-100)";
+                badge.style.color = "var(--gray-500)";
+                topicInput.disabled = false;
+                btnOpen.classList.remove('hidden');
+                btnClose.classList.add('hidden');
+            }
+
+            // 初始化班級選單
+            const trClassSelect = document.getElementById('tr-class-select');
+            trClassSelect.innerHTML = '';
+            state.classList.forEach(c => {
+                const isSelected = c === state.activeClass ? 'selected' : '';
+                trClassSelect.innerHTML += `<option value="${c}" ${isSelected}>${c} 班</option>`;
+            });
+
+            renderTeacherReviewResults();
+        };
+
+        window.toggleReviewStatus = function(setToActive) {
+            const title = document.getElementById('tr-topic-input').value.trim();
+            if (setToActive && !title) {
+                window.showCustomAlert("提示", "請先輸入要開放評分的主題名稱！", "⚠️");
+                return;
+            }
+
+            if (setToActive) {
+                window.showCustomConfirm("開放評分", `確定要開放主題「${title}」讓學生評分嗎？`, () => {
+                    state.reviewTopic = { title: title, isActive: true };
+                    if (!state.peerReviews) state.peerReviews = {};
+                    if (!state.peerReviews[title]) state.peerReviews[title] = {};
+                    saveData();
+                    renderTeacherReviewInit();
+                });
+            } else {
+                window.showCustomConfirm("關閉評分", "確定要關閉目前的評分主題嗎？學生將無法繼續打分數。", () => {
+                    state.reviewTopic.isActive = false;
+                    saveData();
+                    renderTeacherReviewInit();
+                });
+            }
+        };
+
+        window.renderTeacherReviewResults = function() {
+            const trClassSelect = document.getElementById('tr-class-select');
+            const targetClass = trClassSelect ? trClassSelect.value : state.activeClass;
+            const tbody = document.getElementById('tr-results-tbody');
+            tbody.innerHTML = '';
+
+            const topic = state.reviewTopic.title;
+            const students = state.studentsByClass[targetClass] || [];
+            
+            // 如果沒有主題或沒有資料
+            if (!topic || !state.peerReviews || !state.peerReviews[topic]) {
+                tbody.innerHTML = `<tr><td colspan="4" class="text-center text-gray-500 font-bold py-4">目前尚無此主題的評分資料</td></tr>`;
+                return;
+            }
+
+            const currentTopicReviews = state.peerReviews[topic];
+            
+            students.forEach(student => {
+                let totalScore = 0;
+                let reviewCount = 0;
+
+                // 遍歷所有評分者，尋找給該學生的分數
+                for (let reviewerId in currentTopicReviews) {
+                    // 確保評分者和被評分者同班 (雖然前台有擋，但保險起見)
+                    if (reviewerId.startsWith(targetClass)) {
+                        const scoreGiven = currentTopicReviews[reviewerId][student.id];
+                        if (scoreGiven) {
+                            totalScore += scoreGiven;
+                            reviewCount++;
+                        }
+                    }
+                }
+
+                const avgScore = reviewCount > 0 ? (totalScore / reviewCount).toFixed(1) : '-';
+                
+                const rowHtml = `
+                    <tr>
+                        <td class="font-bold text-gray-500">${student.seat}</td>
+                        <td class="font-bold text-lg text-gray-800">${student.name}</td>
+                        <td><span class="badge" style="background: var(--primary-light); color: var(--primary-hover);">${reviewCount} 人</span></td>
+                        <td class="font-bold text-xl" style="color: #b45309;">${avgScore !== '-' ? '⭐ ' + avgScore : '-'}</td>
+                    </tr>
+                `;
+                tbody.innerHTML += rowHtml;
+            });
         };
 
         // ==========================================
@@ -2077,6 +2456,7 @@
 
         function renderWheelView() {
             document.getElementById('wheel-class-display').innerText = state.activeClass;
+
             const students = state.studentsByClass[state.activeClass] || [];
             const drawnSet = new Set(state.drawnStudents[state.activeClass] || []);
 
@@ -2113,6 +2493,7 @@
 
             document.getElementById('btn-spin').disabled = false;
             arc = Math.PI * 2 / currentWheelStudents.length;
+
             const sliceColors = ["#bae6fd", "#bbf7d0", "#fef08a", "#fbcfe8", "#c7d2fe", "#fca5a5"];
 
             ctx.strokeStyle = "white";
@@ -2187,7 +2568,7 @@
             }, 600);
         }
 
-        async function handleWinner(winner) {
+        function handleWinner(winner) {
             window.shootConfetti();
             const randomEmoji = cuteEmojis[Math.floor(Math.random() * cuteEmojis.length)];
             window.showCustomAlert(`抽中：${winner.seat}號 ${winner.name}`, "恭喜幸運兒！", randomEmoji);
@@ -2196,9 +2577,7 @@
             if(!state.drawnStudents[state.activeClass]) state.drawnStudents[state.activeClass] = [];
             
             state.drawnStudents[state.activeClass].push(winner.id);
-            await safeUpdate({
-                [`drawnStudents.${state.activeClass}`]: state.drawnStudents[state.activeClass]
-            });
+            saveData(false);
             renderWheelView();
         }
 
@@ -2206,11 +2585,9 @@
             const drawnSet = state.drawnStudents[state.activeClass] || [];
             if(drawnSet.length === 0) return;
 
-            window.showCustomConfirm("重新一輪", "確定要清除本節課的抽籤紀錄嗎？\n(名單將會全部放回轉盤中)", async () => {
+            window.showCustomConfirm("重新一輪", "確定要清除本節課的抽籤紀錄嗎？\n(名單將會全部放回轉盤中)", () => {
                 state.drawnStudents[state.activeClass] = [];
-                await safeUpdate({
-                    [`drawnStudents.${state.activeClass}`]: []
-                });
+                saveData(false);
                 renderWheelView();
             });
         }
@@ -2238,45 +2615,10 @@
         }
 
         // ==========================================
-        // 🔥 計時器 & 整合版大字報 邏輯 🔥
+        // 倒數計時器 邏輯
         // ==========================================
         let timerInterval = null;
         let timerSeconds = 300; 
-
-        // 播放高分貝警報聲 (利用 Web Audio API 原生發聲，免去外部音檔失效風險)
-        function playLoudAlarm() {
-            try {
-                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                const burstDuration = 0.12; 
-                const gap = 0.08; 
-                
-                // 製造經典電子鬧鐘：嗶嗶嗶--嗶嗶嗶--嗶嗶嗶
-                for(let burst = 0; burst < 5; burst++) { 
-                    for (let beep = 0; beep < 3; beep++) { 
-                        const startTime = audioCtx.currentTime + burst*(burstDuration*3 + gap*3 + 0.4) + beep*(burstDuration + gap);
-                        
-                        const osc = audioCtx.createOscillator();
-                        const gain = audioCtx.createGain();
-                        
-                        osc.connect(gain);
-                        gain.connect(audioCtx.destination);
-                        
-                        osc.type = 'square';
-                        osc.frequency.value = 1200; // 高音頻更刺耳明顯
-                        
-                        gain.gain.setValueAtTime(0, startTime);
-                        gain.gain.linearRampToValueAtTime(0.5, startTime + 0.02);
-                        gain.gain.setValueAtTime(0.5, startTime + burstDuration - 0.02);
-                        gain.gain.linearRampToValueAtTime(0, startTime + burstDuration);
-                        
-                        osc.start(startTime);
-                        osc.stop(startTime + burstDuration);
-                    }
-                }
-            } catch(e) {
-                console.error("無法播放音效", e);
-            }
-        }
 
         window.setTimer = function() {
             const m = parseInt(document.getElementById('timer-min-input').value) || 0;
@@ -2289,35 +2631,18 @@
         window.updateTimerDisplay = function() {
             const m = Math.floor(timerSeconds / 60).toString().padStart(2, '0');
             const s = (timerSeconds % 60).toString().padStart(2, '0');
-            const timeString = `${m}:${s}`;
-            
-            const mainDisplay = document.getElementById('timer-display');
-            const fsDisplay = document.getElementById('fullscreen-timer');
-            
-            mainDisplay.innerText = timeString;
-            fsDisplay.innerText = timeString;
+            const display = document.getElementById('timer-display');
+            display.innerText = `${m}:${s}`;
             
             if (timerSeconds <= 10 && timerSeconds > 0) {
-                mainDisplay.style.color = 'var(--danger)';
-                fsDisplay.style.color = '#fca5a5'; // 在深色背景中的亮紅色
-            } else if (timerSeconds <= 0) {
-                mainDisplay.style.color = 'var(--danger)';
-                fsDisplay.style.color = '#ef4444';
+                display.style.color = 'var(--danger)';
             } else {
-                mainDisplay.style.color = 'var(--gray-800)';
-                fsDisplay.style.color = 'white';
+                display.style.color = 'var(--gray-800)';
             }
         };
 
         window.startTimer = function() {
             if (timerSeconds <= 0) return;
-            
-            // 由於現代瀏覽器需要「使用者互動」才能解鎖音效，在點擊按鈕時先啟動一個無聲的音軌解鎖它
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                ctx.resume();
-            } catch(e) {}
-
             document.getElementById('btn-timer-start').classList.add('hidden');
             document.getElementById('btn-timer-pause').classList.remove('hidden');
             
@@ -2330,8 +2655,6 @@
                     clearInterval(timerInterval);
                     document.getElementById('btn-timer-start').classList.remove('hidden');
                     document.getElementById('btn-timer-pause').classList.add('hidden');
-                    
-                    playLoudAlarm(); // 🔊 觸發大音量鬧鐘
                     window.showCustomAlert("時間到！", "計時已經結束囉！", "⏰");
                     window.shootConfetti();
                 }
@@ -2348,47 +2671,36 @@
             window.setTimer();
         };
 
-        // 全螢幕整合模式
-        window.showFullscreen = function() {
+        // ==========================================
+        // 全螢幕大字報 邏輯
+        // ==========================================
+        window.showBillboard = function() {
             const text = document.getElementById('billboard-input').value.trim();
+            if (!text) return window.showCustomAlert("提示", "請先輸入要顯示的文字喔！", "⚠️");
+            
             const fsDiv = document.getElementById('billboard-fullscreen');
             const textDiv = document.getElementById('billboard-text');
-            const fsTimer = document.getElementById('fullscreen-timer');
+            textDiv.innerText = text;
             
-            // 解鎖音效權限（防止使用者直接開全螢幕後倒數結束沒聲音）
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                ctx.resume();
-            } catch(e) {}
-
-            if (text) {
-                textDiv.innerText = text;
-                textDiv.style.display = 'block';
-                // 依照文字長度自動調整字體大小，給計時器留出空間
-                const length = text.length;
-                let fontSize = "6vw"; 
-                if (length < 5) fontSize = "12vw";
-                else if (length < 15) fontSize = "8vw";
-                else if (length < 30) fontSize = "6vw";
-                else if (length < 50) fontSize = "4.5vw";
-                else fontSize = "3vw";
-                
-                textDiv.style.fontSize = fontSize;
-                fsTimer.style.fontSize = "20vw"; // 稍微縮小計時器以容納文字
-            } else {
-                textDiv.style.display = 'none';
-                fsTimer.style.fontSize = "30vw"; // 沒文字時計時器放到最大
-            }
+            const length = text.length;
+            let fontSize = "10vw"; 
+            if (length < 5) fontSize = "25vw";
+            else if (length < 15) fontSize = "15vw";
+            else if (length < 30) fontSize = "10vw";
+            else if (length < 50) fontSize = "8vw";
+            else if (length < 100) fontSize = "5vw";
+            else fontSize = "3vw";
             
+            textDiv.style.fontSize = fontSize;
             fsDiv.classList.remove('hidden');
         };
 
-        window.hideFullscreen = function() {
+        window.hideBillboard = function() {
             document.getElementById('billboard-fullscreen').classList.add('hidden');
         };
 
         // ==========================================
-        // 系統初始化與 Firebase 認證及連線
+        // 系統初始化與雲端連線設定
         // ==========================================
         window.initApp = function() {
             state.currentWeek = getWeekIdentifier();
@@ -2397,32 +2709,45 @@
             if(!state.drawnStudents) state.drawnStudents = {};
 
             const app = initializeApp(firebaseConfig);
-            auth = getAuth(app);
+            const auth = getAuth(app);
             db = getFirestore(app);
 
-            const loadDataFromCloud = (user) => {
-                if (!user) return;
+            const loadDataFromCloud = () => {
                 isCloudReady = true;
-                const docRef = doc(db, 'artifacts', appIdStr, 'public', 'data', 'attendanceSystem', 'mainData');
+                const docRef = doc(db, 'artifacts', appId, 'public', 'data', 'attendanceSystem', 'mainData');
                 
-                if(unsubscribeSnapshot) unsubscribeSnapshot();
-
-                unsubscribeSnapshot = onSnapshot(docRef, (snapshot) => {
+                onSnapshot(docRef, (snapshot) => {
                     if (snapshot.exists()) {
                         const data = snapshot.data();
-                        
-                        state.studentsByClass = mergeStudentData(data.studentsByClass || {});
+                        state.studentsByClass = mergeStudentData(data.studentsByClass);
                         
                         const rawAttendance = data.attendance || {};
                         state.attendance = {};
+                        let needCloudSync = false;
 
                         for (let sId in rawAttendance) {
                             state.attendance[sId] = {};
-                            parseStudentRecords(rawAttendance[sId], state.attendance[sId]);
+                            let studentObj = rawAttendance[sId];
+                            
+                            extractWeeks(studentObj, state.attendance[sId]);
+                            
+                            let originalKeysCount = Object.keys(studentObj).length;
+                            let rescuedKeysCount = Object.keys(state.attendance[sId]).length;
+                            if (originalKeysCount !== rescuedKeysCount) {
+                                needCloudSync = true;
+                            }
                         }
 
                         state.drawnStudents = data.drawnStudents || {};
+                        // 同儕互評狀態初始化
+                        state.reviewTopic = data.reviewTopic || { title: "", isActive: false };
+                        state.peerReviews = data.peerReviews || {};
+
                         populateWeekDropdown();
+                        
+                        if (needCloudSync) {
+                            saveData(true); 
+                        }
                         
                         const sClassSelect = document.getElementById('student-class-select');
                         const tClassSelect = document.getElementById('teacher-class-select');
@@ -2444,11 +2769,13 @@
                         if (currentStudentClass && state.classList.includes(currentStudentClass) && sClassSelect) sClassSelect.value = currentStudentClass;
                         if (currentTeacherClass && state.classList.includes(currentTeacherClass) && tClassSelect) tClassSelect.value = currentTeacherClass;
 
+                        // 更新對應的視圖
                         if (state.view === 'teacher') renderTeacherView();
                         if (state.view === 'wheel') renderWheelView();
+                        if (state.view === 'teacherReview') renderTeacherReviewInit();
                     } else {
                         state.studentsByClass = parseInitialData();
-                        safeUpdate({}, true); 
+                        saveData(true); 
                     }
                 }, (error) => {
                     console.error("即時監聽錯誤:", error);
@@ -2458,25 +2785,13 @@
 
             const initAuth = async () => {
                 try {
-                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                        await signInWithCustomToken(auth, __initial_auth_token);
-                    } else {
-                        await signInAnonymously(auth);
-                    }
+                    await signInAnonymously(auth);
                 } catch (error) {
                     console.error("Firebase 驗證失敗:", error);
+                } finally {
+                    loadDataFromCloud();
                 }
             };
-
-            onAuthStateChanged(auth, (user) => {
-                currentUser = user;
-                if (user) {
-                    loadDataFromCloud(user);
-                } else {
-                    isCloudReady = false;
-                    if(unsubscribeSnapshot) unsubscribeSnapshot();
-                }
-            });
             
             initAuth();
 
