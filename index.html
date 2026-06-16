@@ -656,11 +656,18 @@
                 </div>
 
                 <div class="col-span-3 card card-body" style="border-color: var(--primary-light);">
-                    <div class="flex justify-between items-center mb-4">
+                    <div class="flex justify-between items-center mb-4 flex-wrap gap-4">
                         <h2 class="text-xl font-bold text-gray-800">📊 評分結果統計</h2>
-                        <div class="flex items-center gap-2">
-                            <label class="text-sm mb-0">🏫 切換班級查看：</label>
-                            <select id="tr-class-select" onchange="renderTeacherReviewResults()" style="width: auto; padding: 0.5rem;"></select>
+                        <div class="flex items-center gap-4 flex-wrap">
+                            <!-- 新增排序切換按鈕 -->
+                            <div class="btn-group">
+                                <button id="btn-sort-seat" class="active" onclick="setReviewSort('seat')">🪑 座號</button>
+                                <button id="btn-sort-score" onclick="setReviewSort('score')">🏆 排名</button>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <label class="text-sm mb-0">🏫 班級：</label>
+                                <select id="tr-class-select" onchange="renderTeacherReviewResults()" style="width: auto; padding: 0.5rem;"></select>
+                            </div>
                         </div>
                     </div>
                     
@@ -1492,7 +1499,10 @@
             // 學生互評前台暫存狀態
             reviewStudentClass: '',
             reviewStudentSeat: '',
-            currentDraftReviews: {}
+            currentDraftReviews: {},
+            
+            // 新增：互評後台排序模式
+            reviewSortMode: 'seat' // 'seat' 或 'score'
         };
 
         const getWeekIdentifier = (date = new Date()) => {
@@ -2384,16 +2394,24 @@
                     state.reviewTopic = { title: title, isActive: true };
                     if (!state.peerReviews) state.peerReviews = {};
                     if (!state.peerReviews[title]) state.peerReviews[title] = {};
-                    saveData();
+                    saveData(false);
                     renderTeacherReviewInit();
                 });
             } else {
                 window.showCustomConfirm("關閉評分", "確定要關閉目前的評分主題嗎？學生將無法繼續打分數。", () => {
                     state.reviewTopic.isActive = false;
-                    saveData();
+                    saveData(false);
                     renderTeacherReviewInit();
                 });
             }
+        };
+
+        // 新增：處理互評排序切換
+        window.setReviewSort = function(mode) {
+            state.reviewSortMode = mode;
+            document.getElementById('btn-sort-seat').classList.toggle('active', mode === 'seat');
+            document.getElementById('btn-sort-score').classList.toggle('active', mode === 'score');
+            renderTeacherReviewResults();
         };
 
         window.renderTeacherReviewResults = function() {
@@ -2413,13 +2431,13 @@
 
             const currentTopicReviews = state.peerReviews[topic];
             
-            students.forEach(student => {
+            // 1. 計算所有人的分數並存入陣列
+            let results = students.map(student => {
                 let totalScore = 0;
                 let reviewCount = 0;
 
-                // 遍歷所有評分者，尋找給該學生的分數
                 for (let reviewerId in currentTopicReviews) {
-                    // 確保評分者和被評分者同班 (雖然前台有擋，但保險起見)
+                    // 確保評分者和被評分者同班
                     if (reviewerId.startsWith(targetClass)) {
                         const scoreGiven = currentTopicReviews[reviewerId][student.id];
                         if (scoreGiven) {
@@ -2429,14 +2447,42 @@
                     }
                 }
 
-                const avgScore = reviewCount > 0 ? (totalScore / reviewCount).toFixed(1) : '-';
+                const avgNum = reviewCount > 0 ? (totalScore / reviewCount) : 0;
+                const avgStr = reviewCount > 0 ? avgNum.toFixed(1) : '-';
+                return { student, reviewCount, avgNum, avgStr };
+            });
+
+            // 2. 根據目前模式排序 (座號 / 分數)
+            if (state.reviewSortMode === 'score') {
+                results.sort((a, b) => {
+                    if (b.avgNum !== a.avgNum) return b.avgNum - a.avgNum; // 分數由高到低
+                    if (b.reviewCount !== a.reviewCount) return b.reviewCount - a.reviewCount; // 同分時，評分人數多的優先
+                    return parseInt(a.student.seat) - parseInt(b.student.seat); // 同分同人數則依座號
+                });
+            } else {
+                results.sort((a, b) => parseInt(a.student.seat) - parseInt(b.student.seat)); // 預設依座號排序
+            }
+
+            // 3. 渲染至畫面
+            let currentRank = 1;
+            results.forEach((item) => {
+                let rankDisplay = '';
                 
+                // 只有在「分數排名」模式，且有人幫他評分時才顯示名次與獎牌
+                if (state.reviewSortMode === 'score' && item.reviewCount > 0) {
+                    if (currentRank === 1) rankDisplay = '<span style="font-size: 1.5rem;" title="第一名">🥇</span> ';
+                    else if (currentRank === 2) rankDisplay = '<span style="font-size: 1.5rem;" title="第二名">🥈</span> ';
+                    else if (currentRank === 3) rankDisplay = '<span style="font-size: 1.5rem;" title="第三名">🥉</span> ';
+                    else rankDisplay = `<span style="display:inline-block; width:1.5rem; text-align:center; color:#9ca3af; font-size:0.9rem; font-weight:bold;">${currentRank}</span> `;
+                    currentRank++;
+                }
+
                 const rowHtml = `
                     <tr>
-                        <td class="font-bold text-gray-500">${student.seat}</td>
-                        <td class="font-bold text-lg text-gray-800">${student.name}</td>
-                        <td><span class="badge" style="background: var(--primary-light); color: var(--primary-hover);">${reviewCount} 人</span></td>
-                        <td class="font-bold text-xl" style="color: #b45309;">${avgScore !== '-' ? '⭐ ' + avgScore : '-'}</td>
+                        <td class="font-bold text-gray-500">${item.student.seat}</td>
+                        <td class="font-bold text-lg text-gray-800">${rankDisplay}${item.student.name}</td>
+                        <td><span class="badge" style="background: var(--primary-light); color: var(--primary-hover);">${item.reviewCount} 人</span></td>
+                        <td class="font-bold text-xl" style="color: #b45309;">${item.avgStr !== '-' ? '⭐ ' + item.avgStr : '-'}</td>
                     </tr>
                 `;
                 tbody.innerHTML += rowHtml;
