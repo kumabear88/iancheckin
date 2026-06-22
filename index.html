@@ -338,15 +338,12 @@
         #billboard-fullscreen.hidden { display: none !important; }
         #billboard-text { font-weight: bold; color: var(--indigo-hover); line-height: 1.3; word-break: break-word; white-space: pre-wrap; transition: font-size 0.3s; }
         
-        /* ====== 評分星星樣式 ====== */
-        .star-rating { display: inline-flex; flex-direction: row-reverse; gap: 0.25rem; justify-content: flex-end; }
-        .star-btn { cursor: pointer; color: var(--gray-300); font-size: 2rem; line-height: 1; transition: 0.2s; user-select: none; }
+        /* ====== 評分星星樣式 (巨大化並支援觸控) ====== */
+        .star-rating { display: flex; flex-direction: row-reverse; gap: 0.5rem; justify-content: center; }
         .star-rating input { display: none; }
-        .star-rating label { cursor: pointer; color: var(--gray-300); font-size: 2rem; transition: 0.2s; user-select: none; }
+        .star-rating label { cursor: pointer; color: var(--gray-300); font-size: inherit; line-height: 1; transition: 0.2s; user-select: none; }
         .star-rating input:checked ~ label { color: #f59e0b; }
         .star-rating label:hover, .star-rating label:hover ~ label { color: #fbbf24; transform: scale(1.1); }
-        .review-row { border-bottom: 1px solid var(--gray-100); padding: 1rem 0; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; }
-        .review-row:last-child { border-bottom: none; }
     </style>
 </head>
 <body>
@@ -446,60 +443,53 @@
             </div>
         </div>
 
-        <!-- ================= STUDENT REVIEW VIEW (前台評分) ================= -->
+        <!-- ================= STUDENT REVIEW VIEW (極簡前台投票) ================= -->
         <div id="view-studentReview" class="flex flex-col items-center justify-center hidden">
             <div class="card" style="width: 100%; max-width: 40rem;">
                 <div class="card-header review">
                     <div style="font-size: 4rem; margin-bottom: 0.5rem;">⭐</div>
-                    <h1 class="text-2xl font-bold" style="letter-spacing: 2px;">同儕互評系統</h1>
-                    <p id="student-review-topic-display" class="text-md mt-2 font-bold" style="color: #fef3c7;">目前主題：(載入中...)</p>
+                    <h1 class="text-2xl font-bold" style="letter-spacing: 2px;">同儕互評大舞台</h1>
                 </div>
                 
                 <div class="card-body">
-                    <!-- 步驟一：確認身分 -->
-                    <div id="student-review-step-1">
-                        <div class="warning-box" style="background-color: #f0f9ff; border-color: #7dd3fc; color: #0284c7;">
-                            <div><strong>請先確認您的身分，才能開始幫同學評分喔！</strong></div>
+                    <!-- 開放投票時的畫面 -->
+                    <div id="student-review-active" class="hidden text-center py-4">
+                        <h2 class="text-xl font-bold text-gray-800 mb-2">正在為台上同學評分：</h2>
+                        <div id="sr-target-display" class="text-3xl font-bold text-indigo-600 mb-6"></div>
+                        
+                        <div class="warning-box mb-6 text-left" style="background-color: #f0f9ff; border-color: #7dd3fc; color: #0284c7;">
+                            ⭐ 請點擊下方的星星給予同學鼓勵！<br>⚠️ 規定：每台電腦只能投票一次喔！
                         </div>
 
-                        <div class="form-group">
-                            <label>📝 請選擇你的班級</label>
-                            <select id="sr-class-select" onchange="onSRClassChange()">
-                                <option value="">-- 點這裡選擇班級 --</option>
-                            </select>
+                        <!-- 巨大化星星選擇器 -->
+                        <div class="star-rating mb-2" style="font-size: 4rem;">
+                            <input type="radio" id="star5" name="rating" value="5" onchange="updatePraiseText(5)"><label for="star5">★</label>
+                            <input type="radio" id="star4" name="rating" value="4" onchange="updatePraiseText(4)"><label for="star4">★</label>
+                            <input type="radio" id="star3" name="rating" value="3" onchange="updatePraiseText(3)"><label for="star3">★</label>
+                            <input type="radio" id="star2" name="rating" value="2" onchange="updatePraiseText(2)"><label for="star2">★</label>
+                            <input type="radio" id="star1" name="rating" value="1" onchange="updatePraiseText(1)"><label for="star1">★</label>
                         </div>
-                        <div class="form-group">
-                            <label>🪑 請選擇你的座號</label>
-                            <select id="sr-seat-select" disabled onchange="onSRSeatChange()">
-                                <option value="">-- 先選班級才能選座號喔 --</option>
-                            </select>
-                        </div>
-                        <button id="btn-start-review" class="btn btn-warning w-full text-xl mt-4" style="padding: 1.25rem;" disabled onclick="startStudentReview()">
-                            進入評分畫面 👉
+                        
+                        <!-- 動態評語顯示區 -->
+                        <div id="sr-praise-text" class="text-xl font-bold text-gray-500 mb-8 min-h-[2rem]">請點擊星星給予評價！</div>
+                        
+                        <button id="btn-submit-vote" class="btn btn-warning w-full text-xl" style="padding: 1.25rem;" onclick="submitVote()">
+                            ✅ 送出評價
                         </button>
                     </div>
+                    
+                    <!-- 尚未開放時的畫面 -->
+                    <div id="student-review-closed" class="hidden text-center py-8">
+                        <div style="font-size: 4rem; margin-bottom: 1rem;">😴</div>
+                        <h2 class="text-2xl font-bold text-gray-500">目前沒有開放投票喔！</h2>
+                        <p class="text-gray-400 mt-2 font-bold">請等待老師設定台上的同學</p>
+                    </div>
 
-                    <!-- 步驟二：評分列表 -->
-                    <div id="student-review-step-2" class="hidden">
-                        <div class="flex justify-between items-center mb-4 pb-4 border-b-2 border-gray-200">
-                            <div>
-                                <span class="text-gray-500 text-sm font-bold">評分人</span>
-                                <div id="sr-identity-display" class="text-xl font-bold text-indigo-700"></div>
-                            </div>
-                            <button class="btn btn-outline btn-sm" onclick="cancelStudentReview()">重新選擇身分</button>
-                        </div>
-
-                        <div class="warning-box mb-4">
-                            ⭐ 請給班上的同學打分數 (最高 5 顆星)，評分完記得拉到最下方點擊「送出評分」喔！
-                        </div>
-
-                        <div id="sr-classmates-list" style="max-height: 50vh; overflow-y: auto; padding-right: 0.5rem;">
-                            <!-- 同學列表會渲染在這裡 -->
-                        </div>
-
-                        <button class="btn btn-primary w-full text-xl mt-6" style="padding: 1.25rem;" onclick="submitPeerReviews()">
-                            ✅ 完成！送出所有評分
-                        </button>
+                    <!-- 已投票完成的畫面 -->
+                    <div id="student-review-voted" class="hidden text-center py-8">
+                        <div style="font-size: 4rem; margin-bottom: 1rem;">💖</div>
+                        <h2 class="text-2xl font-bold text-success">您已經投過票囉！</h2>
+                        <p class="text-gray-500 mt-2 font-bold">謝謝您的鼓勵！請專心聽下一位同學發表喔！</p>
                     </div>
                 </div>
             </div>
@@ -625,12 +615,12 @@
             </div>
         </div>
 
-        <!-- ================= TEACHER REVIEW VIEW (後台互評管理) ================= -->
+        <!-- ================= TEACHER REVIEW VIEW (單人互評後台) ================= -->
         <div id="view-teacherReview" class="hidden" style="padding-bottom: 6rem;">
             <div class="card card-body flex md-flex-row gap-4" style="border-color: #f59e0b;">
                 <div>
                     <h1 class="text-2xl font-bold flex items-center gap-2" style="color: #b45309;">
-                        ⭐ 同儕互評管理系統
+                        ⭐ 同儕互評管理系統 (單人模式)
                     </h1>
                 </div>
                 <div class="flex gap-2">
@@ -641,8 +631,11 @@
             <div class="md-grid" style="margin-bottom: 1.5rem;">
                 <div class="card card-body col-span-1 flex flex-col justify-between" style="border-color: var(--primary-light);">
                     <div>
-                        <label class="text-sm">📌 設定評分主題</label>
-                        <input type="text" id="tr-topic-input" placeholder="例如：期中報告評分" class="mb-4">
+                        <label class="text-sm mb-2">📌 設定正在台上的同學</label>
+                        <div class="flex gap-2 mb-4">
+                            <select id="tr-target-class" class="text-sm" onchange="onTRTargetClassChange()"></select>
+                            <select id="tr-target-seat" class="text-sm"></select>
+                        </div>
 
                         <div class="p-3 rounded-lg mb-4 text-center font-bold" id="tr-status-badge">
                             <!-- 狀態徽章 -->
@@ -650,16 +643,16 @@
                     </div>
                     
                     <div class="flex flex-col gap-2">
-                        <button id="btn-tr-open" class="btn btn-success w-full" onclick="toggleReviewStatus(true)">✅ 開放學生評分</button>
-                        <button id="btn-tr-close" class="btn w-full" style="background: var(--danger); color: white;" onclick="toggleReviewStatus(false)">🛑 關閉並鎖定</button>
+                        <button id="btn-tr-open" class="btn btn-success w-full" onclick="toggleReviewStatus(true)">✅ 開放全班投票</button>
+                        <button id="btn-tr-close" class="btn w-full hidden" style="background: var(--danger); color: white;" onclick="toggleReviewStatus(false)">🛑 關閉並鎖定</button>
                     </div>
                 </div>
 
                 <div class="col-span-3 card card-body" style="border-color: var(--primary-light);">
                     <div class="flex justify-between items-center mb-4 flex-wrap gap-4">
-                        <h2 class="text-xl font-bold text-gray-800">📊 評分結果統計</h2>
+                        <h2 class="text-xl font-bold text-gray-800">📊 評分結果與排行榜</h2>
                         <div class="flex items-center gap-4 flex-wrap">
-                            <!-- 新增排序切換按鈕 -->
+                            <!-- 排序切換按鈕 -->
                             <div class="btn-group">
                                 <button id="btn-sort-seat" class="active" onclick="setReviewSort('seat')">🪑 座號</button>
                                 <button id="btn-sort-score" onclick="setReviewSort('score')">🏆 排名</button>
@@ -677,8 +670,8 @@
                                 <tr>
                                     <th>🪑 座號</th>
                                     <th>👤 姓名</th>
-                                    <th>👥 收到評分人數</th>
-                                    <th>⭐ 平均得分 (最高 5 分)</th>
+                                    <th>👥 收到投票人數</th>
+                                    <th>⭐ 平均星等 (最高 5 顆星)</th>
                                 </tr>
                             </thead>
                             <tbody id="tr-results-tbody">
@@ -837,6 +830,13 @@
         const appId = 'my-awesome-attendance-app';
         let isCloudReady = false;
         let db = null;
+
+        // 生成電腦專屬防作弊設備 ID
+        window.machineId = localStorage.getItem('attendance_machine_id');
+        if (!window.machineId) {
+            window.machineId = 'mac_' + Math.random().toString(36).substring(2, 15);
+            localStorage.setItem('attendance_machine_id', window.machineId);
+        }
 
         const quotes = [
             "太棒了！準備好迎接有趣的一天了嗎？🚀",
@@ -1484,9 +1484,11 @@
             studentsByClass: {},
             attendance: {}, 
             drawnStudents: {}, 
-            // 同儕互評系統狀態
-            reviewTopic: { title: "", isActive: false },
-            peerReviews: {}, // 結構: { "主題名": { "評分人ID": { "被評分人ID": 分數 } } }
+            
+            // 學生個人投票系統 (新版單人互評)
+            voteSession: { targetId: '', targetName: '', isActive: false },
+            voteResults: {}, // 結構: { "301-01": { "mac_123": 5, "mac_456": 4 } }
+            reviewSortMode: 'seat',
             
             currentWeek: '',
             selectedWeek: '', 
@@ -1494,15 +1496,7 @@
             isEditing: false,
             selectedStudent: null,
             classList: [],
-            hasCheckedInThisSession: false,
-            
-            // 學生互評前台暫存狀態
-            reviewStudentClass: '',
-            reviewStudentSeat: '',
-            currentDraftReviews: {},
-            
-            // 新增：互評後台排序模式
-            reviewSortMode: 'seat' // 'seat' 或 'score'
+            hasCheckedInThisSession: false
         };
 
         const getWeekIdentifier = (date = new Date()) => {
@@ -1559,13 +1553,11 @@
 
         const extractWeeks = (obj, targetMap) => {
             if (!obj || typeof obj !== 'object') return;
-            
             if (obj.week && obj.status && typeof obj.week === 'string' && obj.week.includes('-W')) {
                 if (!targetMap[obj.week]) {
                     targetMap[obj.week] = { status: obj.status, timestamp: obj.timestamp || '' };
                 }
             }
-            
             for (let key in obj) {
                 if (key.includes('-W')) {
                     let val = obj[key];
@@ -1641,7 +1633,7 @@
         }
 
         // ==========================================
-        // 自訂提示視窗 (取代 alert 與 confirm)
+        // 自訂提示視窗
         // ==========================================
         let confirmCallback = null;
 
@@ -1678,7 +1670,7 @@
         }
 
         // ==========================================
-        // 核心函數：保存資料 (純雲端模式)
+        // 核心函數：保存資料
         // ==========================================
         async function saveData(silent = false) {
             if (isCloudReady && db) {
@@ -1688,8 +1680,8 @@
                         studentsByClass: state.studentsByClass,
                         attendance: state.attendance,
                         drawnStudents: state.drawnStudents,
-                        reviewTopic: state.reviewTopic,
-                        peerReviews: state.peerReviews
+                        voteSession: state.voteSession,
+                        voteResults: state.voteResults
                     }, { merge: true });
                     populateWeekDropdown();
                     return true;
@@ -1708,14 +1700,12 @@
         // 視圖切換與事件綁定
         // ==========================================
         window.switchView = function(viewName) {
-            // 需要驗證的頁面
             if ((viewName === 'teacher' || viewName === 'wheel' || viewName === 'timer' || viewName === 'billboard' || viewName === 'teacherReview') && !state.isAuthenticated) {
                 viewName = 'teacherLogin';
             }
             
             state.view = viewName;
             
-            // 隱藏所有視圖
             document.getElementById('view-student').classList.add('hidden');
             document.getElementById('view-studentReview').classList.add('hidden');
             document.getElementById('view-teacherLogin').classList.add('hidden');
@@ -1725,7 +1715,6 @@
             document.getElementById('view-timer').classList.add('hidden');
             document.getElementById('view-billboard').classList.add('hidden');
             
-            // 移除導航列的 active 狀態
             document.getElementById('nav-student').classList.remove('active-student');
             document.getElementById('nav-review').classList.remove('active-review');
             document.getElementById('nav-teacher').classList.remove('active-teacher');
@@ -1918,153 +1907,75 @@
         };
 
         // ==========================================
-        // 學生端邏輯 (同儕互評系統)
+        // 學生端邏輯 (單人互評系統)
         // ==========================================
+        const praiseTexts = {
+            5: "太棒了！表現超級優秀！🌟",
+            4: "很厲害喔！繼續保持！👍",
+            3: "表現不錯！還有進步空間！💪",
+            2: "加油加油！下次會更好！🌱",
+            1: "有勇氣上台就很棒了！👏"
+        };
+
+        window.updatePraiseText = function(score) {
+            const el = document.getElementById('sr-praise-text');
+            el.innerText = praiseTexts[score];
+            el.style.color = '#d97706'; 
+        };
+
         window.renderStudentReviewInit = function() {
-            document.getElementById('student-review-step-1').classList.remove('hidden');
-            document.getElementById('student-review-step-2').classList.add('hidden');
+            const activeDiv = document.getElementById('student-review-active');
+            const closedDiv = document.getElementById('student-review-closed');
+            const votedDiv = document.getElementById('student-review-voted');
             
-            const topicDisplay = document.getElementById('student-review-topic-display');
-            if (state.reviewTopic.isActive && state.reviewTopic.title) {
-                topicDisplay.innerHTML = `目前主題：<span style="color:white; text-decoration: underline;">${state.reviewTopic.title}</span>`;
-            } else {
-                topicDisplay.innerHTML = `⚠️ 目前老師沒有開放評分主題喔！`;
-            }
-
-            const classSelect = document.getElementById('sr-class-select');
-            classSelect.innerHTML = '<option value="">-- 點這裡選擇班級 --</option>';
-            state.classList.forEach(c => {
-                classSelect.innerHTML += `<option value="${c}">${c} 班</option>`;
-            });
-            document.getElementById('sr-seat-select').innerHTML = '<option value="">-- 先選班級才能選座號喔 --</option>';
-            document.getElementById('sr-seat-select').disabled = true;
-            document.getElementById('btn-start-review').disabled = true;
-        };
-
-        window.onSRClassChange = function() {
-            const classVal = document.getElementById('sr-class-select').value;
-            const seatSelect = document.getElementById('sr-seat-select');
-            
-            if (!classVal) {
-                seatSelect.innerHTML = '<option value="">-- 先選班級才能選座號喔 --</option>';
-                seatSelect.disabled = true;
-                document.getElementById('btn-start-review').disabled = true;
-                return;
-            }
-            
-            seatSelect.disabled = false;
-            seatSelect.innerHTML = '<option value="">-- 請選擇你的座號 --</option>';
-            state.studentsByClass[classVal].forEach(s => {
-                seatSelect.innerHTML += `<option value="${s.seat}">${s.seat}號 - ${s.name}</option>`;
-            });
-            document.getElementById('btn-start-review').disabled = true;
-        };
-
-        window.onSRSeatChange = function() {
-            const seatVal = document.getElementById('sr-seat-select').value;
-            document.getElementById('btn-start-review').disabled = !seatVal;
-        };
-
-        window.startStudentReview = function() {
-            if (!state.reviewTopic.isActive || !state.reviewTopic.title) {
-                window.showCustomAlert("無法評分", "老師目前沒有開放任何評分主題喔！", "🛑");
+            if (!state.voteSession || !state.voteSession.isActive) {
+                activeDiv.classList.add('hidden');
+                votedDiv.classList.add('hidden');
+                closedDiv.classList.remove('hidden');
                 return;
             }
 
-            const classVal = document.getElementById('sr-class-select').value;
-            const seatVal = document.getElementById('sr-seat-select').value;
-            state.reviewStudentClass = classVal;
-            state.reviewStudentSeat = seatVal;
+            const targetId = state.voteSession.targetId;
+            const hasVoted = state.voteResults && state.voteResults[targetId] && state.voteResults[targetId][window.machineId];
 
-            const studentInfo = state.studentsByClass[classVal].find(s => s.seat === seatVal);
-            document.getElementById('sr-identity-display').innerText = `${classVal}班 ${seatVal}號 ${studentInfo.name}`;
-
-            // 載入該學生之前的評分草稿 (如果有的話)
-            const myId = `${classVal}-${seatVal}`;
-            const topic = state.reviewTopic.title;
-            
-            if (state.peerReviews && state.peerReviews[topic] && state.peerReviews[topic][myId]) {
-                state.currentDraftReviews = { ...state.peerReviews[topic][myId] };
+            if (hasVoted) {
+                activeDiv.classList.add('hidden');
+                closedDiv.classList.add('hidden');
+                votedDiv.classList.remove('hidden');
             } else {
-                state.currentDraftReviews = {};
-            }
-
-            document.getElementById('student-review-step-1').classList.add('hidden');
-            document.getElementById('student-review-step-2').classList.remove('hidden');
-            
-            renderStudentReviewList();
-        };
-
-        window.cancelStudentReview = function() {
-            state.reviewStudentClass = '';
-            state.reviewStudentSeat = '';
-            state.currentDraftReviews = {};
-            renderStudentReviewInit();
-        };
-
-        window.renderStudentReviewList = function() {
-            const listDiv = document.getElementById('sr-classmates-list');
-            listDiv.innerHTML = '';
-            
-            const classVal = state.reviewStudentClass;
-            const mySeat = state.reviewStudentSeat;
-            const classmates = state.studentsByClass[classVal] || [];
-
-            classmates.forEach(peer => {
-                if (peer.seat === mySeat) return; // 排除自己
-
-                const peerId = peer.id;
-                const currentScore = state.currentDraftReviews[peerId] || 0;
+                closedDiv.classList.add('hidden');
+                votedDiv.classList.add('hidden');
+                activeDiv.classList.remove('hidden');
                 
-                // 產生 5 顆星星的 HTML (使用 Radio 按鈕隱藏技巧)
-                let starsHtml = '';
-                for(let i = 5; i >= 1; i--) {
-                    const isChecked = currentScore === i ? 'checked' : '';
-                    starsHtml += `
-                        <input type="radio" id="star-${peerId}-${i}" name="rating-${peerId}" value="${i}" ${isChecked} onchange="setReviewScore('${peerId}', ${i})">
-                        <label for="star-${peerId}-${i}">★</label>
-                    `;
-                }
-
-                const rowHtml = `
-                    <div class="review-row">
-                        <div class="font-bold text-lg text-gray-800">
-                            <span style="background: var(--gray-100); padding: 0.2rem 0.5rem; border-radius: 0.5rem; color: var(--gray-500); font-size: 0.9rem; margin-right: 0.5rem;">${peer.seat}</span>
-                            ${peer.name}
-                        </div>
-                        <div class="star-rating">
-                            ${starsHtml}
-                        </div>
-                    </div>
-                `;
-                listDiv.innerHTML += rowHtml;
-            });
-        };
-
-        window.setReviewScore = function(peerId, score) {
-            state.currentDraftReviews[peerId] = score;
-        };
-
-        window.submitPeerReviews = async function() {
-            const topic = state.reviewTopic.title;
-            const myId = `${state.reviewStudentClass}-${state.reviewStudentSeat}`;
-
-            if (Object.keys(state.currentDraftReviews).length === 0) {
-                window.showCustomAlert("提示", "您還沒有為任何同學評分喔！", "⚠️");
-                return;
+                document.getElementById('sr-target-display').innerText = state.voteSession.targetName;
+                
+                // 重置選項與文字
+                document.querySelectorAll('input[name="rating"]').forEach(el => el.checked = false);
+                const praiseEl = document.getElementById('sr-praise-text');
+                praiseEl.innerText = '請點擊星星給予評價！';
+                praiseEl.style.color = 'var(--gray-500)';
             }
+        };
 
-            if (!state.peerReviews) state.peerReviews = {};
-            if (!state.peerReviews[topic]) state.peerReviews[topic] = {};
-
-            // 將草稿寫入全域狀態
-            state.peerReviews[topic][myId] = { ...state.currentDraftReviews };
-
-            const success = await saveData(false);
+        window.submitVote = async function() {
+            const rating = document.querySelector('input[name="rating"]:checked');
+            if (!rating) return window.showCustomAlert('提示', '請先點擊星星打分數喔！', '⚠️');
+            
+            const score = parseInt(rating.value);
+            const targetId = state.voteSession.targetId;
+            
+            if (!state.voteResults) state.voteResults = {};
+            if (!state.voteResults[targetId]) state.voteResults[targetId] = {};
+            
+            state.voteResults[targetId][window.machineId] = score;
+            
+            const success = await saveData(true);
             if (success) {
                 window.shootConfetti();
-                window.showCustomAlert("送出成功", "太棒了！您的評分已經成功送出給老師囉！", "✅");
-                renderStudentReviewInit(); // 回到起始畫面
+                renderStudentReviewInit();
+            } else {
+                window.showCustomAlert('錯誤', '網路異常，請再試一次', '❌');
+                delete state.voteResults[targetId][window.machineId];
             }
         };
 
@@ -2345,33 +2256,66 @@
         };
 
         // ==========================================
-        // 老師後台邏輯 (互評管理系統)
+        // 老師後台邏輯 (互評管理系統 - 單人模式)
         // ==========================================
+        window.onTRTargetClassChange = function() {
+            const classVal = document.getElementById('tr-target-class').value;
+            const seatSelect = document.getElementById('tr-target-seat');
+            seatSelect.innerHTML = '';
+            if(classVal && state.studentsByClass[classVal]) {
+                state.studentsByClass[classVal].forEach(s => {
+                    seatSelect.innerHTML += `<option value="${s.seat}">${s.seat}號 - ${s.name}</option>`;
+                });
+            }
+        };
+
         window.renderTeacherReviewInit = function() {
-            const topicInput = document.getElementById('tr-topic-input');
+            const classSelect = document.getElementById('tr-target-class');
+            const seatSelect = document.getElementById('tr-target-seat');
             const btnOpen = document.getElementById('btn-tr-open');
             const btnClose = document.getElementById('btn-tr-close');
             const badge = document.getElementById('tr-status-badge');
-            
-            topicInput.value = state.reviewTopic.title;
 
-            if (state.reviewTopic.isActive) {
-                badge.innerText = "🟢 目前狀態：開放學生評分中";
+            // 確保設定用的下拉選單有資料
+            if(classSelect.options.length === 0) {
+                state.classList.forEach(c => {
+                    const isSelected = c === state.activeClass ? 'selected' : '';
+                    classSelect.innerHTML += `<option value="${c}" ${isSelected}>${c} 班</option>`;
+                });
+                window.onTRTargetClassChange();
+            }
+
+            if (state.voteSession.isActive) {
+                badge.innerText = "🟢 目前狀態：開放全班投票中";
                 badge.style.backgroundColor = "var(--success-bg)";
                 badge.style.color = "var(--success)";
-                topicInput.disabled = true;
+                
+                // 還原當前正在投票的對象
+                if (state.voteSession.targetId) {
+                    const parts = state.voteSession.targetId.split('-');
+                    if(parts.length === 2) {
+                        classSelect.value = parts[0];
+                        window.onTRTargetClassChange();
+                        seatSelect.value = parts[1];
+                    }
+                }
+                
+                classSelect.disabled = true;
+                seatSelect.disabled = true;
                 btnOpen.classList.add('hidden');
                 btnClose.classList.remove('hidden');
             } else {
-                badge.innerText = "🔴 目前狀態：已關閉評分";
+                badge.innerText = "🔴 目前狀態：已關閉投票";
                 badge.style.backgroundColor = "var(--gray-100)";
                 badge.style.color = "var(--gray-500)";
-                topicInput.disabled = false;
+                
+                classSelect.disabled = false;
+                seatSelect.disabled = false;
                 btnOpen.classList.remove('hidden');
                 btnClose.classList.add('hidden');
             }
 
-            // 初始化班級選單
+            // 初始化結果查看用的班級選單
             const trClassSelect = document.getElementById('tr-class-select');
             trClassSelect.innerHTML = '';
             state.classList.forEach(c => {
@@ -2383,30 +2327,32 @@
         };
 
         window.toggleReviewStatus = function(setToActive) {
-            const title = document.getElementById('tr-topic-input').value.trim();
-            if (setToActive && !title) {
-                window.showCustomAlert("提示", "請先輸入要開放評分的主題名稱！", "⚠️");
-                return;
-            }
-
             if (setToActive) {
-                window.showCustomConfirm("開放評分", `確定要開放主題「${title}」讓學生評分嗎？`, () => {
-                    state.reviewTopic = { title: title, isActive: true };
-                    if (!state.peerReviews) state.peerReviews = {};
-                    if (!state.peerReviews[title]) state.peerReviews[title] = {};
+                const classVal = document.getElementById('tr-target-class').value;
+                const seatVal = document.getElementById('tr-target-seat').value;
+                
+                if (!classVal || !seatVal) return window.showCustomAlert('錯誤', '請選擇要評分的同學！', '⚠️');
+                
+                const student = state.studentsByClass[classVal].find(s => s.seat === seatVal);
+                
+                window.showCustomConfirm("開放投票", `確定要開放全班為「${student.name}」打分數嗎？`, () => {
+                    state.voteSession = { 
+                        targetId: student.id, 
+                        targetName: `${classVal}班 ${seatVal}號 ${student.name}`,
+                        isActive: true 
+                    };
                     saveData(false);
                     renderTeacherReviewInit();
                 });
             } else {
-                window.showCustomConfirm("關閉評分", "確定要關閉目前的評分主題嗎？學生將無法繼續打分數。", () => {
-                    state.reviewTopic.isActive = false;
+                window.showCustomConfirm("關閉投票", "確定要關閉目前的投票嗎？學生將無法繼續打分數。", () => {
+                    state.voteSession.isActive = false;
                     saveData(false);
                     renderTeacherReviewInit();
                 });
             }
         };
 
-        // 新增：處理互評排序切換
         window.setReviewSort = function(mode) {
             state.reviewSortMode = mode;
             document.getElementById('btn-sort-seat').classList.toggle('active', mode === 'seat');
@@ -2420,30 +2366,18 @@
             const tbody = document.getElementById('tr-results-tbody');
             tbody.innerHTML = '';
 
-            const topic = state.reviewTopic.title;
             const students = state.studentsByClass[targetClass] || [];
+            const currentResults = state.voteResults || {};
             
-            // 如果沒有主題或沒有資料
-            if (!topic || !state.peerReviews || !state.peerReviews[topic]) {
-                tbody.innerHTML = `<tr><td colspan="4" class="text-center text-gray-500 font-bold py-4">目前尚無此主題的評分資料</td></tr>`;
-                return;
-            }
-
-            const currentTopicReviews = state.peerReviews[topic];
-            
-            // 1. 計算所有人的分數並存入陣列
             let results = students.map(student => {
                 let totalScore = 0;
                 let reviewCount = 0;
 
-                for (let reviewerId in currentTopicReviews) {
-                    // 確保評分者和被評分者同班
-                    if (reviewerId.startsWith(targetClass)) {
-                        const scoreGiven = currentTopicReviews[reviewerId][student.id];
-                        if (scoreGiven) {
-                            totalScore += scoreGiven;
-                            reviewCount++;
-                        }
+                const studentVotes = currentResults[student.id];
+                if (studentVotes) {
+                    for (let mac in studentVotes) {
+                        totalScore += studentVotes[mac];
+                        reviewCount++;
                     }
                 }
 
@@ -2452,23 +2386,21 @@
                 return { student, reviewCount, avgNum, avgStr };
             });
 
-            // 2. 根據目前模式排序 (座號 / 分數)
+            // 排序邏輯
             if (state.reviewSortMode === 'score') {
                 results.sort((a, b) => {
-                    if (b.avgNum !== a.avgNum) return b.avgNum - a.avgNum; // 分數由高到低
-                    if (b.reviewCount !== a.reviewCount) return b.reviewCount - a.reviewCount; // 同分時，評分人數多的優先
-                    return parseInt(a.student.seat) - parseInt(b.student.seat); // 同分同人數則依座號
+                    if (b.avgNum !== a.avgNum) return b.avgNum - a.avgNum; 
+                    if (b.reviewCount !== a.reviewCount) return b.reviewCount - a.reviewCount; 
+                    return parseInt(a.student.seat) - parseInt(b.student.seat); 
                 });
             } else {
-                results.sort((a, b) => parseInt(a.student.seat) - parseInt(b.student.seat)); // 預設依座號排序
+                results.sort((a, b) => parseInt(a.student.seat) - parseInt(b.student.seat)); 
             }
 
-            // 3. 渲染至畫面
             let currentRank = 1;
             results.forEach((item) => {
                 let rankDisplay = '';
                 
-                // 只有在「分數排名」模式，且有人幫他評分時才顯示名次與獎牌
                 if (state.reviewSortMode === 'score' && item.reviewCount > 0) {
                     if (currentRank === 1) rankDisplay = '<span style="font-size: 1.5rem;" title="第一名">🥇</span> ';
                     else if (currentRank === 2) rankDisplay = '<span style="font-size: 1.5rem;" title="第二名">🥈</span> ';
@@ -2785,9 +2717,9 @@
                         }
 
                         state.drawnStudents = data.drawnStudents || {};
-                        // 同儕互評狀態初始化
-                        state.reviewTopic = data.reviewTopic || { title: "", isActive: false };
-                        state.peerReviews = data.peerReviews || {};
+                        // 單人同儕互評狀態初始化
+                        state.voteSession = data.voteSession || { targetId: '', targetName: '', isActive: false };
+                        state.voteResults = data.voteResults || {};
 
                         populateWeekDropdown();
                         
@@ -2819,6 +2751,7 @@
                         if (state.view === 'teacher') renderTeacherView();
                         if (state.view === 'wheel') renderWheelView();
                         if (state.view === 'teacherReview') renderTeacherReviewInit();
+                        if (state.view === 'studentReview') renderStudentReviewInit();
                     } else {
                         state.studentsByClass = parseInitialData();
                         saveData(true); 
